@@ -38,10 +38,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/infamous/motor.git"
+    "url": "git+https://github.com/trusktr/lowclass.git"
   },
   "bugs": {
-    "url": "https://github.com/infamous/motor/issues"
+    "url": "https://github.com/trusktr/lowclass/issues"
   },
   "keywords": [
     "classes",
