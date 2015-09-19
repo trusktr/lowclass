@@ -1,6 +1,6 @@
 Package.describe({
   name: 'trusktr:lowclass',
-  version: '1.0.0',
+  version: '1.0.2',
   summary: 'Low-complexity class inheritance.',
   git: 'https://github.com/infamous/motor.git'
 });
