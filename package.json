@@ -1,6 +1,6 @@
 {
   "name": "lowclass",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Low-complexity class inheritance.",
   "format": "es5",
   "main": "index.js",
