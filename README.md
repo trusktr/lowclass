@@ -29,8 +29,8 @@ var HairyCreature = Class('HairyCreature', {
     },
 })
 
-var something = new HairyCreature
-something.makeSound()
+var creature = new HairyCreature
+creature.makeSound()
 ```
 
 **In ES5:**
@@ -49,8 +49,30 @@ var HairyCreature = Class('HairyCreature', {
     },
 })
 
-var something = new HairyCreature
-something.makeSound()
+var creature = new HairyCreature
+creature.makeSound()
+```
+
+### Pure ES5
+
+`lowclass` creates pure ES5 classes, meaning the result of the above examples
+is functionally equivalent to writing
+
+```js
+function HairyCreature() {
+    Object.apply(this, arguments)
+    this.furColor = 'white'
+}
+
+HairyCreature.prototype = Object.create(Object.prototype)
+HairyCreature.prototype.constructor = Object
+
+HairyCreature.prototype.makeSound = function makeSound() {
+    console.log('ooooooowwhaaaa!')
+}
+
+var creature = new HairyCreature
+creature.makeSound()
 ```
 
 ### Extending classes
