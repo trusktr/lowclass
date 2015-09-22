@@ -38,7 +38,7 @@ function Extends(parentClass, body) {
         }
 
     // keep a ref to the new class' constructor.
-    var newClass = body.constructor
+    let newClass = body.constructor
 
     // the new class extends the parentClass
     newClass.prototype = Object.create(parentClass.prototype)
@@ -57,10 +57,15 @@ function Extends(parentClass, body) {
     // ```
     //
     // without having to import the super class.
+    //
+    // TODO: Should we copy getters and setters? Reading and writing those
+    // might cause unexpected behavior.
     if (Class.superHelper) {
         newClass.prototype.super = parentClass
-        for (var key in parentClass.prototype) // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
-            newClass.prototype.super[key] = parentClass.prototype[key]
+        for (let key in parentClass.prototype) { // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
+            let descriptor = Object.getOwnPropertyDescriptor(parentClass.prototype, key)
+            Object.defineProperty(newClass.prototype.super, key, descriptor)
+        }
     }
 
     // apply all the properties and methods from the new class'
@@ -68,8 +73,10 @@ function Extends(parentClass, body) {
     // the constructor from the body so we don't have to check for
     // it in the iteration, for performance.
     delete body.constructor
-    for (var key in body) // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
-        newClass.prototype[key] = body[key]
+    for (let key in body) { // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
+        let descriptor = Object.getOwnPropertyDescriptor(body, key)
+        Object.defineProperty(newClass.prototype, key, descriptor)
+    }
 
     return newClass
 }
@@ -81,7 +88,7 @@ function Extends(parentClass, body) {
  */
 function Class(name, body) {
     className = name || ''
-    var wrath = null
+    let wrath = null
 
     if (!body) // Supplying no body means an extends call will be chained.
         wrath = { extends: Extends }
