@@ -18,8 +18,8 @@ methods of your new class.
 ```js
 var HairyCreature = Class('HairyCreature', {
     HairyCreature() { // constructor
-        // this.super is Object for base classes.
-        this.super.apply(this, arguments)
+        // this.super() is Object for base classes.
+        this.super().apply(this, arguments)
 
         this.furColor = 'white'
     },
@@ -38,8 +38,8 @@ creature.makeSound()
 ```js
 var HairyCreature = Class('HairyCreature', {
     HairyCreature: function HairyCreature() { // constructor
-        // this.super is Object for base classes.
-        this.super.apply(this, arguments)
+        // this.super() is Object for base classes.
+        this.super().apply(this, arguments)
 
         this.furColor = 'white'
     },
@@ -86,7 +86,7 @@ your are extending and the body of your new class.
 ```js
 var Dog = Class('Dog').extends(HairyCreature, {
     Dog() { // constructor
-        this.super.apply(this, arguments)
+        this.super().apply(this, arguments)
         this.barkSound = 'woof!'
         this.furColor = 'brown'
     },
@@ -102,7 +102,7 @@ var Dog = Class('Dog').extends(HairyCreature, {
 ```js
 var Dog = Class('Dog').extends(HairyCreature, {
     Dog: function: Dog() { // constructor
-        this.super.apply(this, arguments)
+        this.super().apply(this, arguments)
         this.barkSound = 'woof!'
         this.furColor = 'brown'
     },
@@ -176,7 +176,7 @@ functionality of the program:
 ```js
 var Something = Class('Something', {
     Something: function() {
-        this.super.call(this)
+        this.super().call(this)
     },
     saySomething: function saySomething() {
         console.log('something')
@@ -194,25 +194,26 @@ var Something = Class('Something', {
 
 ### Accessing the super class
 
-By default, a property called `super` will be set onto a new class' prototype
-for convenience, as seen in the previous examples. Change the value of
-`Class.superHelper` to `false` to disable the feature.
+When Class.useSuperHelper is set to true (false by default), a method called
+`super` will be set onto a new class' prototype for convenience, as seen in the
+previous examples. Change the value of `Class.useSuperHelper` to `true` to
+enable the feature. The feature only works in non-strict modes.
 
-`this.super` can be convenient for accessing the super constructor, as well as
-all the properties and methods of the super class. F.e., while
-`Class.superHelper` is `true` (the default value), we can write the Dog's
+Calling `this.super()` can be convenient for accessing the super constructor,
+as well as all the properties and methods of the current class' super class.
+F.e., while `Class.useSuperHelper` is `true`, we can write the Dog's
 `saySomething` method like so:
 
 ```js
     saySomething() {
         // call the same method of the super class.
-        this.super.saySomething.call(this)
+        this.super().saySomething.call(this)
 
         console.log(this.barkSound)
     },
 ```
 
-While `Class.superHelper` is `false`, we can write `saySomething` as:
+While `Class.useSuperHelper` is `false`, we would normally write `saySomething` as:
 
 ```js
     saySomething() {
@@ -223,10 +224,10 @@ While `Class.superHelper` is `false`, we can write `saySomething` as:
     },
 ```
 
-With `Class.superHelper` as `false`, the original Dog example could be written as:
+With `Class.useSuperHelper` as `false`, the original Dog example could be written as:
 
 ```js
-Class.superHelper = false
+Class.useSuperHelper = false
 
 var Dog = Class('Dog').extends(HairyCreature, {
     Dog() {
