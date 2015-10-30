@@ -10,7 +10,7 @@
  * made for you a la ES6 (it calls super() for you).
  */
 
-// Holds the name of the new class being created whenever Class is called, in order for Extends to use it.
+// Holds the name of the new class being created whenever Class is called, in order for extend() to use it.
 let className = ''
 
 /**
@@ -19,23 +19,31 @@ let className = ''
  * property, then that becomes the constructor for the class, otherwise a
  * default constructor is created similarly to ES6 classes.
  *
- * Note: the name "Extends" is capitalized because "extends" is a reserved word.
- *
  * @param {Function} parentClass The class that the new class will extend from.
  * @param {ClassBody} body The body that will be the properties and methods of the new class.
  * @return {Function} The new class constructor function.
  */
-function Extends(parentClass, body) {
+function extend(parentClass, body) {
     // set a default constructor if one wasn't supplied, similar to ES6
     // classes. Default constructors in ES6 call super() automatically.
-    if (!body.hasOwnProperty('constructor'))
+    if (!body.hasOwnProperty('constructor')) {
         if (body[className]) {
             body.constructor = body[className]
             delete body[className]
         }
         else {
-            body.constructor = function() { parentClass.apply(this, arguments) }
+            // Here we create the default named constructor.  Note that errors
+            // in this constructor might be hard to debug since the definition
+            // will appear in a random VMXXXX in Chrome Inspector's Sources
+            // tab.
+            body.constructor = new Function('parentClass', `
+                return function ${className}() {
+                    parentClass.apply(this, arguments)
+                }
+            `)(parentClass)
+            //body.constructor = function() { parentClass.apply(this, arguments) }
         }
+    }
 
     // keep a ref to the new class' constructor.
     let newClass = body.constructor
@@ -44,30 +52,38 @@ function Extends(parentClass, body) {
     newClass.prototype = Object.create(parentClass.prototype)
     newClass.prototype.constructor = newClass
 
-    // Set the super class on the prototype for convenience, as well as
-    // properties and methods. This lets us do, f.e.:
+    // Set the super helper. This lets us do, f.e.:
     //
     // ```
-    // this.super.apply(this, arguments)
+    // this.super().apply(this, arguments)
     // ```
     //
     // or
     //
     // ```
-    // this.super.someMethod.apply(this, arguments)
+    // this.super().someMethod.apply(this, arguments)
     // ```
     //
     // without having to import the super class.
     //
     // TODO: Should we copy getters and setters? Reading and writing those
     // might cause unexpected behavior.
-    if (Class.superHelper) {
-        newClass.prototype.super = parentClass
+    if (Class.useSuperHelper) {
+        //newClass.prototype.super = parentClass
+        function superHelper() {
+            return superHelper.caller.ownerClass
+        }
+        newClass.prototype.super = superHelper
+        // XXX: use getOwnPropertyNames instead? The super helper might need it
+        // in order to work with non-enumerable properties.
         let keys = Object.keys(parentClass.prototype)
         let i = keys.length
         while (i--) { // This iteration on Object.keys is faster than all others by a ton (f.e. way faster than for..in), see https://gist.github.com/trusktr/d7e7a9d1161dd5a7971e.
             let descriptor = Object.getOwnPropertyDescriptor(parentClass.prototype, keys[i])
-            Object.defineProperty(newClass.prototype.super, keys[i], descriptor)
+            Object.defineProperty(parentClass, keys[i], descriptor)
+
+            if (descriptor.value instanceof Function)
+                descriptor.value.ownerClass = parentClass
         }
     }
 
@@ -93,16 +109,14 @@ function Extends(parentClass, body) {
  */
 function Class(name, body) {
     className = name || ''
-    let wrath = null
 
-    if (!body) // Supplying no body means an extends call will be chained.
-        wrath = { extends: Extends }
-    else if (body) // supplying a body means we're defining a new class, not extending anything.
-        wrath = Extends(Object, body)
-
-    return wrath
+    if (!body) // Supplying no body means a .extends() call will be chained.
+        return { extends: extend }
+    else if (body) // supplying a body means we're defining a new class, extending Object by default.
+        return extend(Object, body)
 }
 
-Class.superHelper = true // user the super helper by default.
+// Don't use the super helper by default. Note, it only works in non-strict modes.
+Class.useSuperHelper = false
 
 module.exports = Class
