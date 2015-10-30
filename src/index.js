@@ -44,7 +44,8 @@ function Extends(parentClass, body) {
     newClass.prototype = Object.create(parentClass.prototype)
     newClass.prototype.constructor = newClass
 
-    // Set the super class on the prototype for convenience, as well as properties and methods. This lets us do, f.e.:
+    // Set the super class on the prototype for convenience, as well as
+    // properties and methods. This lets us do, f.e.:
     //
     // ```
     // this.super.apply(this, arguments)
@@ -62,9 +63,11 @@ function Extends(parentClass, body) {
     // might cause unexpected behavior.
     if (Class.superHelper) {
         newClass.prototype.super = parentClass
-        for (let key in parentClass.prototype) { // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
-            let descriptor = Object.getOwnPropertyDescriptor(parentClass.prototype, key)
-            Object.defineProperty(newClass.prototype.super, key, descriptor)
+        let keys = Object.keys(parentClass.prototype)
+        let i = keys.length
+        while (i--) { // This iteration on Object.keys is faster than all others by a ton (f.e. way faster than for..in), see https://gist.github.com/trusktr/d7e7a9d1161dd5a7971e.
+            let descriptor = Object.getOwnPropertyDescriptor(parentClass.prototype, keys[i])
+            Object.defineProperty(newClass.prototype.super, keys[i], descriptor)
         }
     }
 
@@ -73,9 +76,11 @@ function Extends(parentClass, body) {
     // the constructor from the body so we don't have to check for
     // it in the iteration, for performance.
     delete body.constructor
-    for (let key in body) { // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
-        let descriptor = Object.getOwnPropertyDescriptor(body, key)
-        Object.defineProperty(newClass.prototype, key, descriptor)
+    let keys = Object.keys(body)
+    let i = keys.length
+    while (i--) { // for..in is faster than a vanilla loop on Object.getOwnPropertyNames(body)
+        let descriptor = Object.getOwnPropertyDescriptor(body, keys[i])
+        Object.defineProperty(newClass.prototype, keys[i], descriptor)
     }
 
     return newClass
