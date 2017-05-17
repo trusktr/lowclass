@@ -5,6 +5,7 @@ const privateProtoPublicProtoMap = new WeakMap
 const instanceProtectedMap = new WeakMap
 const protectedInstancePublicInstanceMap = new WeakMap
 const privateInstancePublicInstanceMap = new WeakMap
+const protectedInstancePrivateInstanceMap = new WeakMap
 
 /**
  * @param {string} definer Function for defining a class...
@@ -28,8 +29,18 @@ function Class(className, definer) {
         throw new Error('Invalid parent class.')
 
     function protectedGetter(instance) {
-        if (!(instance instanceof NewClass || instance instanceof dummyProtectedCtor))
-            throw new Error('Invalid access.')
+        console.log('@@@@ protectedGetter', instance)
+        if (!(
+            instance instanceof NewClass ||
+            instance instanceof dummyProtectedCtor ||
+            Object.getPrototypeOf(instance) === privatePrototype
+        )) {
+            throw new Error('Invalid access of protected member.')
+        }
+
+        if (Object.getPrototypeOf(instance) === privatePrototype) {
+            return protectedGetter(privateInstancePublicInstanceMap.get(instance))
+        }
 
         let currentPublicPrototype
         if (instance instanceof NewClass) {
@@ -60,12 +71,26 @@ function Class(className, definer) {
     }
 
     const publicPrototype = Object.create(ParentClass.prototype)
+    const parentProtected = publicProtoProtectedProtoMap.get(ParentClass.prototype) || {}
+    const protectedPrototype = Object.create(parentProtected)
+    function dummyProtectedCtor() {}
+    dummyProtectedCtor.prototype = protectedPrototype
     const privatePrototype = {}
 
     const instancePrivatesMap = new WeakMap
     function privatesGetter(instance) {
-        if (!(Object.getPrototypeOf(instance) === publicPrototype || Object.getPrototypeOf(instance) === privatePrototype))
-            throw new Error('Invalid access.')
+        console.log('@@@@ privatesGetter')
+        if (!(
+            Object.getPrototypeOf(instance) === publicPrototype ||
+            Object.getPrototypeOf(instance) === privatePrototype ||
+            Object.getPrototypeOf(instance) === protectedPrototype
+        )) {
+            throw new Error('Invalid access of private member.')
+        }
+
+        if (Object.getPrototypeOf(instance) === protectedPrototype) {
+            return privatesGetter(protectedInstancePublicInstanceMap.get(instance))
+        }
 
         let privates = instancePrivatesMap.get(instance)
         let publics = privateInstancePublicInstanceMap.get(instance)
@@ -85,12 +110,6 @@ function Class(className, definer) {
 
         return privates
     }
-
-    const parentProtected = publicProtoProtectedProtoMap.get(ParentClass.prototype) || {}
-
-    const protectedPrototype = Object.create(parentProtected)
-    function dummyProtectedCtor() {}
-    dummyProtectedCtor.prototype = protectedPrototype
 
     const def = definer(publicPrototype, protectedGetter, privatesGetter)
 
