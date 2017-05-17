@@ -10,7 +10,7 @@
   "homepage": "http://github.com/trusktr/clath",
   "scripts": {
     "test": "echo 'TODO: Make tests.' && exit 1",
-    "clean": "mkdir save && mv webpack.config.js save && rm -rf ./*.js ./*.js.map && mv save/* . && rmdir save",
+    "clean": "mkdir save && mv webpack.config.js test.js save && rm -rf ./*.js ./*.js.map && mv save/* . && rmdir save",
     "prepublish": "npm run build-cjs",
     "build-umd": "babel src --source-maps --out-dir . --modules umd",
     "build-cjs": "babel src --source-maps --out-dir . --modules common",
