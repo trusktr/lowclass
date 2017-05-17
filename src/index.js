@@ -5,7 +5,6 @@ const privateProtoPublicProtoMap = new WeakMap
 const instanceProtectedMap = new WeakMap
 const protectedInstancePublicInstanceMap = new WeakMap
 const privateInstancePublicInstanceMap = new WeakMap
-const protectedInstancePrivateInstanceMap = new WeakMap
 
 /**
  * @param {string} definer Function for defining a class...
@@ -29,7 +28,6 @@ function Class(className, definer) {
         throw new Error('Invalid parent class.')
 
     function protectedGetter(instance) {
-        console.log('@@@@ protectedGetter', instance)
         if (!(
             instance instanceof NewClass ||
             instance instanceof dummyProtectedCtor ||
@@ -79,11 +77,10 @@ function Class(className, definer) {
 
     const instancePrivatesMap = new WeakMap
     function privatesGetter(instance) {
-        console.log('@@@@ privatesGetter')
         if (!(
-            Object.getPrototypeOf(instance) === publicPrototype ||
-            Object.getPrototypeOf(instance) === privatePrototype ||
-            Object.getPrototypeOf(instance) === protectedPrototype
+            instance instanceof NewClass ||
+            instance instanceof dummyProtectedCtor ||
+            Object.getPrototypeOf(instance) === privatePrototype
         )) {
             throw new Error('Invalid access of private member.')
         }
@@ -117,9 +114,9 @@ function Class(className, definer) {
     copyDescriptors(privatesGetter, privatePrototype)
 
     if (typeof def == 'object') {
-        copyDescriptors(def.public, publicPrototype)
-        copyDescriptors(def.protected, protectedPrototype)
-        copyDescriptors(def.private, privatePrototype)
+        if (typeof def.public == 'object') copyDescriptors(def.public, publicPrototype)
+        if (typeof def.protected == 'object') copyDescriptors(def.protected, protectedPrototype)
+        if (typeof def.private == 'object') copyDescriptors(def.private, privatePrototype)
         delete def.public
         delete def.protected
         delete def.private
@@ -135,7 +132,6 @@ function Class(className, definer) {
     }
 
     const originalConstructor = publicPrototype.constructor
-    console.log('original', originalConstructor)
 
     var NewClass = new Function('originalConstructor', `
         return function ${className}() {
