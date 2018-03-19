@@ -18,16 +18,14 @@ function Class(className, definerFunction) {
         definerFunction = className
         className = definerFunction.name || ''
     }
-    else if (typeof className != 'string' || typeof definerFunction != 'function')
-        throw new TypeError('Invalid args.')
 
-    if (!definerFunction || typeof definerFunction != 'function')
-        throw new TypeError('You must specify a function for the definerFunction argument.')
+    if (typeof className != 'string')
+        throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a named function.`)
+
+    if (typeof definerFunction != 'function')
+        throw new TypeError('If supplying two arguments, you must specify a function for the second `definerFunction` argument. If supplying only one argument, it must be a named function.')
 
     const ParentClass = this || Object
-
-    if (typeof ParentClass != 'function')
-        throw new TypeError('Invalid parent class.')
 
     function getProtectedMembers(instance) {
         if (!(
