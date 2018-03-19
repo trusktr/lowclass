@@ -6,6 +6,8 @@ const instanceProtectedMap = new WeakMap
 const protectedInstancePublicInstanceMap = new WeakMap
 const privateInstancePublicInstanceMap = new WeakMap
 
+class InvalidAccessError extends Error {}
+
 /**
  * @param {string} definer Function for defining a class...
  */
@@ -17,15 +19,15 @@ function Class(className, definer) {
         className = definer.name || ''
     }
     else if (typeof className != 'string' || typeof definer != 'function')
-        throw new Error('Invalid args.')
+        throw new TypeError('Invalid args.')
 
     if (!definer || typeof definer != 'function')
-        throw new Error('You must specify a definer function.')
+        throw new TypeError('You must specify a definer function.')
 
     const ParentClass = this || Object
 
     if (typeof ParentClass != 'function')
-        throw new Error('Invalid parent class.')
+        throw new TypeError('Invalid parent class.')
 
     function protectedGetter(instance) {
         if (!(
@@ -33,7 +35,7 @@ function Class(className, definer) {
             instance instanceof dummyProtectedCtor ||
             Object.getPrototypeOf(instance) === privatePrototype
         )) {
-            throw new Error('Invalid access of protected member.')
+            throw new InvalidAccessError('Invalid access of protected member.')
         }
 
         if (Object.getPrototypeOf(instance) === privatePrototype) {
@@ -82,7 +84,7 @@ function Class(className, definer) {
             instance instanceof dummyProtectedCtor ||
             Object.getPrototypeOf(instance) === privatePrototype
         )) {
-            throw new Error('Invalid access of private member.')
+            throw new InvalidAccessError('Invalid access of private member.')
         }
 
         if (Object.getPrototypeOf(instance) === protectedPrototype) {
@@ -163,3 +165,4 @@ function copyDescriptors(source, destination) {
 }
 
 module.exports = Class
+module.exports.InvalidAccessError = InvalidAccessError
