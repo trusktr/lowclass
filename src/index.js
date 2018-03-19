@@ -1,45 +1,45 @@
-const publicProtoProtectedProtoMap = new WeakMap
-const protectedProtoPublicProtoMap = new WeakMap
-const privateProtoPublicProtoMap = new WeakMap
+const publicPrototypeToProtectedPrototypeMap = new WeakMap
+const protectedPrototypeToPublicPrototypeMap = new WeakMap
+const privatePrototypeToPublicPrototypeMap = new WeakMap
 
-const instanceProtectedMap = new WeakMap
-const protectedInstancePublicInstanceMap = new WeakMap
-const privateInstancePublicInstanceMap = new WeakMap
+const publicInstanceToProtectedInstanceMap = new WeakMap
+const protectedInstanceToPublicInstanceMap = new WeakMap
+const privateInstanceToPublicInstanceMap = new WeakMap
 
 class InvalidAccessError extends Error {}
 
 /**
- * @param {string} definer Function for defining a class...
+ * @param {string} definerFunction Function for defining a class...
  */
-function Class(className, definer) {
+function Class(className, definerFunction) {
     "use strict"
 
-    if (typeof className == 'function' && !definer) {
-        definer = className
-        className = definer.name || ''
+    if (typeof className == 'function' && !definerFunction) {
+        definerFunction = className
+        className = definerFunction.name || ''
     }
-    else if (typeof className != 'string' || typeof definer != 'function')
+    else if (typeof className != 'string' || typeof definerFunction != 'function')
         throw new TypeError('Invalid args.')
 
-    if (!definer || typeof definer != 'function')
-        throw new TypeError('You must specify a definer function.')
+    if (!definerFunction || typeof definerFunction != 'function')
+        throw new TypeError('You must specify a function for the definerFunction argument.')
 
     const ParentClass = this || Object
 
     if (typeof ParentClass != 'function')
         throw new TypeError('Invalid parent class.')
 
-    function protectedGetter(instance) {
+    function getProtectedMembers(instance) {
         if (!(
             instance instanceof NewClass ||
             instance instanceof dummyProtectedCtor ||
-            Object.getPrototypeOf(instance) === privatePrototype
+            Object.getPrototypeOf(instance) === privatePrototype // would instance.constructor.prototype be faster here?
         )) {
             throw new InvalidAccessError('Invalid access of protected member.')
         }
 
         if (Object.getPrototypeOf(instance) === privatePrototype) {
-            return protectedGetter(privateInstancePublicInstanceMap.get(instance))
+            return getProtectedMembers(privateInstanceToPublicInstanceMap.get(instance))
         }
 
         let currentPublicPrototype
@@ -47,38 +47,38 @@ function Class(className, definer) {
             currentPublicPrototype = instance.constructor.prototype // TODO use getPrototypeOf
         }
         else {
-            currentPublicPrototype = protectedProtoPublicProtoMap.get(Object.getPrototypeOf(instance))
+            currentPublicPrototype = protectedPrototypeToPublicPrototypeMap.get(Object.getPrototypeOf(instance))
         }
 
-        const currentProtectedPrototype = publicProtoProtectedProtoMap.get(currentPublicPrototype)
-        let _protected = instanceProtectedMap.get(instance)
-        let publics = protectedInstancePublicInstanceMap.get(instance)
+        const currentProtectedPrototype = publicPrototypeToProtectedPrototypeMap.get(currentPublicPrototype)
+        let protectedInstance = publicInstanceToProtectedInstanceMap.get(instance)
+        let publicInstance = protectedInstanceToPublicInstanceMap.get(instance)
 
-        if (!_protected && !publics) {
-            _protected = Object.create(currentProtectedPrototype)
-            instanceProtectedMap.set(instance, _protected)
-            protectedInstancePublicInstanceMap.set(_protected, instance)
+        if (!protectedInstance && !publicInstance) {
+            protectedInstance = Object.create(currentProtectedPrototype)
+            publicInstanceToProtectedInstanceMap.set(instance, protectedInstance)
+            protectedInstanceToPublicInstanceMap.set(protectedInstance, instance)
         }
 
-        if (!_protected && publics) {
-            return publics
+        if (!protectedInstance && publicInstance) {
+            return publicInstance
         }
-        else if (_protected && !publics) {
-            return _protected
+        else if (protectedInstance && !publicInstance) {
+            return protectedInstance
         }
 
-        return _protected
+        return protectedInstance
     }
 
     const publicPrototype = Object.create(ParentClass.prototype)
-    const parentProtected = publicProtoProtectedProtoMap.get(ParentClass.prototype) || {}
+    const parentProtected = publicPrototypeToProtectedPrototypeMap.get(ParentClass.prototype) || {}
     const protectedPrototype = Object.create(parentProtected)
     function dummyProtectedCtor() {}
     dummyProtectedCtor.prototype = protectedPrototype
     const privatePrototype = {}
 
-    const instancePrivatesMap = new WeakMap
-    function privatesGetter(instance) {
+    const publicInstanceToPrivateInstanceMap = new WeakMap
+    function getPrivateMembers(instance) {
         if (!(
             instance instanceof NewClass ||
             instance instanceof dummyProtectedCtor ||
@@ -88,32 +88,32 @@ function Class(className, definer) {
         }
 
         if (Object.getPrototypeOf(instance) === protectedPrototype) {
-            return privatesGetter(protectedInstancePublicInstanceMap.get(instance))
+            return getPrivateMembers(protectedInstanceToPublicInstanceMap.get(instance))
         }
 
-        let privates = instancePrivatesMap.get(instance)
-        let publics = privateInstancePublicInstanceMap.get(instance)
+        let privates = publicInstanceToPrivateInstanceMap.get(instance)
+        let publicInstance = privateInstanceToPublicInstanceMap.get(instance)
 
-        if (!privates && !publics) {
+        if (!privates && !publicInstance) {
             privates = Object.create(privatePrototype)
-            instancePrivatesMap.set(instance, privates)
-            privateInstancePublicInstanceMap.set(privates, instance)
+            publicInstanceToPrivateInstanceMap.set(instance, privates)
+            privateInstanceToPublicInstanceMap.set(privates, instance)
         }
 
-        if (!privates && publics) {
-            return publics
+        if (!privates && publicInstance) {
+            return publicInstance
         }
-        else if (privates && !publics) {
+        else if (privates && !publicInstance) {
             return privates
         }
 
         return privates
     }
 
-    const def = definer(publicPrototype, protectedGetter, privatesGetter)
+    const def = definerFunction(publicPrototype, getProtectedMembers, getPrivateMembers)
 
-    copyDescriptors(protectedGetter, protectedPrototype)
-    copyDescriptors(privatesGetter, privatePrototype)
+    copyDescriptors(getProtectedMembers, protectedPrototype)
+    copyDescriptors(getPrivateMembers, privatePrototype)
 
     if (typeof def == 'object') {
         if (typeof def.public == 'object') copyDescriptors(def.public, publicPrototype)
@@ -135,6 +135,7 @@ function Class(className, definer) {
 
     const originalConstructor = publicPrototype.constructor
 
+    // `var` here, so that it is hoisted
     var NewClass = new Function('originalConstructor', `
         return function ${className}() {
             return originalConstructor.apply(this, arguments)
@@ -144,12 +145,12 @@ function Class(className, definer) {
     NewClass.subclass = Class
     NewClass.prototype = publicPrototype
 
-    // TODO: make non-writable and non-configurable like ES6
+    // TODO: make non-writable and non-configurable like ES6+
     NewClass.prototype.constructor = NewClass
 
-    publicProtoProtectedProtoMap.set(publicPrototype, protectedPrototype)
-    protectedProtoPublicProtoMap.set(protectedPrototype, publicPrototype)
-    privateProtoPublicProtoMap.set(privatePrototype, publicPrototype)
+    publicPrototypeToProtectedPrototypeMap.set(publicPrototype, protectedPrototype)
+    protectedPrototypeToPublicPrototypeMap.set(protectedPrototype, publicPrototype)
+    privatePrototypeToPublicPrototypeMap.set(privatePrototype, publicPrototype)
 
     return NewClass
 }
