@@ -7,30 +7,25 @@ JavaScript class inheritance implementation with. protected and private members.
 Usage
 -----
 
-In the following example, `_` is used in public and private methods to access
-protected members, and `__` is used in public and protected methods to access
-private members. Using `_` in a protected method returns gives you access to
-public members, and using `__` in privat methods gives you access to public
-members.
-
 ```js
 const Class = require('./src/index')
 
-const Animal = Class('Animal', (p, _, __) => ({
+const Animal = Class('Animal', (public, protected, private) => ({
 
     // anything outside the public/protected/private definitions is
-    // automatically public.
+    // automatically public. Note, constructors can only be public at the moment,
+    // but thinking about how to make them "private" or "protected".
     constructor: function(name) {
-        this.blah = "blah"
-        _(this).anything = 1234
-        __(this).name = name
+        this.blah = "blah" // public `blah` property
+        protected(this).anything = 1234
+        private(this).name = name
     },
 
     public: {
         talk: function talk() {
-            _(this).lorem = 'lorem'
-            __(this).saySecret()
-            _(this).animalMethod()
+            protected(this).lorem = 'lorem'
+            private(this).saySecret()
+            protected(this).animalMethod()
         },
     },
 
@@ -42,7 +37,6 @@ const Animal = Class('Animal', (p, _, __) => ({
     },
 
     private: {
-        foo: "foo",
         saySecret: function() {
             console.log('raaaaaawr, I am ' + this.name)
         },
@@ -65,29 +59,53 @@ const Dog = Animal.subclass(function Dog(pub, prot, priv) {
         Animal.call(this, name+'!')
         priv(this).trained = true
         prot(this).foo()
+
+        this.saySecret() // error, because there is no public saySecret method
+        priv(this).saySecret() // error, because saySecret is private in the above Animal class
     }
 
     pub.talk = function() {
         Animal.prototype.talk.call(this)
+
+        prot(this).animalMethod() // it works, protected methos is available in all sub classes.
     }
 
     prot.sound = "Woof!"
     prot.foo = function() {
-        if (prot(this).trained) console.log(priv(this).lorem + "!")
+        if (priv(this).trained) console.log(priv(this).lorem + "!")
         priv(this).downwardDog()
     }
 
     priv.lorem = "lorem"
+    priv.downwardDog = function() {
+        console.log('did downwardDog')
+    }
 })
 
 const dog = new Dog('Ranchuu')
-dog.talk()
+dog.talk() // works, talk() is public
+dog.downwardDog() // error, no public downwardDog method
+dog.animalMethod() // error, no public animalMethod method
+```
+
+It is possible to purposefull leak the public/protected/private helpers outside
+of the class definition, which recommend that you avoid. For example:
+
+```js
+let protected = null
+
+const Dog = Animal.subclass(function Dog(pub, prot, priv) {
+    protected = prot
+
+    // ... same definition as the previous class ...
+})
+
+const dog = new Dog('Ranchuu')
+
+protected(dog).animalMethod() // works, because we leaked the protected helper outside of the class definition.
+
+// There might be valid use cases for this, but be careful if you want to
+// uphold the contract of your class the consumer of the class.
 ```
 
 More details coming later...
-
-TODO
-----
-
-- [ ] Make the public parameter a public getter for use in protected/private
-  methods, which will be more intuitive.

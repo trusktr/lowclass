@@ -1,10 +1,6 @@
 const publicPrototypeToProtectedPrototypeMap = new WeakMap
-const protectedPrototypeToPublicPrototypeMap = new WeakMap
-const privatePrototypeToPublicPrototypeMap = new WeakMap
 
 const publicInstanceToProtectedInstanceMap = new WeakMap
-const protectedInstanceToPublicInstanceMap = new WeakMap
-const privateInstanceToPublicInstanceMap = new WeakMap
 
 class InvalidAccessError extends Error {}
 
@@ -27,67 +23,69 @@ function Class(className, definerFunction) {
 
     const ParentClass = this || Object
 
+    // extend the parent class
     const publicPrototype = Object.create(ParentClass.prototype)
-    const parentProtected = publicPrototypeToProtectedPrototypeMap.get(ParentClass.prototype) || {}
-    const protectedPrototype = Object.create(parentProtected)
-    function dummyProtectedCtor() {}
-    dummyProtectedCtor.prototype = protectedPrototype
+
+    // extend the parent protected prototype
+    const parentProtectedPrototype = publicPrototypeToProtectedPrototypeMap.get(ParentClass.prototype) || {}
+    const protectedPrototype = Object.create(parentProtectedPrototype)
+
+    publicPrototypeToProtectedPrototypeMap.set(publicPrototype, protectedPrototype)
+
+    // private stuff is not inherited to child class APIs, it lives only in the
+    // APIs of the class where defined, so no prototype inheritance here
     const privatePrototype = {}
 
-    const publicInstanceToPrivateInstanceMap = new WeakMap
+    const scope = {
+        privatePrototype,
+        protectedPrototype,
+    }
 
-    const scope = {}
-
+    const _getPublicMembers = getPublicMembers.bind( null, scope )
     const _getProtectedMembers = getProtectedMembers.bind( null, scope )
     const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
-    const def = definerFunction( publicPrototype, _getProtectedMembers, _getPrivateMembers)
+    const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers)
 
+    copyDescriptors(_getPublicMembers, publicPrototype)
     copyDescriptors(_getProtectedMembers, protectedPrototype)
     copyDescriptors(_getPrivateMembers, privatePrototype)
 
-    if (typeof def == 'object') {
-        if (typeof def.public == 'object') copyDescriptors(def.public, publicPrototype)
-        if (typeof def.protected == 'object') copyDescriptors(def.protected, protectedPrototype)
-        if (typeof def.private == 'object') copyDescriptors(def.private, privatePrototype)
-        delete def.public
-        delete def.protected
-        delete def.private
-        copyDescriptors(def, publicPrototype)
+    if (typeof definition == 'object') {
+        if (typeof definition.public == 'object') copyDescriptors(definition.public, publicPrototype)
+        if (typeof definition.protected == 'object') copyDescriptors(definition.protected, protectedPrototype)
+        if (typeof definition.private == 'object') copyDescriptors(definition.private, privatePrototype)
+        delete definition.public
+        delete definition.protected
+        delete definition.private
+        copyDescriptors(definition, publicPrototype)
     }
 
-    if (!publicPrototype.hasOwnProperty('constructor')) {
-        publicPrototype.constructor = new Function('ParentClass', `
-            return function ${className}() {
-                ParentClass.apply(this, arguments)
-            }
-        `)(ParentClass)
-    }
-
-    const originalConstructor = publicPrototype.constructor
-
-    const NewClass = new Function('originalConstructor', `
+    const NewClass = new Function('scope, originalContructor, publicPrototype, protectedPrototype, privatePrototype, ParentClass, publicInstanceToProtectedInstanceMap', `
         return function ${className}() {
-            return originalConstructor.apply(this, arguments)
-        }
-    `)(originalConstructor)
+            console.log('parent class', ParentClass.name)
+            if ( !scope.publicInstance ) {
+                scope.protectedInstance = Object.create( protectedPrototype )
+                scope.privateInstance = Object.create( privatePrototype )
+                scope.publicInstance = this
 
-    // so that the get*Members functions can access these.
+                console.log('map public to protected instance', this.constructor.name)
+                publicInstanceToProtectedInstanceMap.set( this, scope.protectedInstance )
+            }
+
+            if (originalContructor)
+                originalContructor.apply(this, arguments)
+            else
+                ParentClass.apply(this, arguments)
+        }
+    `)( scope, publicPrototype.constructor, publicPrototype, protectedPrototype, privatePrototype, ParentClass, publicInstanceToProtectedInstanceMap )
+
     scope.NewClass = NewClass
-    scope.dummyProtectedCtor = dummyProtectedCtor
-    scope.privatePrototype = privatePrototype
-    scope.protectedPrototype = protectedPrototype
-    scope.publicInstanceToPrivateInstanceMap = publicInstanceToPrivateInstanceMap
+
+    NewClass.prototype = publicPrototype
+    NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
 
     NewClass.subclass = Class
-    NewClass.prototype = publicPrototype
-
-    // TODO: make non-writable and non-configurable like ES6+
-    NewClass.prototype.constructor = NewClass
-
-    publicPrototypeToProtectedPrototypeMap.set(publicPrototype, protectedPrototype)
-    protectedPrototypeToPublicPrototypeMap.set(protectedPrototype, publicPrototype)
-    privatePrototypeToPublicPrototypeMap.set(privatePrototype, publicPrototype)
 
     return NewClass
 }
@@ -102,77 +100,52 @@ function copyDescriptors(source, destination) {
     }
 }
 
-function getProtectedMembers( scope, instance) {
-    if (!(
-        instance instanceof scope.NewClass ||
-        instance instanceof scope.dummyProtectedCtor ||
-        Object.getPrototypeOf(instance) === scope.privatePrototype // would instance.constructor.prototype be faster here?
-    )) {
-        throw new InvalidAccessError('Invalid access of protected member.')
+function getPublicMembers( scope, instance ) {
+
+    if (
+        instance === scope.privateInstance ||
+        instance === scope.protectedInstance
+    ) {
+        return scope.publicInstance
     }
 
-    if (Object.getPrototypeOf(instance) === scope.privatePrototype) {
-        return getProtectedMembers( scope, privateInstanceToPublicInstanceMap.get(instance))
-    }
+    else if ( instance === scope.publicInstance )
+        return instance
 
-    let currentPublicPrototype
-    if (instance instanceof scope.NewClass) {
-        currentPublicPrototype = instance.constructor.prototype // TODO use getPrototypeOf
-    }
-    else {
-        currentPublicPrototype = protectedPrototypeToPublicPrototypeMap.get(Object.getPrototypeOf(instance))
-    }
-
-    const currentProtectedPrototype = publicPrototypeToProtectedPrototypeMap.get(currentPublicPrototype)
-    let protectedInstance = publicInstanceToProtectedInstanceMap.get(instance)
-    let publicInstance = protectedInstanceToPublicInstanceMap.get(instance)
-
-    if (!protectedInstance && !publicInstance) {
-        protectedInstance = Object.create(currentProtectedPrototype)
-        publicInstanceToProtectedInstanceMap.set(instance, protectedInstance)
-        protectedInstanceToPublicInstanceMap.set(protectedInstance, instance)
-    }
-
-    if (!protectedInstance && publicInstance) {
-        return publicInstance
-    }
-    else if (protectedInstance && !publicInstance) {
-        return protectedInstance
-    }
-
-    return protectedInstance
+    throw new InvalidAccessError('invalid member access')
 }
 
-function getPrivateMembers( scope, instance) {
-    if (!(
-        instance instanceof scope.NewClass ||
-        instance instanceof scope.dummyProtectedCtor ||
-        Object.getPrototypeOf(instance) === scope.privatePrototype
-    )) {
-        throw new InvalidAccessError('Invalid access of private member.')
+function getProtectedMembers( scope, instance ) {
+
+    if (
+        instance === scope.publicInstance ||
+        instance === scope.privateInstance
+    ) {
+        return scope.protectedInstance
     }
 
-    if (Object.getPrototypeOf(instance) === scope.protectedPrototype) {
-        return getPrivateMembers( scope, protectedInstanceToPublicInstanceMap.get(instance) )
+    else if ( instance === scope.protectedInstance )
+        return instance
+
+    else if ( instance instanceof scope.NewClass ) 
+        return publicInstanceToProtectedInstanceMap.get( instance )
+
+    throw new InvalidAccessError('invalid member access')
+}
+
+function getPrivateMembers( scope, instance ) {
+
+    if (
+        instance === scope.publicInstance ||
+        instance === scope.protectedInstance
+    ) {
+        return scope.privateInstance
     }
 
-    let privateInstance = scope.publicInstanceToPrivateInstanceMap.get(instance)
-    let publicInstance = privateInstanceToPublicInstanceMap.get(instance)
+    else if ( instance === scope.privateInstance )
+        return instance
 
-    if (!privateInstance && !publicInstance) {
-        privateInstance = Object.create(scope.privatePrototype)
-        scope.publicInstanceToPrivateInstanceMap.set(instance, privateInstance)
-        privateInstanceToPublicInstanceMap.set(privateInstance, instance)
-    }
-
-    if (!privateInstance && publicInstance) {
-        return publicInstance
-    }
-    else if (privateInstance && !publicInstance) {
-        return privateInstance
-    }
-
-    return privateInstance
+    throw new InvalidAccessError('invalid member access')
 }
 
 module.exports = Class
