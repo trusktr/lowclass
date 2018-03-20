@@ -5,7 +5,7 @@ const assert = console.assert.bind( console )
 
 // ##################################################
 // only public members can be read/written from outside code
-try {
+{
 
     const Dog = Class('Dog', (public, protected, private) => ({
         setFoo() {
@@ -44,9 +44,6 @@ try {
     console.assert( dog.baz === 'hee hee' )
     dog.checkBaz()
 }
-catch (e) {
-    throw e
-}
 
 // ##################################################
 // we should not be able to access protected members from an unrelated class
@@ -58,7 +55,7 @@ try {
     const UnrelatedClass = Class(function UnrelatedClass(public, protected, private) {
         public.testInvalidAccess = function() {
             const dog = new Dog
-            console.log('Try to access PROTECTED member from unrelated class:', protected(dog).sound)
+            console.log('should fail:', protected(dog).sound)
         }
     })
 
@@ -66,9 +63,8 @@ try {
     u.testInvalidAccess()
 }
 catch (e) {
-    if ( e instanceof InvalidAccessError )
-        console.log('SUCCESS, there was an error on invalid PROTECTED access')
-    else throw e
+    if ( !( e instanceof InvalidAccessError ) )
+        throw e
 }
 
 // ##################################################
@@ -81,7 +77,7 @@ try {
     const UnrelatedClass = Class(function UnrelatedClass(public, protected, private) {
         public.testInvalidAccess = function() {
             const dog = new Dog
-            console.log('Try to access PRIVATE member from unrelated class:', private(dog).breed)
+            console.log('should fail:', private(dog).breed)
         }
     })
 
@@ -89,14 +85,13 @@ try {
     u.testInvalidAccess()
 }
 catch (e) {
-    if ( e instanceof InvalidAccessError )
-        console.log('SUCCESS, there was an error on invalid PRIVATE access')
-    else throw e
+    if ( !( e instanceof InvalidAccessError ) )
+        throw e
 }
 
 // ##################################################
 // we can access a child class protected member from a super class
-try {
+{
     const Animal = Class('Animal', (public, protected, private) => ({
         getDogSound: function talk() {
             const dog = new Dog
@@ -113,14 +108,10 @@ try {
 
     console.assert( dogSound === 'Woof!' )
 }
-catch (e) {
-    console.log('ERROR, there shouldn\'t have been a problem accessing PROTECTED stuff from Dog')
-    throw e
-}
 
 // ##################################################
 // we can access a super class protected member from a child class
-try {
+{
     const Animal = Class('Animal', (public, protected, private) => {
         protected.alive = true
     })
@@ -133,10 +124,6 @@ try {
 
     const dog = new Dog
     console.assert( dog.isAlive() === true )
-}
-catch (e) {
-    console.log('ERROR, there shouldn\'t have been a problem accessing PROTECTED stuff from Dog')
-    throw e
 }
 
 // ##################################################
@@ -158,6 +145,17 @@ catch (e) {
                 dog.verifySound()
                 dog.changeSound()
                 console.assert( private(dog).sound === 'Awoooo!' )
+
+                private(dog).bar = 'of soap'
+                dog.checkBar()
+
+                private(this).bar = 'of soap'
+                dog.checkBar()
+
+                dog.exposePrivate()
+                assert( private(dog) !== dogPrivate )
+                assert( private(this) !== dogPrivate )
+                assert( private(this) !== private(dog) )
             },
         },
 
@@ -165,6 +163,8 @@ catch (e) {
             bar: 'BAR',
         },
     }))
+
+    let dogPrivate = null
 
     const Dog = Animal.subclass(function Dog(public, protected, private) {
         private.sound = "Woof!"
@@ -174,6 +174,12 @@ catch (e) {
         public.changeSound = function() {
             private(this).sound = "grrr!"
         }
+        public.checkBar = function() {
+            assert( private(this).bar === undefined )
+        }
+        public.exposePrivate = function() {
+            dogPrivate = private(this)
+        }
     })
 
     const animal = new Animal('Ranchuu')
@@ -182,7 +188,7 @@ catch (e) {
 
 // ##################################################
 // we can not access a parent class' private member from a child class
-try {
+{
 
     const Animal = Class('Animal', (public, protected, private) => ({
         private: {
@@ -202,11 +208,6 @@ try {
 
     const dog = new Dog
     dog.foo()
-}
-catch (e) {
-    if ( e instanceof InvalidAccessError )
-        console.log('SUCCESS, we were not able to access Animal\'s PRIVATE member.')
-    else throw e
 }
 
 // ##################################################
@@ -248,7 +249,7 @@ catch (e) {
 
 // ##################################################
 // private members can be accessed only from the class where they are defined
-try {
+{
 
     const Dog = Class(function Dog(public, protected, private) {
         private.sound = "Woof!"
@@ -265,9 +266,6 @@ try {
 
     dog.talk()
 
-}
-catch (e) {
-    throw e
 }
 
 const publicAccesses = []
