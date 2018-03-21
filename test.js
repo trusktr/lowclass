@@ -380,7 +380,7 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
         protected: {
 
             protectedMethod() {
-                console.log('overriding protected method')
+                console.log('extending a protected method')
                 _super(this).protectedMethod()
             },
 
