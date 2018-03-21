@@ -377,8 +377,8 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
             publicMethod() {
                 //SomeClass.prototype.publicMethod.call(this)
                 //public.super.publicMethod.call(this)
-                public.super('publicMethod').call(this)
-                //public.super(this).publicMethod()
+                //public.super('publicMethod').call(this)
+                public.super(this).publicMethod()
             },
 
             protected: {
@@ -387,8 +387,8 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
                     console.log('protected inheritance')
 
                     //protected.super.protectedMethod.call(this)
-                    protected.super('protectedMethod').call(this)
-                    //protected.super(this).protectedMethod()
+                    //protected.super('protectedMethod').call(this)
+                    protected.super(this).protectedMethod()
                 },
 
             },

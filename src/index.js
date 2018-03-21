@@ -108,11 +108,20 @@ function Class(className, definerFunction) {
     // Not sure if we should provide the super privatePrototype, as there's no extension. It might be useful in extending functionality but the functionality. Let's enable it when/if we need it...
     //_getPrivateMembers.super = parentPrivatePrototype
 
-    _getPublicMembers.super = function( key ) {
-        return ParentClass.prototype[ key ]
+    //_getPublicMembers.super = function( key ) {
+        //return ParentClass.prototype[ key ]
+    //}
+    //_getProtectedMembers.super = function( key ) {
+        //return parentProtectedPrototype[ key ]
+    //}
+
+    const supers = new WeakMap
+
+    _getPublicMembers.super = function( instance ) {
+        return getSuperHelperObject( instance, ParentClass.prototype, supers )
     }
-    _getProtectedMembers.super = function( key ) {
-        return parentProtectedPrototype[ key ]
+    _getProtectedMembers.super = function( instance ) {
+        return getSuperHelperObject( instance, parentProtectedPrototype, supers )
     }
 
     // }}
@@ -240,27 +249,33 @@ function hasPrototype( obj, proto ) {
 }
 
 // copy all properties (as descriptors) from source to destination
-function copyDescriptors(source, destination) {
+function copyDescriptors(source, destination, mod) {
     const props = Object.keys(source)
     let i = props.length
     while (i--) {
         const prop = props[i]
         const descriptor = Object.getOwnPropertyDescriptor(source, prop)
+        if (mod) mod(descriptor)
         Object.defineProperty(destination, prop, descriptor)
     }
 }
 
-// similar to Object.freeze, but doesn't affect objects that have `obj` as a
-// prototype.
-//function lightFreeze( obj ) {
-    //for ( const key of Object.keys( obj ) ) {
-        //Object.defineProperty( obj, key, {
-            //value: obj[ key ],
-            //writable: false,
-        //})
-    //}
-    //Object.seal( obj )
-//}
+function getSuperHelperObject( instance, parentPrototype, supers ) {
+    let _super = supers.get( instance )
+    if ( !_super ) {
+        supers.set( instance, _super = {} )
+        copyDescriptors( parentPrototype, _super, (descriptor) => {
+            if ( descriptor.value && typeof descriptor.value === 'function' ) {
+                descriptor.value = descriptor.value.bind( instance )
+            }
+            //else { TODO how to handle get/set
+                //descriptor.get = descriptor.get.bind( instance )
+                //descriptor.set = descriptor.set.bind( instance )
+            //}
+        })
+    }
+    return _super
+}
 
 module.exports = Class
 module.exports.InvalidAccessError = InvalidAccessError
