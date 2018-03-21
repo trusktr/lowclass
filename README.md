@@ -7,6 +7,8 @@ JavaScript class inheritance implementation with. protected and private members.
 Usage
 -----
 
+(See many more examples in the [test file](./test.js))
+
 ```js
 const Class = require('./src/index')
 
