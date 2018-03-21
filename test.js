@@ -354,6 +354,10 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
     assert( o.protectedMethod === undefined )
     assert( o.privateMethod === undefined )
 
+    assert( publicAccesses.length === 3 )
+    assert( protectedAccesses.length === 3 )
+    assert( privateAccesses.length === 3 )
+
     assert( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
     assert( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
     assert( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
@@ -369,41 +373,42 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 
     const SubClass = SomeClass.subclass((public, protected, private) => {
         return {
-            //one: 'one',
 
             publicMethod() {
-                SomeClass.prototype.publicMethod.call(this)
+                //SomeClass.prototype.publicMethod.call(this)
+                //public.super.publicMethod.call(this)
+                public.super('publicMethod').call(this)
+                //public.super(this).publicMethod()
             },
 
-            //methodOne() {
-            //},
+            protected: {
 
-            //protected: {
-                //two: 'two',
+                protectedMethod() {
+                    console.log('protected inheritance')
 
-                //protectedMethod() {
-                    //SomeClass.prototype.protectedMethod.call(this)
-                //},
+                    //protected.super.protectedMethod.call(this)
+                    protected.super('protectedMethod').call(this)
+                    //protected.super(this).protectedMethod()
+                },
 
-                //methodTwo() {
-                //},
-            //},
+            },
 
             //private: {
-                //three: 'three',
 
                 //privateMethod() {
                     //SomeClass.prototype.privateMethod.call(this)
                 //},
 
-                //methodThree() {
-                //},
             //},
         }
     })
 
     const o = new SubClass
     o.publicMethod()
+
+    assert( publicAccesses.length === 3 )
+    assert( protectedAccesses.length === 3 )
+    assert( privateAccesses.length === 3 )
 
     assert( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
     assert( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )

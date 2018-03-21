@@ -93,6 +93,30 @@ function Class(className, definerFunction) {
         copyDescriptors(definition, publicPrototype)
     }
 
+    // WIP, how to expose "super" {{
+
+    // not yet sure we should seal the public prototype, since it isn't expected in normal JavaScript
+    //Object.seal( publicPrototype )
+
+    // but we can write the rules for protected and private stuff, so let's seal them
+    //Object.seal( protectedPrototype )
+    //Object.seal( privatePrototype )
+
+    // give the class definer access to super stuff
+    //_getPublicMembers.super = ParentClass.prototype
+    //_getProtectedMembers.super = parentProtectedPrototype
+    // Not sure if we should provide the super privatePrototype, as there's no extension. It might be useful in extending functionality but the functionality. Let's enable it when/if we need it...
+    //_getPrivateMembers.super = parentPrivatePrototype
+
+    _getPublicMembers.super = function( key ) {
+        return ParentClass.prototype[ key ]
+    }
+    _getProtectedMembers.super = function( key ) {
+        return parentProtectedPrototype[ key ]
+    }
+
+    // }}
+
     // Create the constructor for the class of this scope.
     // We create the constructor inside of this immediately-invoked function (IIFE)
     // just so that we can give it a `className`.
@@ -225,6 +249,18 @@ function copyDescriptors(source, destination) {
         Object.defineProperty(destination, prop, descriptor)
     }
 }
+
+// similar to Object.freeze, but doesn't affect objects that have `obj` as a
+// prototype.
+//function lightFreeze( obj ) {
+    //for ( const key of Object.keys( obj ) ) {
+        //Object.defineProperty( obj, key, {
+            //value: obj[ key ],
+            //writable: false,
+        //})
+    //}
+    //Object.seal( obj )
+//}
 
 module.exports = Class
 module.exports.InvalidAccessError = InvalidAccessError
