@@ -55,31 +55,31 @@ properties onto the three args to define properties and methods, not just
 returning an object definition like in the Animal class.
 
 ```js
-const Dog = Animal.subclass(function Dog(pub, prot, priv) {
+const Dog = Animal.subclass(function Dog(public, protected, private) {
 
-    pub.constructor = function(name) {
+    public.constructor = function(name) {
         Animal.call(this, name+'!')
-        priv(this).trained = true
-        prot(this).foo()
+        private(this).trained = true
+        protected(this).foo()
 
         this.saySecret() // error, because there is no public saySecret method
-        priv(this).saySecret() // error, because saySecret is private in the above Animal class
+        private(this).saySecret() // error, because saySecret is private in the above Animal class
     }
 
-    pub.talk = function() {
+    public.talk = function() {
         Animal.prototype.talk.call(this)
 
-        prot(this).animalMethod() // it works, protected methos is available in all sub classes.
+        protected(this).animalMethod() // it works, protected methos is available in all sub classes.
     }
 
-    prot.sound = "Woof!"
-    prot.foo = function() {
-        if (priv(this).trained) console.log(priv(this).lorem + "!")
-        priv(this).downwardDog()
+    protected.sound = "Woof!"
+    protected.foo = function() {
+        if (private(this).trained) console.log(private(this).lorem + "!")
+        private(this).downwardDog()
     }
 
-    priv.lorem = "lorem"
-    priv.downwardDog = function() {
+    private.lorem = "lorem"
+    private.downwardDog = function() {
         console.log('did downwardDog')
     }
 })
@@ -96,8 +96,8 @@ of the class definition, which recommend that you avoid. For example:
 ```js
 let protected = null
 
-const Dog = Animal.subclass(function Dog(pub, prot, priv) {
-    protected = prot
+const Dog = Animal.subclass(function Dog(public, protected, private) {
+    protected = protected
 
     // ... same definition as the previous class ...
 })
@@ -105,9 +105,9 @@ const Dog = Animal.subclass(function Dog(pub, prot, priv) {
 const dog = new Dog('Ranchuu')
 
 protected(dog).animalMethod() // works, because we leaked the protected helper outside of the class definition.
-
-// There might be valid use cases for this, but be careful if you want to
-// uphold the contract of your class the consumer of the class.
 ```
 
-More details coming later...
+There might be valid use cases for leaking the access helpers, but in general
+the goal of using this lib is to expose only the public API of your class to
+the consumer, otherwise you may as well just use native JavaScript `class`
+syntax where everything is just public.
