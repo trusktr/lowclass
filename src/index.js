@@ -231,6 +231,8 @@ function copyDescriptors(source, destination, mod) {
     }
 }
 
+class InvalidSuperAccessError extends Error {}
+
 function superHelper( supers, publicPrototype, protectedPrototype, parentPublicPrototype, parentProtectedPrototype, instance ) {
     if ( hasPrototype( instance, publicPrototype ) )
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
@@ -240,6 +242,8 @@ function superHelper( supers, publicPrototype, protectedPrototype, parentPublicP
 
     // TODO: does it make sense to add _super support for private members
     // here? Let's add it when/if we need it.
+
+    throw new InvalidSuperAccessError('invalid super access')
 }
 
 function getSuperHelperObject( instance, parentPrototype, supers ) {
