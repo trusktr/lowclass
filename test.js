@@ -498,6 +498,31 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 }
 
 // ##################################################
+// there's no recursive example (I've seen this example floating around, f.e.
+// at https://stackoverflow.com/a/11199220/454780 and other places)
+{
+    const A = Class((public, protected, private) => ({
+        foo: function (n) { return n }
+    }))
+
+    const B = A.subclass((public, protected, private, _super) => ({
+        foo: function (n) {
+            if (n > 100) return -1;
+            return _super(this).foo(n+1);
+        }
+    }))
+
+    const C = B.subclass((public, protected, private, _super) => ({
+        foo: function (n) {
+            return _super(this).foo(n+2);
+        }
+    }))
+
+    var c = new C();
+    assert( c.foo(0) === 3 )
+}
+
+// ##################################################
 // alternate "syntaxes" TODO
 //{
     //const SubClass = BaseClass.subclass({
