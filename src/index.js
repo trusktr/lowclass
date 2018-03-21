@@ -58,13 +58,17 @@ function Class(className, definerFunction) {
         publicToPrivate,
     }
 
+    // create the super helper for this class scope
+    const supers = new WeakMap
+    const _super = superHelper.bind( null, supers, publicPrototype, protectedPrototype, ParentClass.prototype, parentProtectedPrototype )
+
     // bind this class' scope to the helper functions
     const _getPublicMembers = getPublicMembers.bind( null, scope )
     const _getProtectedMembers = getProtectedMembers.bind( null, scope )
     const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
     // pass the helper functions to the user's class definition function
-    const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers)
+    const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
 
     // the user has the option of assigning methods and properties to the
     // helpers that we passed in, to let us know which methods and properties are
@@ -92,39 +96,6 @@ function Class(className, definerFunction) {
         // copy whatever remains as automatically public
         copyDescriptors(definition, publicPrototype)
     }
-
-    // WIP, how to expose "super" {{
-
-    // not yet sure we should seal the public prototype, since it isn't expected in normal JavaScript
-    //Object.seal( publicPrototype )
-
-    // but we can write the rules for protected and private stuff, so let's seal them
-    //Object.seal( protectedPrototype )
-    //Object.seal( privatePrototype )
-
-    // give the class definer access to super stuff
-    //_getPublicMembers.super = ParentClass.prototype
-    //_getProtectedMembers.super = parentProtectedPrototype
-    // Not sure if we should provide the super privatePrototype, as there's no extension. It might be useful in extending functionality but the functionality. Let's enable it when/if we need it...
-    //_getPrivateMembers.super = parentPrivatePrototype
-
-    //_getPublicMembers.super = function( key ) {
-        //return ParentClass.prototype[ key ]
-    //}
-    //_getProtectedMembers.super = function( key ) {
-        //return parentProtectedPrototype[ key ]
-    //}
-
-    const supers = new WeakMap
-
-    _getPublicMembers.super = function( instance ) {
-        return getSuperHelperObject( instance, ParentClass.prototype, supers )
-    }
-    _getProtectedMembers.super = function( instance ) {
-        return getSuperHelperObject( instance, parentProtectedPrototype, supers )
-    }
-
-    // }}
 
     // Create the constructor for the class of this scope.
     // We create the constructor inside of this immediately-invoked function (IIFE)
@@ -258,6 +229,17 @@ function copyDescriptors(source, destination, mod) {
         if (mod) mod(descriptor)
         Object.defineProperty(destination, prop, descriptor)
     }
+}
+
+function superHelper( supers, publicPrototype, protectedPrototype, parentPublicPrototype, parentProtectedPrototype, instance ) {
+    if ( hasPrototype( instance, publicPrototype ) )
+        return getSuperHelperObject( instance, parentPublicPrototype, supers )
+
+    if ( hasPrototype( instance, protectedPrototype ) )
+        return getSuperHelperObject( instance, parentProtectedPrototype, supers )
+
+    // TODO: does it make sense to add _super support for private members
+    // here? Let's add it when/if we need it.
 }
 
 function getSuperHelperObject( instance, parentPrototype, supers ) {

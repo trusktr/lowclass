@@ -371,37 +371,29 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 // check that various ways to access public/protected/private members work inside a subclass
 {
 
-    const SubClass = SomeClass.subclass((public, protected, private) => {
-        return {
+    const SubClass = SomeClass.subclass((public, protected, private, _super) => ({
 
-            publicMethod() {
-                //SomeClass.prototype.publicMethod.call(this)
-                //public.super.publicMethod.call(this)
-                //public.super('publicMethod').call(this)
-                public.super(this).publicMethod()
+        publicMethod() {
+            _super(this).publicMethod()
+        },
+
+        protected: {
+
+            protectedMethod() {
+                console.log('overriding protected method')
+                _super(this).protectedMethod()
             },
 
-            protected: {
+        },
 
-                protectedMethod() {
-                    console.log('protected inheritance')
+        //private: {
 
-                    //protected.super.protectedMethod.call(this)
-                    //protected.super('protectedMethod').call(this)
-                    protected.super(this).protectedMethod()
-                },
-
-            },
-
-            //private: {
-
-                //privateMethod() {
-                    //SomeClass.prototype.privateMethod.call(this)
-                //},
-
+            //privateMethod() {
+                //SomeClass.prototype.privateMethod.call(this)
             //},
-        }
-    })
+
+        //},
+    }))
 
     const o = new SubClass
     o.publicMethod()
