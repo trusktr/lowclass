@@ -90,7 +90,7 @@ dog.downwardDog() // error, no public downwardDog method
 dog.animalMethod() // error, no public animalMethod method
 ```
 
-It is possible to purposefull leak the public/protected/private helpers outside
+It is possible to purposefully leak the public/protected/private helpers outside
 of the class definition, which recommend that you avoid. For example:
 
 ```js
