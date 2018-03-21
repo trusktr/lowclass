@@ -1,7 +1,7 @@
 {
   "name": "lowclass",
   "version": "3.0.0",
-  "description": "Low-complexity class inheritance.",
+  "description": "Low-complexity class inheritance with protected/public/private members.",
   "format": "es5",
   "main": "index.js",
   "browser": "global.js",

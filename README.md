@@ -2,7 +2,7 @@
 lowclass
 ========
 
-JavaScript class inheritance implementation with. protected and private members.
+A low-complexity JavaScript class inheritance implementation with protected, public, and private members.
 
 Usage
 -----
