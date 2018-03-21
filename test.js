@@ -412,6 +412,92 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 }
 
 // ##################################################
+// make sure super spaghetti soup works
+{
+    const SomeClass = Class((public, protected, private) => ({
+
+        // default access is public, like C++ structs
+        publicMethod() {
+            console.log('base class publicMethod')
+            protected(this).protectedMethod()
+        },
+
+        checkPrivateProp() {
+            console.assert( private(this).lorem === 'foo' )
+        },
+
+        protected: {
+            protectedMethod() {
+                console.log('base class protectedMethod:', private(this).lorem)
+                private(this).lorem = 'foo'
+            },
+        },
+
+        private: {
+            lorem: 'blah',
+        },
+    }))
+
+    const SubClass = SomeClass.subclass((public, protected, private, _super) => ({
+
+        publicMethod() {
+            _super(this).publicMethod()
+            console.log('extended a public method')
+            private(this).lorem = 'baaaaz'
+            this.checkPrivateProp()
+        },
+
+        checkPrivateProp() {
+            _super(this).checkPrivateProp()
+            console.assert( private(this).lorem === 'baaaaz' )
+        },
+
+        protected: {
+
+            protectedMethod() {
+                _super(this).protectedMethod()
+                console.log('extended a protected method')
+            },
+
+        },
+
+        private: {
+            lorem: 'bar',
+        },
+    }))
+
+    const GrandChildClass = SubClass.subclass((public, protected, private, _super) => ({
+
+        test() {
+            private(this).begin()
+        },
+
+        reallyBegin() {
+            protected(this).reallyReallyBegin()
+        },
+
+        protected: {
+            reallyReallyBegin() {
+                _super(public(this)).publicMethod()
+            },
+        },
+
+        private: {
+            begin() {
+                public(this).reallyBegin()
+            },
+        },
+    }))
+
+    const o = new GrandChildClass
+    o.test()
+
+    console.assert( typeof o.test === 'function' )
+    console.assert( o.reallyReallyBegin === undefined )
+    console.assert( o.begin === undefined )
+}
+
+// ##################################################
 // alternate "syntaxes" TODO
 //{
     //const SubClass = BaseClass.subclass({
