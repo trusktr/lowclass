@@ -96,8 +96,8 @@ of the class definition, which recommend that you avoid. For example:
 ```js
 let protected = null
 
-const Dog = Animal.subclass(function Dog(public, protected, private) {
-    protected = protected
+const Dog = Animal.subclass(function Dog(public, _protected, private) {
+    protected = _protected
 
     // ... same definition as the previous class ...
 })
