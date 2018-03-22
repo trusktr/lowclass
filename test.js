@@ -523,6 +523,32 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 }
 
 // ##################################################
+// leaking private of another class, showing that different private scope is
+// accessed. We might call this pattern "module private".
+{
+let fooPrivate
+
+const Foo = Class((public, protected, private) => {
+  fooPrivate = private
+
+  private.foo = "foo"
+})
+
+const Bar = Foo.subclass((public, protected, private) => ({
+  test() {
+    assert( fooPrivate(this).foo === 'foo' ) // "foo"
+    assert( private(this).foo === 'bar' ) // "bar"
+  },
+  private: {
+    foo: "bar"
+  }
+}))
+
+const bar = new Bar
+bar.test()
+}
+
+// ##################################################
 // alternate "syntaxes" TODO
 //{
     //const SubClass = BaseClass.subclass({
