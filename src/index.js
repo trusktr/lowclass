@@ -121,10 +121,10 @@ function Class(className, definerFunction) {
                 publicToProtected.set( this, protectedInstance )
             }
 
-            // make a private instance if it doesn't exist already. Each class
-            // constructor will create one for a given instance because each
-            // constructor accesses the publicToPrivate map from its class
-            // scope (it isn't shared like publicToProtected is)
+            // make a private instance. Each class constructor will create one
+            // for a given instance because each constructor accesses the
+            // publicToPrivate map from its class scope (it isn't shared like
+            // publicToProtected is)
             privateInstance = Object.create( privatePrototype )
             publicToPrivate.set( this, privateInstance )
 
