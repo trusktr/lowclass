@@ -125,11 +125,8 @@ function Class(className, definerFunction) {
             // constructor will create one for a given instance because each
             // constructor accesses the publicToPrivate map from its class
             // scope (it isn't shared like publicToProtected is)
-            let privateInstance = publicToPrivate.get( this )
-            if ( !privateInstance ) {
-                privateInstance = Object.create( privatePrototype )
-                publicToPrivate.set( this, privateInstance )
-            }
+            privateInstance = Object.create( privatePrototype )
+            publicToPrivate.set( this, privateInstance )
 
             if (userConstructor) userConstructor.apply(this, arguments)
             else ParentClass.apply(this, arguments)
