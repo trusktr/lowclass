@@ -157,6 +157,7 @@ function Class(className, definerFunction) {
     )
 
     // standard ES5 class definition
+    NewClass.__proto__ = ParentClass // static inheritance
     NewClass.prototype = publicPrototype
     NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
 
