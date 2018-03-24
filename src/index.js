@@ -91,19 +91,22 @@ function Class(className, definerFunction) {
     copyDescriptors(_getProtectedMembers, protectedPrototype)
     copyDescriptors(_getPrivateMembers, privatePrototype)
 
-    if (definition) {
+    // if a `public` object was also supplied, also copy the definition props
+    // to the `public` prototype
+    //
+    // TODO For now we prioritize the "public" object returned from the
+    // definer, and copy from the definition to the publicPrototype, but this
+    // won't work with `super`. Maybe later, we can use a Proxy to read props
+    // from both the root object and the public object, so that `super` works
+    // from both.
+    if (definition && definition !== publicPrototype) {
 
-        // delete these so that we can...
+        // delete these so we don't copy them
         delete definition.public
         delete definition.protected
         delete definition.private
 
-        // ...copy whatever remains as automatically public
-        // TODO For now we prioritize the "public" object returned from the
-        // definer, and copy from the definition to the publicPrototype, but this
-        // won't work with `super`. Maybe later, we can use a Proxy to read props
-        // from both the root object and the public object, so that `super` works
-        // from both.
+        // copy whatever remains
         copyDescriptors(definition, publicPrototype)
     }
 
