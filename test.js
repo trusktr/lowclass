@@ -523,6 +523,31 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 }
 
 // ##################################################
+// Slightly modifying the previous example, show that builtin `super` also
+// works (for ES6+ environments)
+{
+    const A = Class((public, protected, private) => ({
+        foo: function (n) { return n }
+    }))
+
+    const B = A.subclass((public, protected, private) => ({
+        foo(n) {
+            if (n > 100) return -1;
+            return super.foo(n+1);
+        }
+    }))
+
+    const C = B.subclass((public, protected, private) => ({
+        foo(n) {
+            return super.foo(n+2);
+        }
+    }))
+
+    var c = new C();
+    assert( c.foo(0) === 3 )
+}
+
+// ##################################################
 // leaking private of another class, showing that different private scope is
 // accessed. We might call this pattern "module private".
 {
