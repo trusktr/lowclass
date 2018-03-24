@@ -28,6 +28,8 @@ function Class(className, definerFunction) {
     if (typeof definerFunction != 'function')
         throw new TypeError('If supplying two arguments, you must specify a function for the second `definerFunction` argument. If supplying only one argument, it must be a named function.')
 
+    const ParentClass = this || Object
+
     // A two-way map to associate public instances with private instances.
     // Unlike publicToProtected, this is inside here because there is one
     // private instance per Class scope per instance (or to say it another way,
@@ -36,31 +38,15 @@ function Class(className, definerFunction) {
     // instance per class)
     const publicToPrivate = new WeakTwoWayMap
 
-    const ParentClass = this || Object
-
-    // extend the parent class
-    const publicPrototype = Object.create(ParentClass.prototype)
-
-    // extend the parent protected prototype
-    const parentProtectedPrototype = publicProtoToProtectedProto.get(ParentClass.prototype) || {}
-    const protectedPrototype = Object.create(parentProtectedPrototype)
-    publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
-
-    // private prototype does not inherit from parent, each private instance is
-    // private only for the class of this scope
-    const privatePrototype = {}
-
     // the class "scope" that we will bind to the helper functions
     const scope = {
-        publicPrototype,
-        privatePrototype,
-        protectedPrototype,
         publicToPrivate,
+        parentPublicPrototype: ParentClass.prototype,
     }
 
     // create the super helper for this class scope
     const supers = new WeakMap
-    const _super = superHelper.bind( null, supers, publicPrototype, protectedPrototype, ParentClass.prototype, parentProtectedPrototype )
+    const _super = superHelper.bind( null, supers, scope )
 
     // bind this class' scope to the helper functions
     const _getPublicMembers = getPublicMembers.bind( null, scope )
@@ -69,6 +55,32 @@ function Class(className, definerFunction) {
 
     // pass the helper functions to the user's class definition function
     const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
+
+    // extend the parent class
+    //
+    // TODO use the user's prototype. For now, let's prioritize the "public"
+    // object returned from the definer. Maybe later, we can use a Proxy to
+    // read props from both the root object and the public object, so that
+    // super works from both.
+    const publicPrototype = Object.create(ParentClass.prototype)
+
+    // extend the parent protected prototype
+    const parentProtectedPrototype = publicProtoToProtectedProto.get(ParentClass.prototype) || {}
+    // TODO get protected prototype from definition
+    const protectedPrototype = Object.create(parentProtectedPrototype)
+    publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
+
+    // private prototype does not inherit from parent, each private instance is
+    // private only for the class of this scope
+    // TODO get private prototype from definition
+    const privatePrototype = {}
+
+    Object.assign(scope, {
+        publicPrototype,
+        privatePrototype,
+        protectedPrototype,
+        parentProtectedPrototype,
+    })
 
     // the user has the option of assigning methods and properties to the
     // helpers that we passed in, to let us know which methods and properties are
@@ -96,6 +108,8 @@ function Class(className, definerFunction) {
         // copy whatever remains as automatically public
         copyDescriptors(definition, publicPrototype)
     }
+
+    const userConstructor = publicPrototype.constructor
 
     // Create the constructor for the class of this scope.
     // We create the constructor inside of this immediately-invoked function (IIFE)
@@ -132,7 +146,7 @@ function Class(className, definerFunction) {
             else ParentClass.apply(this, arguments)
         }
     `)(
-        publicPrototype.constructor,
+        userConstructor,
         publicPrototype,
         protectedPrototype,
         privatePrototype,
@@ -230,7 +244,14 @@ function copyDescriptors(source, destination, mod) {
 
 class InvalidSuperAccessError extends Error {}
 
-function superHelper( supers, publicPrototype, protectedPrototype, parentPublicPrototype, parentProtectedPrototype, instance ) {
+function superHelper( supers, scope, instance ) {
+    const {
+        publicPrototype,
+        protectedPrototype,
+        parentPublicPrototype,
+        parentProtectedPrototype,
+    } = scope
+
     if ( hasPrototype( instance, publicPrototype ) )
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
 
