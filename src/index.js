@@ -65,24 +65,17 @@ function Class(className, definerFunction) {
     }
 
     // extend the parent class
-    //
-    // TODO use the user's prototype.
-    //const publicPrototype = Object.create(ParentClass.prototype)
     const publicPrototype = definition && definition.public || definition || {}
     publicPrototype.__proto__ = parentPublicPrototype
 
     // extend the parent protected prototype
     const parentProtectedPrototype = publicProtoToProtectedProto.get(parentPublicPrototype) || {}
-    // TODO get protected prototype from definition
-    //const protectedPrototype = Object.create(parentProtectedPrototype)
     const protectedPrototype = definition && definition.protected || {}
     protectedPrototype.__proto__ = parentProtectedPrototype
     publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
 
     // private prototype does not inherit from parent, each private instance is
     // private only for the class of this scope
-    // TODO get private prototype from definition
-    //const privatePrototype = {}
     const privatePrototype = definition && definition.private || {}
 
     scope.publicPrototype = publicPrototype
