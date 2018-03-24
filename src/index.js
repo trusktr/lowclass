@@ -30,6 +30,8 @@ function Class(className, definerFunction) {
 
     const ParentClass = this || Object
 
+    const parentPublicPrototype = ParentClass.prototype
+
     // A two-way map to associate public instances with private instances.
     // Unlike publicToProtected, this is inside here because there is one
     // private instance per Class scope per instance (or to say it another way,
@@ -41,7 +43,7 @@ function Class(className, definerFunction) {
     // the class "scope" that we will bind to the helper functions
     const scope = {
         publicToPrivate,
-        parentPublicPrototype: ParentClass.prototype,
+        parentPublicPrototype,
     }
 
     // create the super helper for this class scope
@@ -56,31 +58,37 @@ function Class(className, definerFunction) {
     // pass the helper functions to the user's class definition function
     const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
 
+    // the user has the option of returning an object that defines which
+    // properties are public/protected/private.
+    if (definition && typeof definition !== 'object') {
+        throw new TypeError('The return value of a class definer function, if any, should be an object.')
+    }
+
     // extend the parent class
     //
-    // TODO use the user's prototype. For now, let's prioritize the "public"
-    // object returned from the definer. Maybe later, we can use a Proxy to
-    // read props from both the root object and the public object, so that
-    // super works from both.
-    const publicPrototype = Object.create(ParentClass.prototype)
+    // TODO use the user's prototype.
+    //const publicPrototype = Object.create(ParentClass.prototype)
+    const publicPrototype = definition && definition.public || definition || {}
+    publicPrototype.__proto__ = parentPublicPrototype
 
     // extend the parent protected prototype
-    const parentProtectedPrototype = publicProtoToProtectedProto.get(ParentClass.prototype) || {}
+    const parentProtectedPrototype = publicProtoToProtectedProto.get(parentPublicPrototype) || {}
     // TODO get protected prototype from definition
-    const protectedPrototype = Object.create(parentProtectedPrototype)
+    //const protectedPrototype = Object.create(parentProtectedPrototype)
+    const protectedPrototype = definition && definition.protected || {}
+    protectedPrototype.__proto__ = parentProtectedPrototype
     publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
 
     // private prototype does not inherit from parent, each private instance is
     // private only for the class of this scope
     // TODO get private prototype from definition
-    const privatePrototype = {}
+    //const privatePrototype = {}
+    const privatePrototype = definition && definition.private || {}
 
-    Object.assign(scope, {
-        publicPrototype,
-        privatePrototype,
-        protectedPrototype,
-        parentProtectedPrototype,
-    })
+    scope.publicPrototype = publicPrototype
+    scope.privatePrototype = privatePrototype
+    scope.protectedPrototype = protectedPrototype
+    scope.parentProtectedPrototype = parentProtectedPrototype
 
     // the user has the option of assigning methods and properties to the
     // helpers that we passed in, to let us know which methods and properties are
@@ -90,22 +98,19 @@ function Class(className, definerFunction) {
     copyDescriptors(_getProtectedMembers, protectedPrototype)
     copyDescriptors(_getPrivateMembers, privatePrototype)
 
-    // the user also has the optio of returning an object that defines which
-    // properties are public/protected/private
-    if (typeof definition == 'object') {
+    if (definition) {
 
-        // copy the content public/protected/private properties onto the
-        // respective prototypes
-        if (typeof definition.public == 'object') copyDescriptors(definition.public, publicPrototype)
-        if (typeof definition.protected == 'object') copyDescriptors(definition.protected, protectedPrototype)
-        if (typeof definition.private == 'object') copyDescriptors(definition.private, privatePrototype)
-
-        // delete them so that we can
+        // delete these so that we can...
         delete definition.public
         delete definition.protected
         delete definition.private
 
-        // copy whatever remains as automatically public
+        // ...copy whatever remains as automatically public
+        // TODO For now we prioritize the "public" object returned from the
+        // definer, and copy from the definition to the publicPrototype, but this
+        // won't work with `super`. Maybe later, we can use a Proxy to read props
+        // from both the root object and the public object, so that `super` works
+        // from both.
         copyDescriptors(definition, publicPrototype)
     }
 
