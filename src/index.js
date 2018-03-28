@@ -11,11 +11,21 @@ class WeakTwoWayMap {
 // There is one protected instance per public instance
 const publicToProtected = new WeakTwoWayMap
 
+// used during construction of any class (always synchronous)
+const newTargetStack = []
+
+const defaultOptions = {
+    mode: 'es5' // es5 class inheritance is simple, nice, easy, and robust
+    //mode: 'Reflect.construct', // es6+ class inheritance is tricky, difficult, and restrictive
+}
+
 /**
  * @param {string} definerFunction Function for defining a class...
  */
-function Class(className, definerFunction) {
+function Class(options, className, definerFunction) {
     "use strict"
+
+    const { mode } = options
 
     if (typeof className == 'function' && !definerFunction) {
         definerFunction = className
@@ -110,60 +120,160 @@ function Class(className, definerFunction) {
         copyDescriptors(definition, publicPrototype)
     }
 
-    const userConstructor = publicPrototype.constructor
+    let NewClass = null
 
-    // Create the constructor for the class of this scope.
-    // We create the constructor inside of this immediately-invoked function (IIFE)
-    // just so that we can give it a `className`.
-    // We pass whatever we need from the outer scope into the IIFE.
-    const NewClass = new Function(`
-        userConstructor,
-        publicPrototype,
-        protectedPrototype,
-        privatePrototype,
-        ParentClass,
-        publicToProtected,
-        publicToPrivate
-    `, `
-        return function ${className}() {
+    // ES5 version (which seems to be so much better)
+    if ( mode === 'es5' ) {
+        console.log('es5 mode')
 
-            // make a protected instance if it doesn't exist already. Only the
-            // child-most class constructor will create the protected instance,
-            // because the publicToProtected map is shared among them all.
-            let protectedInstance = publicToProtected.get( this )
-            if ( !protectedInstance ) {
-                protectedInstance = Object.create( protectedPrototype )
-                publicToProtected.set( this, protectedInstance )
+        const userConstructor = publicPrototype.constructor
+
+        // Create the constructor for the class of this scope.
+        // We create the constructor inside of this immediately-invoked function (IIFE)
+        // just so that we can give it a `className`.
+        // We pass whatever we need from the outer scope into the IIFE.
+        NewClass = new Function(`
+            userConstructor,
+            publicPrototype,
+            protectedPrototype,
+            privatePrototype,
+            ParentClass,
+            publicToProtected,
+            publicToPrivate
+        `, `
+            return function ${className}() {
+
+                // make a protected instance if it doesn't exist already. Only the
+                // child-most class constructor will create the protected instance,
+                // because the publicToProtected map is shared among them all.
+                let protectedInstance = publicToProtected.get( this )
+                if ( !protectedInstance ) {
+                    protectedInstance = Object.create( protectedPrototype )
+                    publicToProtected.set( this, protectedInstance )
+                }
+
+                // make a private instance. Each class constructor will create one
+                // for a given instance because each constructor accesses the
+                // publicToPrivate map from its class scope (it isn't shared like
+                // publicToProtected is)
+                privateInstance = Object.create( privatePrototype )
+                publicToPrivate.set( this, privateInstance )
+
+                if (userConstructor) userConstructor.apply(this, arguments)
+                else ParentClass.apply(this, arguments)
             }
+        `)(
+            userConstructor,
+            publicPrototype,
+            protectedPrototype,
+            privatePrototype,
+            ParentClass,
+            publicToProtected,
+            publicToPrivate
+        )
 
-            // make a private instance. Each class constructor will create one
-            // for a given instance because each constructor accesses the
-            // publicToPrivate map from its class scope (it isn't shared like
-            // publicToProtected is)
-            privateInstance = Object.create( privatePrototype )
-            publicToPrivate.set( this, privateInstance )
+        // standard ES5 class definition
+        NewClass.__proto__ = ParentClass // static inheritance
+        NewClass.prototype = publicPrototype
+        NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
 
-            if (userConstructor) userConstructor.apply(this, arguments)
-            else ParentClass.apply(this, arguments)
+        debugger
+
+    }
+
+    // ES6+ version (which seems to be dumb)
+    else if ( mode === 'Reflect.construct' ) {
+        console.log('es6 mode')
+
+        const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : false
+
+        if (userConstructor) {
+            console.log('userConstructor:', userConstructor)
+            console.log('parent class:', ParentClass)
+            userConstructor.__proto__ = ParentClass // static inheritance
+            userConstructor.prototype = publicPrototype
+            //userConstructor.prototype.constructor = userConstructor // already the case
         }
-    `)(
-        userConstructor,
-        publicPrototype,
-        protectedPrototype,
-        privatePrototype,
-        ParentClass,
-        publicToProtected,
-        publicToPrivate
-    )
 
-    // standard ES5 class definition
-    NewClass.__proto__ = ParentClass // static inheritance
-    NewClass.prototype = publicPrototype
-    NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+        // Create the constructor for the class of this scope.
+        // We create the constructor inside of this immediately-invoked function (IIFE)
+        // just so that we can give it a `className`.
+        // We pass whatever we need from the outer scope into the IIFE.
+        NewClass = new Function(`
+            userConstructor,
+            publicPrototype,
+            protectedPrototype,
+            privatePrototype,
+            ParentClass,
+            publicToProtected,
+            publicToPrivate,
+            newTargetStack
+        `, `
+            //return class ${className} extends ParentClass
+            return function ${className}() {
+                let self = null
+
+                console.log(" ------------- userConstructor?")
+                console.log(userConstructor && userConstructor.toString())
+
+                let newTarget = new.target
+
+                if ( newTarget ) newTargetStack.push( newTarget )
+                else newTarget = newTargetStack[ newTargetStack.length - 1 ]
+
+                if (userConstructor) {
+                    console.log('??????????', userConstructor, arguments, newTarget)
+                    self = Reflect.construct( userConstructor, arguments, newTarget )
+                }
+                else self = Reflect.construct( ParentClass, arguments, newTarget )
+
+                newTargetStack.pop()
+
+                // make a protected instance if it doesn't exist already. Only the
+                // child-most class constructor will create the protected instance,
+                // because the publicToProtected map is shared among them all.
+                let protectedInstance = publicToProtected.get( self )
+                if ( !protectedInstance ) {
+                    protectedInstance = Object.create( protectedPrototype )
+                    publicToProtected.set( self, protectedInstance )
+                }
+
+                // make a private instance. Each class constructor will create one
+                // for a given instance because each constructor accesses the
+                // publicToPrivate map from its class scope (it isn't shared like
+                // publicToProtected is)
+                privateInstance = Object.create( privatePrototype )
+                publicToPrivate.set( self, privateInstance )
+
+                return self
+            }
+        `)(
+            userConstructor,
+            publicPrototype,
+            protectedPrototype,
+            privatePrototype,
+            ParentClass,
+            publicToProtected,
+            publicToPrivate,
+            newTargetStack
+        )
+
+        // static inheritance
+        if (userConstructor) NewClass.__proto__ = userConstructor
+        else NewClass.__proto__ = ParentClass
+
+        NewClass.prototype = Object.create( publicPrototype )
+        NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+
+    }
+
+    else {
+        throw new TypeError('The lowclass mode option should be one of: "es5", "Reflect.construct".')
+    }
 
     // allow users to make subclasses. This defines what `this` is in the above
     // definition of ParentClass.
-    NewClass.subclass = Class
+    NewClass.subclass = _Class.configure( options )
 
     return NewClass
 }
@@ -272,6 +382,8 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
         supers.set( instance, _super = {} )
         copyDescriptors( parentPrototype, _super, (descriptor) => {
             if ( descriptor.value && typeof descriptor.value === 'function' ) {
+                console.log('WTF?', descriptor.value, typeof descriptor.value, global === descriptor.value)
+                debugger
                 descriptor.value = descriptor.value.bind( instance )
             }
             //else { TODO how to handle get/set
@@ -283,5 +395,15 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     return _super
 }
 
-module.exports = Class
+function _Class( ...args ) {
+    return Class( defaultOptions, ...args )
+}
+
+_Class.configure = function( options ) {
+    return function( ...args ) {
+        return Class.call( this, options, ...args )
+    }
+}
+
+module.exports = _Class
 module.exports.InvalidAccessError = InvalidAccessError
