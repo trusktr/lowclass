@@ -19,260 +19,264 @@ const defaultOptions = {
     //mode: 'Reflect.construct', // es6+ class inheritance is tricky, difficult, and restrictive
 }
 
-/**
- * @param {string} definerFunction Function for defining a class...
- */
-function Class(options, className, definerFunction) {
-    "use strict"
+function configureClass( options ) {
 
-    const { mode } = options
+    /**
+     * @param {string} className The name that the class being defined should have.
+     * @param {Function} definerFunction A function for defining the class. It is passed the Public, Protected, Private, and _super helpers.
+     */
+    return function Class(className, definerFunction) {
+        "use strict"
 
-    if (typeof className == 'function' && !definerFunction) {
-        definerFunction = className
-        className = definerFunction.name || ''
-    }
+        const { mode } = options
 
-    // TODO the TypeError doesn't make sense if first arg is string and second arg is object.
-    if (typeof className != 'string')
-        throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a named function.`)
-
-    if (typeof definerFunction != 'function')
-        throw new TypeError('If supplying two arguments, you must specify a function for the second `definerFunction` argument. If supplying only one argument, it must be a named function.')
-
-    const ParentClass = this || Object
-
-    const parentPublicPrototype = ParentClass.prototype
-
-    // A two-way map to associate public instances with private instances.
-    // Unlike publicToProtected, this is inside here because there is one
-    // private instance per Class scope per instance (or to say it another way,
-    // each instance has as many private instances as the number of classes
-    // that the given instance has in its inheritance chain, one private
-    // instance per class)
-    const publicToPrivate = new WeakTwoWayMap
-
-    // the class "scope" that we will bind to the helper functions
-    const scope = {
-        publicToPrivate,
-        parentPublicPrototype,
-    }
-
-    // create the super helper for this class scope
-    const supers = new WeakMap
-    const _super = superHelper.bind( null, supers, scope )
-
-    // bind this class' scope to the helper functions
-    const _getPublicMembers = getPublicMembers.bind( null, scope )
-    const _getProtectedMembers = getProtectedMembers.bind( null, scope )
-    const _getPrivateMembers = getPrivateMembers.bind( null, scope )
-
-    // pass the helper functions to the user's class definition function
-    const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
-
-    // the user has the option of returning an object that defines which
-    // properties are public/protected/private.
-    if (definition && typeof definition !== 'object') {
-        throw new TypeError('The return value of a class definer function, if any, should be an object.')
-    }
-
-    // extend the parent class
-    const publicPrototype = definition && definition.public || definition || {}
-    publicPrototype.__proto__ = parentPublicPrototype
-
-    // extend the parent protected prototype
-    const parentProtectedPrototype = publicProtoToProtectedProto.get(parentPublicPrototype) || {}
-    const protectedPrototype = definition && definition.protected || {}
-    protectedPrototype.__proto__ = parentProtectedPrototype
-    publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
-
-    // private prototype does not inherit from parent, each private instance is
-    // private only for the class of this scope
-    const privatePrototype = definition && definition.private || {}
-
-    scope.publicPrototype = publicPrototype
-    scope.privatePrototype = privatePrototype
-    scope.protectedPrototype = protectedPrototype
-    scope.parentProtectedPrototype = parentProtectedPrototype
-
-    // the user has the option of assigning methods and properties to the
-    // helpers that we passed in, to let us know which methods and properties are
-    // public/protected/private so we can assign them onto the respective
-    // prototypes.
-    copyDescriptors(_getPublicMembers, publicPrototype)
-    copyDescriptors(_getProtectedMembers, protectedPrototype)
-    copyDescriptors(_getPrivateMembers, privatePrototype)
-
-    // if a `public` object was also supplied, also copy the definition props
-    // to the `public` prototype
-    //
-    // TODO For now we prioritize the "public" object returned from the
-    // definer, and copy from the definition to the publicPrototype, but this
-    // won't work with `super`. Maybe later, we can use a Proxy to read props
-    // from both the root object and the public object, so that `super` works
-    // from both.
-    if (definition && definition !== publicPrototype) {
-
-        // delete these so we don't copy them
-        delete definition.public
-        delete definition.protected
-        delete definition.private
-
-        // copy whatever remains
-        copyDescriptors(definition, publicPrototype)
-    }
-
-    let NewClass = null
-
-    // ES5 version (which seems to be so much better)
-    if ( mode === 'es5' ) {
-
-        const userConstructor = publicPrototype.constructor
-
-        // Create the constructor for the class of this scope.
-        // We create the constructor inside of this immediately-invoked function (IIFE)
-        // just so that we can give it a `className`.
-        // We pass whatever we need from the outer scope into the IIFE.
-        NewClass = new Function(`
-            userConstructor,
-            publicPrototype,
-            protectedPrototype,
-            privatePrototype,
-            ParentClass,
-            publicToProtected,
-            publicToPrivate
-        `, `
-            return function ${className}() {
-
-                // make a protected instance if it doesn't exist already. Only the
-                // child-most class constructor will create the protected instance,
-                // because the publicToProtected map is shared among them all.
-                let protectedInstance = publicToProtected.get( this )
-                if ( !protectedInstance ) {
-                    protectedInstance = Object.create( protectedPrototype )
-                    publicToProtected.set( this, protectedInstance )
-                }
-
-                // make a private instance. Each class constructor will create one
-                // for a given instance because each constructor accesses the
-                // publicToPrivate map from its class scope (it isn't shared like
-                // publicToProtected is)
-                privateInstance = Object.create( privatePrototype )
-                publicToPrivate.set( this, privateInstance )
-
-                if (userConstructor) userConstructor.apply(this, arguments)
-                else ParentClass.apply(this, arguments)
-            }
-        `)(
-            userConstructor,
-            publicPrototype,
-            protectedPrototype,
-            privatePrototype,
-            ParentClass,
-            publicToProtected,
-            publicToPrivate
-        )
-
-        // standard ES5 class definition
-        NewClass.__proto__ = ParentClass // static inheritance
-        NewClass.prototype = publicPrototype
-        NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
-
-    }
-
-    // ES6+ version (which seems to be dumb)
-    else if ( mode === 'Reflect.construct' ) {
-
-        const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : false
-
-        if (userConstructor) {
-            console.log('userConstructor:', userConstructor)
-            console.log('parent class:', ParentClass)
-            userConstructor.__proto__ = ParentClass // static inheritance
-            userConstructor.prototype = publicPrototype
-            //userConstructor.prototype.constructor = userConstructor // already the case
+        if (typeof className == 'function' && !definerFunction) {
+            definerFunction = className
+            className = definerFunction.name || ''
         }
 
-        // Create the constructor for the class of this scope.
-        // We create the constructor inside of this immediately-invoked function (IIFE)
-        // just so that we can give it a `className`.
-        // We pass whatever we need from the outer scope into the IIFE.
-        NewClass = new Function(`
-            userConstructor,
-            publicPrototype,
-            protectedPrototype,
-            privatePrototype,
-            ParentClass,
-            publicToProtected,
+        // TODO the TypeError doesn't make sense if first arg is string and second arg is object.
+        if (typeof className != 'string')
+            throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a named function.`)
+
+        if (typeof definerFunction != 'function')
+            throw new TypeError('If supplying two arguments, you must specify a function for the second `definerFunction` argument. If supplying only one argument, it must be a named function.')
+
+        const ParentClass = this || Object
+
+        const parentPublicPrototype = ParentClass.prototype
+
+        // A two-way map to associate public instances with private instances.
+        // Unlike publicToProtected, this is inside here because there is one
+        // private instance per Class scope per instance (or to say it another way,
+        // each instance has as many private instances as the number of classes
+        // that the given instance has in its inheritance chain, one private
+        // instance per class)
+        const publicToPrivate = new WeakTwoWayMap
+
+        // the class "scope" that we will bind to the helper functions
+        const scope = {
             publicToPrivate,
-            newTargetStack
-        `, `
-            //return class ${className} extends ParentClass
-            return function ${className}() {
-                let self = null
+            parentPublicPrototype,
+        }
 
-                console.log(" ------------- userConstructor?")
-                console.log(userConstructor && userConstructor.toString())
+        // create the super helper for this class scope
+        const supers = new WeakMap
+        const _super = superHelper.bind( null, supers, scope )
 
-                let newTarget = new.target
+        // bind this class' scope to the helper functions
+        const _getPublicMembers = getPublicMembers.bind( null, scope )
+        const _getProtectedMembers = getProtectedMembers.bind( null, scope )
+        const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
-                if ( newTarget ) newTargetStack.push( newTarget )
-                else newTarget = newTargetStack[ newTargetStack.length - 1 ]
+        // pass the helper functions to the user's class definition function
+        const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
 
-                if (userConstructor) {
-                    console.log('??????????', userConstructor, arguments, newTarget)
-                    self = Reflect.construct( userConstructor, arguments, newTarget )
+        // the user has the option of returning an object that defines which
+        // properties are public/protected/private.
+        if (definition && typeof definition !== 'object') {
+            throw new TypeError('The return value of a class definer function, if any, should be an object.')
+        }
+
+        // extend the parent class
+        const publicPrototype = definition && definition.public || definition || {}
+        publicPrototype.__proto__ = parentPublicPrototype
+
+        // extend the parent protected prototype
+        const parentProtectedPrototype = publicProtoToProtectedProto.get(parentPublicPrototype) || {}
+        const protectedPrototype = definition && definition.protected || {}
+        protectedPrototype.__proto__ = parentProtectedPrototype
+        publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
+
+        // private prototype does not inherit from parent, each private instance is
+        // private only for the class of this scope
+        const privatePrototype = definition && definition.private || {}
+
+        scope.publicPrototype = publicPrototype
+        scope.privatePrototype = privatePrototype
+        scope.protectedPrototype = protectedPrototype
+        scope.parentProtectedPrototype = parentProtectedPrototype
+
+        // the user has the option of assigning methods and properties to the
+        // helpers that we passed in, to let us know which methods and properties are
+        // public/protected/private so we can assign them onto the respective
+        // prototypes.
+        copyDescriptors(_getPublicMembers, publicPrototype)
+        copyDescriptors(_getProtectedMembers, protectedPrototype)
+        copyDescriptors(_getPrivateMembers, privatePrototype)
+
+        // if a `public` object was also supplied, also copy the definition props
+        // to the `public` prototype
+        //
+        // TODO For now we prioritize the "public" object returned from the
+        // definer, and copy from the definition to the publicPrototype, but this
+        // won't work with `super`. Maybe later, we can use a Proxy to read props
+        // from both the root object and the public object, so that `super` works
+        // from both.
+        if (definition && definition !== publicPrototype) {
+
+            // delete these so we don't copy them
+            delete definition.public
+            delete definition.protected
+            delete definition.private
+
+            // copy whatever remains
+            copyDescriptors(definition, publicPrototype)
+        }
+
+        let NewClass = null
+
+        // ES5 version (which seems to be so much better)
+        if ( mode === 'es5' ) {
+
+            const userConstructor = publicPrototype.constructor
+
+            // Create the constructor for the class of this scope.
+            // We create the constructor inside of this immediately-invoked function (IIFE)
+            // just so that we can give it a `className`.
+            // We pass whatever we need from the outer scope into the IIFE.
+            NewClass = new Function(`
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate
+            `, `
+                return function ${className}() {
+
+                    // make a protected instance if it doesn't exist already. Only the
+                    // child-most class constructor will create the protected instance,
+                    // because the publicToProtected map is shared among them all.
+                    let protectedInstance = publicToProtected.get( this )
+                    if ( !protectedInstance ) {
+                        protectedInstance = Object.create( protectedPrototype )
+                        publicToProtected.set( this, protectedInstance )
+                    }
+
+                    // make a private instance. Each class constructor will create one
+                    // for a given instance because each constructor accesses the
+                    // publicToPrivate map from its class scope (it isn't shared like
+                    // publicToProtected is)
+                    privateInstance = Object.create( privatePrototype )
+                    publicToPrivate.set( this, privateInstance )
+
+                    if (userConstructor) userConstructor.apply(this, arguments)
+                    else ParentClass.apply(this, arguments)
                 }
-                else self = Reflect.construct( ParentClass, arguments, newTarget )
+            `)(
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate
+            )
 
-                newTargetStack.pop()
+            // standard ES5 class definition
+            NewClass.__proto__ = ParentClass // static inheritance
+            NewClass.prototype = publicPrototype
+            NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
 
-                // make a protected instance if it doesn't exist already. Only the
-                // child-most class constructor will create the protected instance,
-                // because the publicToProtected map is shared among them all.
-                let protectedInstance = publicToProtected.get( self )
-                if ( !protectedInstance ) {
-                    protectedInstance = Object.create( protectedPrototype )
-                    publicToProtected.set( self, protectedInstance )
-                }
+        }
 
-                // make a private instance. Each class constructor will create one
-                // for a given instance because each constructor accesses the
-                // publicToPrivate map from its class scope (it isn't shared like
-                // publicToProtected is)
-                privateInstance = Object.create( privatePrototype )
-                publicToPrivate.set( self, privateInstance )
+        // ES6+ version (which seems to be dumb)
+        else if ( mode === 'Reflect.construct' ) {
 
-                return self
+            const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : false
+
+            if (userConstructor) {
+                console.log('userConstructor:', userConstructor)
+                console.log('parent class:', ParentClass)
+                userConstructor.__proto__ = ParentClass // static inheritance
+                userConstructor.prototype = publicPrototype
+                //userConstructor.prototype.constructor = userConstructor // already the case
             }
-        `)(
-            userConstructor,
-            publicPrototype,
-            protectedPrototype,
-            privatePrototype,
-            ParentClass,
-            publicToProtected,
-            publicToPrivate,
-            newTargetStack
-        )
 
-        // static inheritance
-        if (userConstructor) NewClass.__proto__ = userConstructor
-        else NewClass.__proto__ = ParentClass
+            // Create the constructor for the class of this scope.
+            // We create the constructor inside of this immediately-invoked function (IIFE)
+            // just so that we can give it a `className`.
+            // We pass whatever we need from the outer scope into the IIFE.
+            NewClass = new Function(`
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate,
+                newTargetStack
+            `, `
+                //return class ${className} extends ParentClass
+                return function ${className}() {
+                    let self = null
 
-        NewClass.prototype = Object.create( publicPrototype )
-        NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+                    console.log(" ------------- userConstructor?")
+                    console.log(userConstructor && userConstructor.toString())
 
+                    let newTarget = new.target
+
+                    if ( newTarget ) newTargetStack.push( newTarget )
+                    else newTarget = newTargetStack[ newTargetStack.length - 1 ]
+
+                    if (userConstructor) {
+                        console.log('??????????', userConstructor, arguments, newTarget)
+                        self = Reflect.construct( userConstructor, arguments, newTarget )
+                    }
+                    else self = Reflect.construct( ParentClass, arguments, newTarget )
+
+                    newTargetStack.pop()
+
+                    // make a protected instance if it doesn't exist already. Only the
+                    // child-most class constructor will create the protected instance,
+                    // because the publicToProtected map is shared among them all.
+                    let protectedInstance = publicToProtected.get( self )
+                    if ( !protectedInstance ) {
+                        protectedInstance = Object.create( protectedPrototype )
+                        publicToProtected.set( self, protectedInstance )
+                    }
+
+                    // make a private instance. Each class constructor will create one
+                    // for a given instance because each constructor accesses the
+                    // publicToPrivate map from its class scope (it isn't shared like
+                    // publicToProtected is)
+                    privateInstance = Object.create( privatePrototype )
+                    publicToPrivate.set( self, privateInstance )
+
+                    return self
+                }
+            `)(
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate,
+                newTargetStack
+            )
+
+            // static inheritance
+            if (userConstructor) NewClass.__proto__ = userConstructor
+            else NewClass.__proto__ = ParentClass
+
+            NewClass.prototype = Object.create( publicPrototype )
+            NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+
+        }
+
+        else {
+            throw new TypeError('The lowclass mode option should be one of: "es5", "Reflect.construct".')
+        }
+
+        // allow users to make subclasses. This defines what `this` is in the above
+        // definition of ParentClass.
+        NewClass.subclass = Class
+
+        return NewClass
     }
-
-    else {
-        throw new TypeError('The lowclass mode option should be one of: "es5", "Reflect.construct".')
-    }
-
-    // allow users to make subclasses. This defines what `this` is in the above
-    // definition of ParentClass.
-    NewClass.subclass = _Class.configure( options )
-
-    return NewClass
 }
 
 function getPublicMembers( scope, instance ) {
@@ -390,16 +394,9 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     return _super
 }
 
-function _Class( ...args ) {
-    return Class( defaultOptions, ...args )
-}
+const lowclass = configureClass( defaultOptions )
 
-_Class.configure = function( options ) {
-    "use strict"
-    return function( ...args ) {
-        return Class.call( this, options, ...args )
-    }
-}
-
-module.exports = _Class
+module.exports = lowclass
+module.exports.Class = lowclass
+module.exports.configureClass = configureClass
 module.exports.InvalidAccessError = InvalidAccessError

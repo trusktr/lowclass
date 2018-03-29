@@ -1,6 +1,4 @@
-const Class = require('./src/index')
-const _Class = Class
-const { InvalidAccessError } = Class
+const { Class, configureClass, InvalidAccessError } = require('./src/index')
 
 const assert = console.assert.bind( console )
 
