@@ -12,22 +12,22 @@ Usage
 ```js
 const Class = require('./src/index')
 
-const Animal = Class('Animal', (public, protected, private) => ({
+const Animal = Class('Animal', (Public, Protected, Private) => ({
 
     // anything outside the public/protected/private definitions is
     // automatically public. Note, constructors can only be public at the moment,
-    // but thinking about how to make them "private" or "protected".
+    // but I'm thinking about how to allow constructors to be "private" or "protected".
     constructor: function(name) {
         this.blah = "blah" // public `blah` property
-        protected(this).anything = 1234
-        private(this).name = name
+        Protected(this).anything = 1234
+        Private(this).name = name
     },
 
     public: {
         talk: function talk() {
-            protected(this).lorem = 'lorem'
-            private(this).saySecret()
-            protected(this).animalMethod()
+            Protected(this).lorem = 'lorem'
+            Private(this).saySecret()
+            Protected(this).animalMethod()
         },
     },
 
@@ -47,7 +47,7 @@ const Animal = Class('Animal', (public, protected, private) => ({
 ```
 
 As you can see, the definer function passed into `Class()` receives three
-arguments: the public prototype, the protected getter, and the private getter.
+arguments: the Public helper, the Protected helper, and the Private helper.
 
 Extend a class with the `.subclass` static method, into which you also pass a
 definer function that receives the three same type of args. You can also assign
@@ -55,31 +55,31 @@ properties onto the three args to define properties and methods, not just
 returning an object definition like in the Animal class.
 
 ```js
-const Dog = Animal.subclass(function Dog(public, protected, private) {
+const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
 
-    public.constructor = function(name) {
+    Public.constructor = function(name) {
         Animal.call(this, name+'!')
-        private(this).trained = true
-        protected(this).foo()
+        Private(this).trained = true
+        Protected(this).foo()
 
         this.saySecret() // error, because there is no public saySecret method
-        private(this).saySecret() // error, because saySecret is private in the above Animal class
+        Private(this).saySecret() // error, because saySecret is private in the above Animal class, not in the Dog class
     }
 
-    public.talk = function() {
+    Public.talk = function() {
         Animal.prototype.talk.call(this)
 
-        protected(this).animalMethod() // it works, protected methos is available in all sub classes.
+        Protected(this).animalMethod() // it works, protected methods are available in all sub classes.
     }
 
-    protected.sound = "Woof!"
-    protected.foo = function() {
-        if (private(this).trained) console.log(private(this).lorem + "!")
-        private(this).downwardDog()
+    Protected.sound = "Woof!"
+    Protected.foo = function() {
+        if (Private(this).trained) console.log(Private(this).lorem + "!")
+        Private(this).downwardDog()
     }
 
-    private.lorem = "lorem"
-    private.downwardDog = function() {
+    Private.lorem = "lorem"
+    Private.downwardDog = function() {
         console.log('did downwardDog')
     }
 })
@@ -90,21 +90,21 @@ dog.downwardDog() // error, no public downwardDog method
 dog.animalMethod() // error, no public animalMethod method
 ```
 
-It is possible to purposefully leak the public/protected/private helpers outside
+It is possible to purposefully leak the Public/Protected/Private helpers outside
 of the class definition, which recommend that you avoid. For example:
 
 ```js
-let protected = null
+let Protected = null
 
-const Dog = Animal.subclass(function Dog(public, _protected, private) {
-    protected = _protected
+const Dog = Animal.subclass(function Dog(Public, _Protected, Private) {
+    Protected = _Protected
 
     // ... same definition as the previous class ...
 })
 
 const dog = new Dog('Ranchuu')
 
-protected(dog).animalMethod() // works, because we leaked the protected helper outside of the class definition.
+Protected(dog).animalMethod() // works, because we leaked the Protected helper outside of the class definition.
 ```
 
 There might be valid use cases for leaking the access helpers, but in general

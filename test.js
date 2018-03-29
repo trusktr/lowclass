@@ -1,13 +1,17 @@
 const Class = require('./src/index')
-const InvalidAccessError = Class.InvalidAccessError
+const _Class = Class
+const { InvalidAccessError } = Class
 
 const assert = console.assert.bind( console )
+
+// TODO allow the following syntax. Nice because doesn't require Class to be assigned as subclass on non-lowclass constructors.
+//const Dog = Class('Dog').extends(Animal, (Public, Protected, Private, _super) => ({
 
 // ##################################################
 // only public members can be read/written from outside code
 {
 
-    const Dog = Class('Dog', (public, protected, private) => ({
+    const Dog = Class('Dog', (Public, Protected, Private) => ({
         setFoo() {
             this.foo = 'woo hoo'
         },
@@ -15,16 +19,16 @@ const assert = console.assert.bind( console )
             console.assert( this.foo === 'weee' )
         },
         setBar() {
-            protected(this).bar = 'yippee'
+            Protected(this).bar = 'yippee'
         },
         checkBar() {
-            console.assert( protected(this).bar === 'yippee' )
+            console.assert( Protected(this).bar === 'yippee' )
         },
         setBaz() {
-            private(this).baz = 'oh yeah'
+            Private(this).baz = 'oh yeah'
         },
         checkBaz() {
-            console.assert( private(this).baz === 'oh yeah' )
+            console.assert( Private(this).baz === 'oh yeah' )
         },
     }))
 
@@ -48,14 +52,14 @@ const assert = console.assert.bind( console )
 // ##################################################
 // we should not be able to access protected members from an unrelated class
 try {
-    const Dog = Class('Dog', (public, protected, private) => {
-        protected.sound = "Woof!"
+    const Dog = Class('Dog', (Public, Protected, Private) => {
+        Protected.sound = "Woof!"
     })
 
-    const UnrelatedClass = Class(function UnrelatedClass(public, protected, private) {
-        public.testInvalidAccess = function() {
+    const UnrelatedClass = Class(function UnrelatedClass(Public, Protected, Private) {
+        Public.testInvalidAccess = function() {
             const dog = new Dog
-            console.log('should fail:', protected(dog).sound)
+            console.log('should fail:', Protected(dog).sound)
         }
     })
 
@@ -70,14 +74,14 @@ catch (e) {
 // ##################################################
 // we should not be able to access private members from an unrelated class
 try {
-    const Dog = Class('Dog', (public, protected, private) => {
-        private.breed = "labrador"
+    const Dog = Class('Dog', (Public, Protected, Private) => {
+        Private.breed = "labrador"
     })
 
-    const UnrelatedClass = Class(function UnrelatedClass(public, protected, private) {
-        public.testInvalidAccess = function() {
+    const UnrelatedClass = Class(function UnrelatedClass(Public, Protected, Private) {
+        Public.testInvalidAccess = function() {
             const dog = new Dog
-            console.log('should fail:', private(dog).breed)
+            console.log('should fail:', Private(dog).breed)
         }
     })
 
@@ -92,15 +96,15 @@ catch (e) {
 // ##################################################
 // we can access a child class protected member from a super class
 {
-    const Animal = Class('Animal', (public, protected, private) => ({
+    const Animal = Class('Animal', (Public, Protected, Private) => ({
         getDogSound: function talk() {
             const dog = new Dog
-            return protected(dog).sound
+            return Protected(dog).sound
         },
     }))
 
-    const Dog = Animal.subclass('Dog', (public, protected) => {
-        protected.sound = "Woof!"
+    const Dog = Animal.subclass('Dog', (Public, Protected) => {
+        Protected.sound = "Woof!"
     })
 
     const animal = new Animal
@@ -112,13 +116,13 @@ catch (e) {
 // ##################################################
 // we can access a super class protected member from a child class
 {
-    const Animal = Class('Animal', (public, protected, private) => {
-        protected.alive = true
+    const Animal = Class('Animal', (Public, Protected, Private) => {
+        Protected.alive = true
     })
 
-    const Dog = Animal.subclass('Dog', (public, protected) => ({
+    const Dog = Animal.subclass('Dog', (Public, Protected) => ({
         isAlive() {
-            return protected(this).alive
+            return Protected(this).alive
         }
     }))
 
@@ -130,32 +134,32 @@ catch (e) {
 // we can not access a child class' private member from a parent class
 {
 
-    const Animal = Class('Animal', (public, protected, private) => ({
+    const Animal = Class('Animal', (Public, Protected, Private) => ({
         public: {
             foo: function talk() {
                 const dog = new Dog
 
                 // like in C++, accessing the private variable of a child class does not work.
-                console.assert( private(dog).sound === undefined )
+                console.assert( Private(dog).sound === undefined )
 
                 // like in C++, we can only access the private members associated with the class that we are currently in:
-                console.assert( private(dog).bar === 'BAR' )
+                console.assert( Private(dog).bar === 'BAR' )
 
-                private(dog).sound = 'Awoooo!'
+                Private(dog).sound = 'Awoooo!'
                 dog.verifySound()
                 dog.changeSound()
-                console.assert( private(dog).sound === 'Awoooo!' )
+                console.assert( Private(dog).sound === 'Awoooo!' )
 
-                private(dog).bar = 'of soap'
+                Private(dog).bar = 'of soap'
                 dog.checkBar()
 
-                private(this).bar = 'of soap'
+                Private(this).bar = 'of soap'
                 dog.checkBar()
 
                 dog.exposePrivate()
-                assert( private(dog) !== dogPrivate )
-                assert( private(this) !== dogPrivate )
-                assert( private(this) !== private(dog) )
+                assert( Private(dog) !== dogPrivate )
+                assert( Private(this) !== dogPrivate )
+                assert( Private(this) !== Private(dog) )
             },
         },
 
@@ -166,19 +170,19 @@ catch (e) {
 
     let dogPrivate = null
 
-    const Dog = Animal.subclass(function Dog(public, protected, private) {
-        private.sound = "Woof!"
-        public.verifySound = function() {
-            console.assert( private(this).sound === 'Woof!' )
+    const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
+        Private.sound = "Woof!"
+        Public.verifySound = function() {
+            console.assert( Private(this).sound === 'Woof!' )
         }
-        public.changeSound = function() {
-            private(this).sound = "grrr!"
+        Public.changeSound = function() {
+            Private(this).sound = "grrr!"
         }
-        public.checkBar = function() {
-            assert( private(this).bar === undefined )
+        Public.checkBar = function() {
+            assert( Private(this).bar === undefined )
         }
-        public.exposePrivate = function() {
-            dogPrivate = private(this)
+        Public.exposePrivate = function() {
+            dogPrivate = Private(this)
         }
     })
 
@@ -190,18 +194,18 @@ catch (e) {
 // we can not access a parent class' private member from a child class
 {
 
-    const Animal = Class('Animal', (public, protected, private) => ({
+    const Animal = Class('Animal', (Public, Protected, Private) => ({
         private: {
             bar: 'BAR',
         },
     }))
 
-    const Dog = Animal.subclass(function Dog(public, protected, private) {
-        private.sound = "Woof!"
-        public.foo = function() {
+    const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
+        Private.sound = "Woof!"
+        Public.foo = function() {
 
             // should not be able to access Animal's private bar property
-            console.assert( private(this).bar === undefined )
+            console.assert( Private(this).bar === undefined )
             console.assert( this.bar === undefined )
         }
     })
@@ -214,16 +218,16 @@ catch (e) {
 // further example, private members are isolated to their classes
 {
 
-    const Animal = Class('Animal', (public, protected, private) => ({
+    const Animal = Class('Animal', (Public, Protected, Private) => ({
         public: {
             test: function() {
                 const dog = new Dog
                 dog.bar = 'bar'
                 dog.setBar()
-                console.assert( private(this).bar === 'oh yeah' )
-                private(this).bar = 'mmm hmmm'
+                console.assert( Private(this).bar === 'oh yeah' )
+                Private(this).bar = 'mmm hmmm'
                 dog.checkBar()
-                console.assert( private(this).bar === 'mmm hmmm' )
+                console.assert( Private(this).bar === 'mmm hmmm' )
             },
         },
 
@@ -232,13 +236,13 @@ catch (e) {
         },
     }))
 
-    const Dog = Animal.subclass('Dog', (public, protected, private) => ({
+    const Dog = Animal.subclass('Dog', (Public, Protected, Private) => ({
         setBar: function() {
-            private(this).bar = 'yippee'
+            Private(this).bar = 'yippee'
         },
         checkBar: function() {
-            console.assert( private(this).bar === 'yippee' )
-            private(this).bar = 'woohoo'
+            console.assert( Private(this).bar === 'yippee' )
+            Private(this).bar = 'woohoo'
         },
     }))
 
@@ -251,10 +255,10 @@ catch (e) {
 // private members can be accessed only from the class where they are defined
 {
 
-    const Dog = Class(function Dog(public, protected, private) {
-        private.sound = "Woof!"
-        public.talk = function() {
-            console.assert( private(this).sound === "Woof!" )
+    const Dog = Class(function Dog(Public, Protected, Private) {
+        Private.sound = "Woof!"
+        Public.talk = function() {
+            console.assert( Private(this).sound === "Woof!" )
         }
     })
 
@@ -272,51 +276,51 @@ const publicAccesses = []
 const protectedAccesses = []
 const privateAccesses = []
 
-const SomeClass = Class('SomeClass', (public, protected, private) => {
+const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     return {
         foo: 'foo',
 
         publicMethod: function() {
-            assert( this === public(this) )
-            assert( this.foo === public(this).foo )
+            assert( this === Public(this) )
+            assert( this.foo === Public(this).foo )
 
             assert( this.foo === 'foo' )
-            assert( public(this).foo === 'foo' )
-            assert( protected(this).bar === 'bar' )
-            assert( private(this).baz === 'baz' )
+            assert( Public(this).foo === 'foo' )
+            assert( Protected(this).bar === 'bar' )
+            assert( Private(this).baz === 'baz' )
 
-            assert( public(this) !== protected(this) )
-            assert( public(this) !== private(this) )
-            assert( protected(this) !== private(this) )
+            assert( Public(this) !== Protected(this) )
+            assert( Public(this) !== Private(this) )
+            assert( Protected(this) !== Private(this) )
 
-            publicAccesses.push( public(this) )
-            protectedAccesses.push( protected(this) )
-            privateAccesses.push( private(this) )
+            publicAccesses.push( Public(this) )
+            protectedAccesses.push( Protected(this) )
+            privateAccesses.push( Private(this) )
 
-            protected(this).protectedMethod()
-            private(this).privateMethod()
+            Protected(this).protectedMethod()
+            Private(this).privateMethod()
         },
 
         protected: {
             bar: 'bar',
 
             protectedMethod: function() {
-                assert( this === protected(this) )
-                assert( this.bar === protected(this).bar )
+                assert( this === Protected(this) )
+                assert( this.bar === Protected(this).bar )
 
                 assert( this.bar === 'bar' )
-                assert( public(this).foo === 'foo' )
-                assert( protected(this).bar === 'bar' )
-                assert( private(this).baz === 'baz' )
+                assert( Public(this).foo === 'foo' )
+                assert( Protected(this).bar === 'bar' )
+                assert( Private(this).baz === 'baz' )
 
-                assert( protected(this) !== public(this) )
-                assert( protected(this) !== private(this) )
-                assert( public(this) !== private(this) )
+                assert( Protected(this) !== Public(this) )
+                assert( Protected(this) !== Private(this) )
+                assert( Public(this) !== Private(this) )
 
-                publicAccesses.push( public(this) )
-                protectedAccesses.push( protected(this) )
-                privateAccesses.push( private(this) )
+                publicAccesses.push( Public(this) )
+                protectedAccesses.push( Protected(this) )
+                privateAccesses.push( Private(this) )
             },
         },
 
@@ -324,21 +328,21 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
             baz: 'baz',
 
             privateMethod: function() {
-                assert( this === private(this) )
-                assert( this.baz === private(this).baz )
+                assert( this === Private(this) )
+                assert( this.baz === Private(this).baz )
 
                 assert( this.baz === 'baz' )
-                assert( public(this).foo === 'foo' )
-                assert( protected(this).bar === 'bar' )
-                assert( private(this).baz === 'baz' )
+                assert( Public(this).foo === 'foo' )
+                assert( Protected(this).bar === 'bar' )
+                assert( Private(this).baz === 'baz' )
 
-                assert( private(this) !== public(this) )
-                assert( private(this) !== protected(this) )
-                assert( public(this) !== protected(this) )
+                assert( Private(this) !== Public(this) )
+                assert( Private(this) !== Protected(this) )
+                assert( Public(this) !== Protected(this) )
 
-                publicAccesses.push( public(this) )
-                protectedAccesses.push( protected(this) )
-                privateAccesses.push( private(this) )
+                publicAccesses.push( Public(this) )
+                protectedAccesses.push( Protected(this) )
+                privateAccesses.push( Private(this) )
             },
         },
     }
@@ -371,7 +375,7 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 // check that various ways to access public/protected/private members work inside a subclass
 {
 
-    const SubClass = SomeClass.subclass((public, protected, private, _super) => ({
+    const SubClass = SomeClass.subclass((Public, Protected, Private, _super) => ({
 
         publicMethod() {
             _super(this).publicMethod()
@@ -414,22 +418,22 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 // ##################################################
 // make sure super spaghetti soup works
 {
-    const SomeClass = Class((public, protected, private) => ({
+    const SomeClass = Class((Public, Protected, Private) => ({
 
         // default access is public, like C++ structs
         publicMethod() {
             console.log('base class publicMethod')
-            protected(this).protectedMethod()
+            Protected(this).protectedMethod()
         },
 
         checkPrivateProp() {
-            console.assert( private(this).lorem === 'foo' )
+            console.assert( Private(this).lorem === 'foo' )
         },
 
         protected: {
             protectedMethod() {
-                console.log('base class protectedMethod:', private(this).lorem)
-                private(this).lorem = 'foo'
+                console.log('base class protectedMethod:', Private(this).lorem)
+                Private(this).lorem = 'foo'
             },
         },
 
@@ -438,18 +442,18 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
         },
     }))
 
-    const SubClass = SomeClass.subclass((public, protected, private, _super) => ({
+    const SubClass = SomeClass.subclass((Public, Protected, Private, _super) => ({
 
         publicMethod() {
             _super(this).publicMethod()
             console.log('extended a public method')
-            private(this).lorem = 'baaaaz'
+            Private(this).lorem = 'baaaaz'
             this.checkPrivateProp()
         },
 
         checkPrivateProp() {
             _super(this).checkPrivateProp()
-            console.assert( private(this).lorem === 'baaaaz' )
+            console.assert( Private(this).lorem === 'baaaaz' )
         },
 
         protected: {
@@ -466,25 +470,25 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
         },
     }))
 
-    const GrandChildClass = SubClass.subclass((public, protected, private, _super) => ({
+    const GrandChildClass = SubClass.subclass((Public, Protected, Private, _super) => ({
 
         test() {
-            private(this).begin()
+            Private(this).begin()
         },
 
         reallyBegin() {
-            protected(this).reallyReallyBegin()
+            Protected(this).reallyReallyBegin()
         },
 
         protected: {
             reallyReallyBegin() {
-                _super(public(this)).publicMethod()
+                _super(Public(this)).publicMethod()
             },
         },
 
         private: {
             begin() {
-                public(this).reallyBegin()
+                Public(this).reallyBegin()
             },
         },
     }))
@@ -501,18 +505,18 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 // there's no recursive example (I've seen this example floating around, f.e.
 // at https://stackoverflow.com/a/11199220/454780 and other places)
 {
-    const A = Class((public, protected, private) => ({
+    const A = Class((Public, Protected, Private) => ({
         foo: function (n) { return n }
     }))
 
-    const B = A.subclass((public, protected, private, _super) => ({
+    const B = A.subclass((Public, Protected, Private, _super) => ({
         foo: function (n) {
             if (n > 100) return -1;
             return _super(this).foo(n+1);
         }
     }))
 
-    const C = B.subclass((public, protected, private, _super) => ({
+    const C = B.subclass((Public, Protected, Private, _super) => ({
         foo: function (n) {
             return _super(this).foo(n+2);
         }
@@ -526,18 +530,18 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 // Slightly modifying the previous example, show that builtin `super` also
 // works (for ES6+ environments)
 {
-    const A = Class((public, protected, private) => ({
+    const A = Class((Public, Protected, Private) => ({
         foo: function (n) { return n }
     }))
 
-    const B = A.subclass((public, protected, private) => ({
+    const B = A.subclass((Public, Protected, Private) => ({
         foo(n) {
             if (n > 100) return -1;
             return super.foo(n+1);
         }
     }))
 
-    const C = B.subclass((public, protected, private) => ({
+    const C = B.subclass((Public, Protected, Private) => ({
         foo(n) {
             return super.foo(n+2);
         }
@@ -553,16 +557,16 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 {
     let fooPrivate
 
-    const Foo = Class((public, protected, private) => {
-        fooPrivate = private
+    const Foo = Class((Public, Protected, Private) => {
+        fooPrivate = Private
 
-        private.foo = "foo"
+        Private.foo = "foo"
     })
 
-    const Bar = Foo.subclass((public, protected, private) => ({
+    const Bar = Foo.subclass((Public, Protected, Private) => ({
         test() {
             assert( fooPrivate(this).foo === 'foo' ) // "foo"
-            assert( private(this).foo === 'bar' ) // "bar"
+            assert( Private(this).foo === 'bar' ) // "bar"
         },
         private: {
             foo: "bar"
@@ -578,14 +582,14 @@ const SomeClass = Class('SomeClass', (public, protected, private) => {
 //{
     //const SubClass = BaseClass.subclass({
         //foo() {},
-        //protected: (public, private) => ({
+        //protected: (Public, Private) => ({
             //bar() {
-                //public(this).foo()
+                //Public(this).foo()
             //}
         //}),
-        //private: (public, protected) => ({
+        //private: (Public, Protected) => ({
             //bar() {
-                //public(this).foo()
+                //Public(this).foo()
             //}
         //}),
     //})
