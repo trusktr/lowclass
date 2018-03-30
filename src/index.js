@@ -19,36 +19,146 @@ const defaultOptions = {
     //mode: 'Reflect.construct', // es6+ class inheritance is tricky, difficult, and restrictive
 }
 
-function configureClass( options ) {
+class InvalidSuperAccessError extends Error {}
+class InvalidAccessError extends Error {}
+
+const Class = createClassHelper()
+
+module.exports = Class
+Object.assign(module.exports, {
+    Class,
+    createClassHelper,
+    InvalidSuperAccessError,
+    InvalidAccessError,
+})
+
+function createClassHelper( options ) {
+    "use strict"
+
+    options = options || defaultOptions
+
+    /*
+     * this is just the public interface adapter for createClass(). Depending on how
+     * you call this interface, you can do various things like:
+     *
+     *   // anonymous empty class
+     *   Class()
+     *
+     *   // named empty class, TODO
+     *   Class('Foo')
+     *
+     *   // base class named Foo
+     *   Class('Foo', (Public, Protected, Private) => {
+     *     someMethod() { ... },
+     *   })
+     *
+     *   // anonymous base class
+     *   Class((Public, Protected, Private) => {
+     *     someMethod() { ... },
+     *   })
+     *
+     *   Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({
+     *     someMethod() { ... },
+     *   }))
+     *
+     *   OtherClass.subclass = Class
+     *   const Bar = OtherClass.subclass('Bar', (Public, Protected, Private) => {...})
+     *
+     *   // any class made with lowclass has a static subclass if you prefer using that:
+     *   Bar.subclass('Baz', (Public, Protected, Private) => {...})
+     *
+     *   // But you could as well do
+     *   Class('Baz').extends(Bar, (Public, Protected, Private) => {...})
+     */
+    return function Class(...args) {
+
+        let makingSubclass = false
+
+        // if called as SomeConstructor.subclass, or bound to SomeConstructor
+        if ( typeof this === 'function' ) makingSubclass = true
+
+        // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or `class Foo {}`
+        if ( args.length <= 2 ) {
+
+            let name = ''
+            let definerFunction = null
+
+            // f.e. `Class('Foo')`
+            if ( typeof args[0] === 'string' ) name = args[0]
+
+            // f.e. `Class((pub, prot, priv) => ({ ... }))`
+            else if ( typeof args[0] === 'function' ) definerFunction = args[0]
+
+            // f.e. `Class('Foo', (pub, prot, priv) => ({ ... }))`
+            if ( typeof args[1] === 'function' ) definerFunction = args[1]
+
+            // Make a class in case we wanted to do just `Class()` or `Class('Foo')`...
+            const Ctor = makingSubclass ?
+                createClass.call( this, name, definerFunction ) :
+                createClass( name, definerFunction )
+
+            // ...but add the extends helper in case we wanted to do
+            // `Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({ ... }))`
+            Ctor.extends = function( ParentClass, definerFunction ) {
+                definerFunction = definerFunction || (() => {})
+                return createClass.call( ParentClass, name, definerFunction )
+            }
+
+            return Ctor
+        }
+
+        throw new TypeError('invalid args')
+    }
 
     /**
      * @param {string} className The name that the class being defined should have.
      * @param {Function} definerFunction A function for defining the class. It is passed the Public, Protected, Private, and _super helpers.
      */
-    return function Class(className, definerFunction) {
+    function createClass(className, definerFunction) {
         "use strict"
 
         const { mode } = options
 
-        if (typeof className == 'function' && !definerFunction) {
+        // f.e. Class((Public, Protected, Private) => ({ ... }))
+        if ( typeof className === 'function' ) {
             definerFunction = className
             className = definerFunction.name || ''
         }
 
         // TODO the TypeError doesn't make sense if first arg is string and second arg is object.
-        if (typeof className != 'string')
-            throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a named function.`)
+        else if (typeof className !== 'string')
+            throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a function.`)
 
-        if (typeof definerFunction != 'function')
-            throw new TypeError('If supplying two arguments, you must specify a function for the second `definerFunction` argument. If supplying only one argument, it must be a named function.')
+        // f.e. Class('Foo', { ... })
+        if ( typeof definerFunction === 'object' && definerFunction ) {
+            throw new Error(' TODO: definition object ')
+        }
 
+        // return a basic class early, for performance, if there's no class
+        // definition, f.e. `Class()` or `Class('Foo')` creates an anonymous or
+        // empty named class, respectively, so no need to run the heavier
+        // logic.
+        else if ( typeof definerFunction !== 'function' ) {
+            let Class
+
+            if ( className ) eval(`Class = function ${className}() {}`)
+            else Class = (() => function() {})() // force anonymous even in ES6+
+
+            Class.prototype = { __proto__: Object.prototype, constructor: Class }
+
+            // no static inheritance here, just like with `class Foo {}`
+
+            return Class
+        }
+
+        // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
         const ParentClass = this || Object
 
         const parentPublicPrototype = ParentClass.prototype
 
         // A two-way map to associate public instances with private instances.
         // Unlike publicToProtected, this is inside here because there is one
-        // private instance per Class scope per instance (or to say it another way,
+        // private instance per class scope per instance (or to say it another way,
         // each instance has as many private instances as the number of classes
         // that the given instance has in its inheritance chain, one private
         // instance per class)
@@ -70,7 +180,8 @@ function configureClass( options ) {
         const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
         // pass the helper functions to the user's class definition function
-        const definition = definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
+        const definition =
+            definerFunction && definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
 
         // the user has the option of returning an object that defines which
         // properties are public/protected/private.
@@ -293,8 +404,6 @@ function getPublicMembers( scope, instance ) {
     else return instance
 }
 
-class InvalidAccessError extends Error {}
-
 function getProtectedMembers( scope, instance ) {
 
     // check for an instance of the class (or its subclasses) of this scope
@@ -355,8 +464,6 @@ function copyDescriptors(source, destination, mod) {
     }
 }
 
-class InvalidSuperAccessError extends Error {}
-
 function superHelper( supers, scope, instance ) {
     const {
         publicPrototype,
@@ -393,10 +500,3 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     }
     return _super
 }
-
-const lowclass = configureClass( defaultOptions )
-
-module.exports = lowclass
-module.exports.Class = lowclass
-module.exports.configureClass = configureClass
-module.exports.InvalidAccessError = InvalidAccessError

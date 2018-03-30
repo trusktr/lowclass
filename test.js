@@ -1,9 +1,119 @@
-const { Class, configureClass, InvalidAccessError } = require('./src/index')
+const { Class, createClassHelper, InvalidAccessError } = require('./src/index')
 
 const assert = console.assert.bind( console )
 
 // TODO allow the following syntax. Nice because doesn't require Class to be assigned as subclass on non-lowclass constructors.
 //const Dog = Class('Dog').extends(Animal, (Public, Protected, Private, _super) => ({
+
+// ##################################################
+// anonymous empty base classes
+{
+    const Constructor = Class()
+    const instance = new Constructor
+    assert( instance instanceof Constructor )
+    assert( Constructor.name === '' )
+    assert( Constructor.prototype.__proto__ === Object.prototype )
+}
+
+// ##################################################
+// named empty base class
+{
+    const Foo = Class("Foo")
+    const foo = new Foo
+    assert( foo instanceof Foo )
+    assert( Foo.name === "Foo" )
+    assert( Foo.prototype.__proto__ === Object.prototype )
+}
+
+// ##################################################
+// anonymous non-empty base class
+{
+    const Dog = Class(() => ({
+        method() {}
+    }))
+
+    assert( Dog.name === "" )
+    assert( Dog.prototype.__proto__ === Object.prototype )
+
+    const dog = new Dog
+    assert( dog instanceof Dog )
+    assert( typeof dog.method === 'function' )
+}
+
+// ##################################################
+// named non-empty base class
+{
+    const Dog = Class('Dog', () => ({
+        method() {}
+    }))
+
+    assert( Dog.name === "Dog" )
+    assert( Dog.prototype.__proto__ === Object.prototype )
+
+    const dog = new Dog
+    assert( dog instanceof Dog )
+    assert( typeof dog.method === 'function' )
+}
+
+// ##################################################
+// anonymous empty subclass
+{
+    const LivingThing = Class()
+    const Alien = Class().extends(LivingThing)
+    assert( Alien.name === "" )
+    assert( Alien.prototype.__proto__ === LivingThing.prototype )
+
+    const a = new Alien
+    assert( a instanceof Alien )
+}
+
+// ##################################################
+// named empty subclass
+{
+    const LivingThing = Class("LivingThing")
+    const Alien = Class("Alien").extends(LivingThing)
+    assert( Alien.name === "Alien" )
+    assert( Alien.prototype.__proto__ === LivingThing.prototype )
+
+    const a = new Alien
+    assert( a instanceof Alien )
+}
+
+// ##################################################
+// anonymous non-empty subclass
+{
+    const LivingThing = Class(() => ({
+        method1() {}
+    }))
+    const Alien = Class().extends(LivingThing, () => ({
+        method2() {}
+    }))
+    assert( Alien.name === "" )
+    assert( Alien.prototype.__proto__ === LivingThing.prototype )
+
+    const a = new Alien
+    assert( a instanceof Alien )
+    assert( a.method1 )
+    assert( a.method2 )
+}
+
+// ##################################################
+// named non-empty subclass
+{
+    const LivingThing = Class("LivingThing", () => ({
+        method1() {}
+    }))
+    const Alien = Class("Alien").extends(LivingThing, () => ({
+        method2() {}
+    }))
+    assert( Alien.name === "Alien" )
+    assert( Alien.prototype.__proto__ === LivingThing.prototype )
+
+    const a = new Alien
+    assert( a instanceof Alien )
+    assert( a.method1 )
+    assert( a.method2 )
+}
 
 // ##################################################
 // only public members can be read/written from outside code
@@ -46,6 +156,13 @@ const assert = console.assert.bind( console )
     console.assert( dog.baz === 'hee hee' )
     dog.checkBaz()
 }
+
+// TODO extends at the end syntax
+//{
+    //const Dog = Class(() => ({
+        //method() {}
+    //})).extends(LivingThing)
+//}
 
 // ##################################################
 // we should not be able to access protected members from an unrelated class
