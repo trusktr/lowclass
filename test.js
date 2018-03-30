@@ -740,8 +740,5 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     //})
 //}
 
-// TODO allow the following syntax. Nice because doesn't require Class to be assigned as subclass on non-lowclass constructors.
-//const Dog = Class('Dog').extends(Animal, (Public, Protected, Private, _super) => ({
-
 console.log('')
 console.log(' All tests passed! ')
