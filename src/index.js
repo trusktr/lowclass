@@ -99,9 +99,13 @@ function createClassHelper( options ) {
 
             // ...but add the extends helper in case we wanted to do
             // `Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({ ... }))`
-            Ctor.extends = function( ParentClass, definerFunction ) {
-                definerFunction = definerFunction || (() => {})
-                return createClass.call( ParentClass, name, definerFunction )
+            Ctor.extends = function( ParentClass, definerFn ) {
+
+                // definerFunction should be defined in this case so that the
+                // inheritance logic of createClass is triggered.
+                definerFn = definerFn || definerFunction || (() => {})
+
+                return createClass.call( ParentClass, name, definerFn )
             }
 
             return Ctor
@@ -134,21 +138,18 @@ function createClassHelper( options ) {
             throw new Error(' TODO: definition object ')
         }
 
-        // return a basic class early, for performance, if there's no class
-        // definition, f.e. `Class()` or `Class('Foo')` creates an anonymous or
-        // empty named class, respectively, so no need to run the heavier
-        // logic.
+        // Return early if there's no definition. f.e. `Class()` or `Class('Foo')`
         else if ( typeof definerFunction !== 'function' ) {
-            let Class
+            let Ctor
 
-            if ( className ) eval(`Class = function ${className}() {}`)
-            else Class = (() => function() {})() // force anonymous even in ES6+
+            if ( className ) eval(`Ctor = function ${className}() {}`)
+            else Ctor = (() => function() {})() // force anonymous even in ES6+
 
-            Class.prototype = { __proto__: Object.prototype, constructor: Class }
+            Ctor.prototype = { __proto__: Object.prototype, constructor: Ctor }
 
             // no static inheritance here, just like with `class Foo {}`
 
-            return Class
+            return Ctor
         }
 
         // f.e. ParentClass.subclass((Public, Protected, Private) => {...})

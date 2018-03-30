@@ -2,9 +2,6 @@ const { Class, createClassHelper, InvalidAccessError } = require('./src/index')
 
 const assert = console.assert.bind( console )
 
-// TODO allow the following syntax. Nice because doesn't require Class to be assigned as subclass on non-lowclass constructors.
-//const Dog = Class('Dog').extends(Animal, (Public, Protected, Private, _super) => ({
-
 // ##################################################
 // anonymous empty base classes
 {
@@ -111,8 +108,48 @@ const assert = console.assert.bind( console )
 
     const a = new Alien
     assert( a instanceof Alien )
-    assert( a.method1 )
-    assert( a.method2 )
+    assert( typeof a.method1 === 'function' )
+    assert( typeof a.method2 === 'function' )
+}
+
+// ##################################################
+// anonymous subclass with extends at the end
+{
+    const SeaCreature = Class(() => ({
+        method1() {}
+    }))
+
+    const Shark = Class(() => ({
+        method2() {}
+    })).extends(SeaCreature)
+
+    assert( Shark.name === "" )
+    assert( Shark.prototype.__proto__ === SeaCreature.prototype )
+
+    const shark = new Shark
+    assert( shark instanceof Shark )
+    assert( typeof shark.method1 === 'function' )
+    assert( typeof shark.method2 === 'function' )
+}
+
+// ##################################################
+// named subclass with extends at the end
+{
+    const SeaCreature = Class(() => ({
+        method1() {}
+    }))
+
+    const Shark = Class('Shark', () => ({
+        method2() {}
+    })).extends(SeaCreature)
+
+    assert( Shark.name === "Shark" )
+    assert( Shark.prototype.__proto__ === SeaCreature.prototype )
+
+    const shark = new Shark
+    assert( shark instanceof Shark )
+    assert( typeof shark.method1 === 'function' )
+    assert( typeof shark.method2 === 'function' )
 }
 
 // ##################################################
@@ -156,13 +193,6 @@ const assert = console.assert.bind( console )
     console.assert( dog.baz === 'hee hee' )
     dog.checkBaz()
 }
-
-// TODO extends at the end syntax
-//{
-    //const Dog = Class(() => ({
-        //method() {}
-    //})).extends(LivingThing)
-//}
 
 // ##################################################
 // we should not be able to access protected members from an unrelated class
@@ -709,6 +739,9 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         //}),
     //})
 //}
+
+// TODO allow the following syntax. Nice because doesn't require Class to be assigned as subclass on non-lowclass constructors.
+//const Dog = Class('Dog').extends(Animal, (Public, Protected, Private, _super) => ({
 
 console.log('')
 console.log(' All tests passed! ')
