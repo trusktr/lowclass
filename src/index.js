@@ -81,27 +81,27 @@ function createClassHelper( options ) {
         if ( args.length <= 2 ) {
 
             let name = ''
-            let definerFunction = null
+            let definer = null
 
             // f.e. `Class('Foo')`
             if ( typeof args[0] === 'string' ) name = args[0]
 
             // f.e. `Class((pub, prot, priv) => ({ ... }))`
-            else if ( typeof args[0] === 'function' ) definerFunction = args[0]
+            else if ( typeof args[0] === 'function' || typeof args[0] === 'object' ) definer = args[0]
 
             // f.e. `Class('Foo', (pub, prot, priv) => ({ ... }))`
-            if ( typeof args[1] === 'function' ) definerFunction = args[1]
+            if ( typeof args[1] === 'function' || typeof args[1] === 'object' ) definer = args[1]
 
             // Make a class in case we wanted to do just `Class()` or `Class('Foo')`...
             const Ctor = makingSubclass ?
-                createClass.call( this, name, definerFunction ) :
-                createClass( name, definerFunction )
+                createClass.call( this, name, definer ) :
+                createClass( name, definer )
 
             // ...but add the extends helper in case we wanted to do
             // `Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({ ... }))`
-            Ctor.extends = function( ParentClass, definerFn ) {
-                definerFn = definerFn || definerFunction
-                return createClass.call( ParentClass, name, definerFn )
+            Ctor.extends = function( ParentClass, def ) {
+                def = def || definer
+                return createClass.call( ParentClass, name, def )
             }
 
             return Ctor
@@ -112,9 +112,14 @@ function createClassHelper( options ) {
 
     /**
      * @param {string} className The name that the class being defined should have.
-     * @param {Function} definerFunction A function for defining the class. It is passed the Public, Protected, Private, and _super helpers.
+     * @param {Function} definer A function or object for defining the class.
+     * If definer a function, it is passed the Public, Protected, Private, and
+     * _super helpers. Methods and properties can be defined on the helpers
+     * directly.  An object containing methods and properties can also be
+     * returned from the function. If definer is an object, the object should
+     * be in the same format as the one returned if definer were a function.
      */
-    function createClass(className, definerFunction) {
+    function createClass(className, definer) {
         "use strict"
 
         const { mode } = options
@@ -122,25 +127,21 @@ function createClassHelper( options ) {
         // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
         let ParentClass = this
 
-        // f.e. Class((Public, Protected, Private) => ({ ... }))
-        if ( typeof className === 'function' ) {
-            definerFunction = className
-            className = definerFunction.name || ''
-        }
-
         // TODO the TypeError doesn't make sense if first arg is string and second arg is object.
-        else if (typeof className !== 'string')
+        if (typeof className !== 'string')
             throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a function.`)
 
+        let definition = null
+
         // f.e. Class('Foo', { ... })
-        if ( definerFunction && typeof definerFunction === 'object' ) {
-            throw new Error(' TODO: definition object ')
+        if ( definer && typeof definer === 'object' ) {
+            definition = definer
         }
 
-        // Return early if there's no definition or subclass, just a simple
+        // Return early if there's no definition or parent class, just a simple
         // extension of Object. f.e. when doing just `Class()` or
         // `Class('Foo')`
-        else if ( !( ParentClass || typeof definerFunction === 'function' ) ) {
+        else if ( !ParentClass && (!definer || ( typeof definer !== 'function' && typeof definer !== 'object' ) ) ) {
             let Ctor
 
             if ( className ) eval(`Ctor = function ${className}() {}`)
@@ -181,13 +182,22 @@ function createClassHelper( options ) {
         const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
         // pass the helper functions to the user's class definition function
-        const definition =
-            definerFunction && definerFunction( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super)
+        definition = definition ||
+            ( definer && definer( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super) )
 
         // the user has the option of returning an object that defines which
         // properties are public/protected/private.
         if (definition && typeof definition !== 'object') {
             throw new TypeError('The return value of a class definer function, if any, should be an object.')
+        }
+
+        // if functions were provided for the public/protected/private
+        // properties of the definition object, execute them with their
+        // respective access helpers, and use the objects returned from them.
+        if ( definition ) {
+            if ( typeof definition.public === 'function' ) definition.public = definition.public( _getProtectedMembers, _getPrivateMembers )
+            if ( typeof definition.protected === 'function' ) definition.protected = definition.protected( _getPublicMembers, _getPrivateMembers )
+            if ( typeof definition.private === 'function' ) definition.private = definition.private( _getPublicMembers, _getProtectedMembers )
         }
 
         // extend the parent class

@@ -723,22 +723,55 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 // ##################################################
-// alternate "syntaxes" TODO
-//{
-    //const SubClass = BaseClass.subclass({
-        //foo() {},
-        //protected: (Public, Private) => ({
-            //bar() {
-                //Public(this).foo()
-            //}
-        //}),
-        //private: (Public, Protected) => ({
-            //bar() {
-                //Public(this).foo()
-            //}
-        //}),
-    //})
-//}
+// using a simple object literal instead of a definer function, useful for
+// simple classes with public functionality, similar to regular `class {}`
+{
+    const Foo = Class({
+        constructor() {
+            this.bar = 'bar'
+        },
+        foo() {
+            assert( this.bar === 'bar' )
+        },
+    })
+
+    const f = new Foo
+    assert( f instanceof Foo )
+    f.foo()
+}
+
+// ##################################################
+// using an object literal instead of a definer function, with
+// public/protected/private helpers passed to the various access definitions
+{
+    const Foo = Class({
+        public: (Protected, Private) => ({
+            constructor() {
+                this.bar = 'bar'
+            },
+            foo() {
+                assert( this.bar === 'bar' )
+                assert( Protected(this).foo() === 'bar' )
+                assert( Private(this).foo() === 'bar' )
+                return 'it works'
+            },
+        }),
+        protected: (Public, Private) => ({
+            foo() {
+                return Public(this).bar
+            }
+        }),
+        private: (Public, Protected) => ({
+            foo() {
+                return Public(this).bar
+            }
+        }),
+    })
+
+    const f = new Foo
+    assert( f instanceof Foo )
+    assert( f.foo() === 'it works' )
+}
 
 console.log('')
 console.log(' All tests passed! ')
