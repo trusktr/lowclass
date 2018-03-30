@@ -100,11 +100,7 @@ function createClassHelper( options ) {
             // ...but add the extends helper in case we wanted to do
             // `Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({ ... }))`
             Ctor.extends = function( ParentClass, definerFn ) {
-
-                // definerFunction should be defined in this case so that the
-                // inheritance logic of createClass is triggered.
-                definerFn = definerFn || definerFunction || (() => {})
-
+                definerFn = definerFn || definerFunction
                 return createClass.call( ParentClass, name, definerFn )
             }
 
@@ -123,6 +119,9 @@ function createClassHelper( options ) {
 
         const { mode } = options
 
+        // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
+        let ParentClass = this
+
         // f.e. Class((Public, Protected, Private) => ({ ... }))
         if ( typeof className === 'function' ) {
             definerFunction = className
@@ -134,12 +133,14 @@ function createClassHelper( options ) {
             throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a function.`)
 
         // f.e. Class('Foo', { ... })
-        if ( typeof definerFunction === 'object' && definerFunction ) {
+        if ( definerFunction && typeof definerFunction === 'object' ) {
             throw new Error(' TODO: definition object ')
         }
 
-        // Return early if there's no definition. f.e. `Class()` or `Class('Foo')`
-        else if ( typeof definerFunction !== 'function' ) {
+        // Return early if there's no definition or subclass, just a simple
+        // extension of Object. f.e. when doing just `Class()` or
+        // `Class('Foo')`
+        else if ( !( ParentClass || typeof definerFunction === 'function' ) ) {
             let Ctor
 
             if ( className ) eval(`Ctor = function ${className}() {}`)
@@ -152,8 +153,7 @@ function createClassHelper( options ) {
             return Ctor
         }
 
-        // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
-        const ParentClass = this || Object
+        ParentClass = ParentClass || Object
 
         const parentPublicPrototype = ParentClass.prototype
 
