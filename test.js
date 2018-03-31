@@ -773,5 +773,16 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( f.foo() === 'it works' )
 }
 
+// ##################################################
+// static props and methods (only public for now, TODO)
+{
+    const Foo = Class()
+    Foo.foo = 'foo'
+    Foo.getFoo = function() { return this.foo }
+
+    const Bar = Class().extends(Foo)
+    assert( Bar.getFoo() === 'foo' )
+}
+
 console.log('')
 console.log(' All tests passed! ')
