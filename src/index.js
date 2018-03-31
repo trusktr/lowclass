@@ -1,4 +1,5 @@
 const { getFunctionBody, setDescriptor } = require( './utils' )
+const { newlessConstructors } = require('./newless')
 
 const publicProtoToProtectedProto = new WeakMap
 
@@ -557,9 +558,19 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     if ( !_super ) {
         supers.set( instance, _super = {} )
         copyDescriptors( parentPrototype, _super, (descriptor) => {
-            if ( descriptor.value && typeof descriptor.value === 'function' ) {
-                descriptor.value = descriptor.value.bind( instance )
+            let { value } = descriptor
+
+            if ( value && typeof value === 'function' ) {
+                if (
+                    value === parentPrototype.constructor &&
+                    newlessConstructors.has( value )
+                ) {
+                    value = newlessConstructors.get( value )
+                }
+
+                descriptor.value = value.bind( instance )
             }
+
             //else { TODO how to handle get/set
                 //descriptor.get = descriptor.get.bind( instance )
                 //descriptor.set = descriptor.set.bind( instance )

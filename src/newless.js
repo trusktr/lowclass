@@ -4,7 +4,13 @@
 
 const { getFunctionBody, setDescriptor } = require( './utils' )
 
-module.exports = newless
+// TODO this is publicly modifiable (exported), make it private or readonly
+const newlessConstructors = new WeakMap
+
+module.exports = {
+  newless,
+  newlessConstructors,
+}
 
 var supportsSpread = isSyntaxSupported("Object(...[{}])");
 var supportsClass = isSyntaxSupported("class Test {}")
@@ -230,6 +236,8 @@ function newless(constructor) {
   if (realSuperConstructor) {
     setPrototype(constructor, realSuperConstructor);
   }
+
+  newlessConstructors.set(constructor, newlessConstructor)
 
   return newlessConstructor;
 };
