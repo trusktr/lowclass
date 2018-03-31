@@ -361,15 +361,16 @@ function createClassHelper( options ) {
                 else newTarget = newTargetStack[ newTargetStack.length - 1 ]
 
                 if (userConstructor) {
-                    console.log('??????????', userConstructor,
-                        arguments, newTarget)
+                    console.log('??????????', userConstructor, arguments, newTarget)
                     self = Reflect.construct(
                         userConstructor, arguments, newTarget
                     )
                 }
-                else self = Reflect.construct(
-                    ParentClass, arguments, newTarget
-                )
+                else {
+                    self = Reflect.construct(
+                        ParentClass, arguments, newTarget
+                    )
+                }
 
                 newTargetStack.pop()
 
@@ -427,6 +428,14 @@ function createClassHelper( options ) {
             )
 
             NewClass.prototype = proto
+        }
+
+        if ( userConstructor && userConstructor.length ) {
+            // length is not writable, only configurable, therefore the value
+            // has to be set with a descriptor update
+            setDescriptor( NewClass, 'length', {
+                value: userConstructor.length
+            })
         }
 
         // static inheritance
@@ -564,4 +573,10 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
         })
     }
     return _super
+}
+
+function setDescriptor( obj, key, def ) {
+    const descriptor = Object.getOwnPropertyDescriptor( obj, key ) || def
+    if ( descriptor !== def ) Object.assign( descriptor, def )
+    Object.defineProperty( obj, key, descriptor )
 }

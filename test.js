@@ -796,5 +796,16 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( typeof Lorem.create === 'function' )
 }
 
+// ##################################################
+// make sure generated constructor has same `.length` as the supplied
+// constructor
+{
+    const Foo = Class({
+        constructor( a, b, c, d ) { },
+    })
+
+    assert( Foo.length === 4 )
+}
+
 console.log('')
 console.log(' All tests passed! ')
