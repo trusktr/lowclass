@@ -304,32 +304,26 @@ function createClassHelper( options ) {
             copyDescriptors(definition, publicPrototype)
         }
 
-        let NewClass = null
-
         const userConstructor =
             publicPrototype.hasOwnProperty('constructor') ?
             publicPrototype.constructor :
             null
+
+        let NewClass = null
 
         // ES5 version (which seems to be so much better)
         if ( mode === 'es5' ) {
 
             NewClass = ( () => function() {
 
-                // make a protected instance if it doesn't exist already.  Only
-                // the child-most class constructor will create the protected
-                // instance, because the publicToProtected map is shared among
-                // them all.
+                // make a protected instance if it doesn't exist already
                 let protectedInstance = publicToProtected.get( this )
                 if ( !protectedInstance ) {
                     protectedInstance = Object.create( protectedPrototype )
                     publicToProtected.set( this, protectedInstance )
                 }
 
-                // make a private instance. Each class constructor will create
-                // one for a given instance because each constructor accesses
-                // the publicToPrivate map from its class scope (it isn't
-                // shared like publicToProtected is)
+                // make one private instance per class
                 const privateInstance = Object.create( privatePrototype )
                 publicToPrivate.set( this, privateInstance )
 
@@ -379,20 +373,14 @@ function createClassHelper( options ) {
 
                 newTargetStack.pop()
 
-                // make a protected instance if it doesn't exist already.  Only
-                // the child-most class constructor will create the protected
-                // instance, because the publicToProtected map is shared among
-                // them all.
+                // make a protected instance if it doesn't exist already
                 let protectedInstance = publicToProtected.get( self )
                 if ( !protectedInstance ) {
                     protectedInstance = Object.create( protectedPrototype )
                     publicToProtected.set( self, protectedInstance )
                 }
 
-                // make a private instance. Each class constructor will create
-                // one for a given instance because each constructor accesses
-                // the publicToPrivate map from its class scope (it isn't
-                // shared like publicToProtected is)
+                // make one private instance per class
                 const privateInstance = Object.create( privatePrototype )
                 publicToPrivate.set( self, privateInstance )
 
