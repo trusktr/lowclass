@@ -306,25 +306,30 @@ function createClassHelper( options ) {
 
         let NewClass = null
 
+        const userConstructor =
+            publicPrototype.hasOwnProperty('constructor') ?
+            publicPrototype.constructor :
+            null
+
         // ES5 version (which seems to be so much better)
         if ( mode === 'es5' ) {
 
             NewClass = ( () => function() {
 
-                // make a protected instance if it doesn't exist already.
-                // Only the child-most class constructor will create the
-                // protected instance, because the publicToProtected map is
-                // shared among them all.
+                // make a protected instance if it doesn't exist already.  Only
+                // the child-most class constructor will create the protected
+                // instance, because the publicToProtected map is shared among
+                // them all.
                 let protectedInstance = publicToProtected.get( this )
                 if ( !protectedInstance ) {
                     protectedInstance = Object.create( protectedPrototype )
                     publicToProtected.set( this, protectedInstance )
                 }
 
-                // make a private instance. Each class constructor will
-                // create one for a given instance because each constructor
-                // accesses the publicToPrivate map from its class scope
-                // (it isn't shared like publicToProtected is)
+                // make a private instance. Each class constructor will create
+                // one for a given instance because each constructor accesses
+                // the publicToPrivate map from its class scope (it isn't
+                // shared like publicToProtected is)
                 const privateInstance = Object.create( privatePrototype )
                 publicToPrivate.set( this, privateInstance )
 
@@ -333,49 +338,12 @@ function createClassHelper( options ) {
 
             } )()
 
-            const userConstructor = publicPrototype.constructor
-
-            if ( className ) {
-
-                const code = getFunctionBody( NewClass )
-
-                NewClass = new Function(`
-                    userConstructor,
-                    publicPrototype,
-                    protectedPrototype,
-                    privatePrototype,
-                    ParentClass,
-                    publicToProtected,
-                    publicToPrivate
-                `, `
-                    return function ${className}() { ${code} }
-                `)(
-                    userConstructor,
-                    publicPrototype,
-                    protectedPrototype,
-                    privatePrototype,
-                    ParentClass,
-                    publicToProtected,
-                    publicToPrivate
-                )
-
-            }
-
-            // standard ES5 class definition
-            NewClass.__proto__ = ParentClass // static inheritance
             NewClass.prototype = publicPrototype
-            // TODO: make constructor non-writable / non-configurable like ES6+
-            NewClass.prototype.constructor = NewClass
 
         }
 
         // ES6+ version (which seems to be dumb)
         else if ( mode === 'Reflect.construct' ) {
-
-            const userConstructor =
-                publicPrototype.hasOwnProperty('constructor') ?
-                publicPrototype.constructor :
-                false
 
             if (userConstructor) {
                 console.log('userConstructor:', userConstructor)
@@ -391,15 +359,12 @@ function createClassHelper( options ) {
                 let self = null
 
                 console.log(" ------------- userConstructor?")
-                console.log(userConstructor &&
-                    userConstructor.toString())
+                console.log(userConstructor && userConstructor.toString())
 
                 let newTarget = new.target
 
                 if ( newTarget ) newTargetStack.push( newTarget )
-                else newTarget = newTargetStack[
-                    newTargetStack.length - 1
-                ]
+                else newTarget = newTargetStack[ newTargetStack.length - 1 ]
 
                 if (userConstructor) {
                     console.log('??????????', userConstructor,
@@ -414,64 +379,27 @@ function createClassHelper( options ) {
 
                 newTargetStack.pop()
 
-                // make a protected instance if it doesn't exist
-                // already.  Only the child-most class constructor will
-                // create the protected instance, because the
-                // publicToProtected map is shared among them all.
+                // make a protected instance if it doesn't exist already.  Only
+                // the child-most class constructor will create the protected
+                // instance, because the publicToProtected map is shared among
+                // them all.
                 let protectedInstance = publicToProtected.get( self )
                 if ( !protectedInstance ) {
-                    protectedInstance = Object.create(
-                        protectedPrototype
-                    )
+                    protectedInstance = Object.create( protectedPrototype )
                     publicToProtected.set( self, protectedInstance )
                 }
 
-                // make a private instance. Each class constructor will
-                // create one for a given instance because each
-                // constructor accesses the publicToPrivate map from
-                // its class scope (it isn't shared like
-                // publicToProtected is)
+                // make a private instance. Each class constructor will create
+                // one for a given instance because each constructor accesses
+                // the publicToPrivate map from its class scope (it isn't
+                // shared like publicToProtected is)
                 const privateInstance = Object.create( privatePrototype )
                 publicToPrivate.set( self, privateInstance )
 
                 return self
             } )()
 
-            if ( className ) {
-
-                const code = getFunctionBody( NewClass )
-
-                NewClass = new Function(`
-                    userConstructor,
-                    publicPrototype,
-                    protectedPrototype,
-                    privatePrototype,
-                    ParentClass,
-                    publicToProtected,
-                    publicToPrivate,
-                    newTargetStack
-                `, `
-                    //return class ${className} extends ParentClass
-                    return function ${className}() { ${code} }
-                `)(
-                    userConstructor,
-                    publicPrototype,
-                    protectedPrototype,
-                    privatePrototype,
-                    ParentClass,
-                    publicToProtected,
-                    publicToPrivate,
-                    newTargetStack
-                )
-            }
-
-            // static inheritance
-            if (userConstructor) NewClass.__proto__ = userConstructor
-            else NewClass.__proto__ = ParentClass
-
             NewClass.prototype = Object.create( publicPrototype )
-            // TODO: make non-writable and non-configurable like ES6+
-            NewClass.prototype.constructor = NewClass
 
         }
 
@@ -481,6 +409,44 @@ function createClassHelper( options ) {
                 "es5", "Reflect.construct".
             `)
         }
+
+        if ( className ) {
+
+            const code = getFunctionBody( NewClass )
+            const proto = NewClass.prototype
+
+            NewClass = new Function(`
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate,
+                newTargetStack
+            `, `
+                //return class ${className} extends ParentClass
+                return function ${className}() { ${code} }
+            `)(
+                userConstructor,
+                publicPrototype,
+                protectedPrototype,
+                privatePrototype,
+                ParentClass,
+                publicToProtected,
+                publicToPrivate,
+                newTargetStack
+            )
+
+            NewClass.prototype = proto
+        }
+
+        // static inheritance
+        if (userConstructor) NewClass.__proto__ = userConstructor
+        else NewClass.__proto__ = ParentClass
+
+        // TODO: make constructor non-writable / non-configurable like ES6+
+        NewClass.prototype.constructor = NewClass
 
         // allow users to make subclasses. This defines what `this` is and gets
         // assigned to ParentClass above in subsequent calls.
