@@ -15,8 +15,13 @@ const publicToProtected = new WeakTwoWayMap
 const newTargetStack = []
 
 const defaultOptions = {
-    mode: 'es5' // es5 class inheritance is simple, nice, easy, and robust
-    //mode: 'Reflect.construct', // es6+ class inheritance is tricky, difficult, and restrictive
+
+    // es5 class inheritance is simple, nice, easy, and robust
+    mode: 'es5'
+
+    // es2015+ class inheritance is tricky, difficult, and restrictive
+    //mode: 'Reflect.construct',
+
 }
 
 class InvalidSuperAccessError extends Error {}
@@ -25,7 +30,7 @@ class InvalidAccessError extends Error {}
 const Class = createClassHelper()
 
 module.exports = Class
-Object.assign(module.exports, {
+Object.assign( module.exports, {
     Class,
     createClassHelper,
     InvalidSuperAccessError,
@@ -38,46 +43,56 @@ function createClassHelper( options ) {
     options = options || defaultOptions
 
     /*
-     * this is just the public interface adapter for createClass(). Depending on how
-     * you call this interface, you can do various things like:
+     * this is just the public interface adapter for createClass(). Depending
+     * on how you call this interface, you can do various things like:
      *
-     *   // anonymous empty class
-     *   Class()
+     * - anonymous empty class
      *
-     *   // named empty class, TODO
-     *   Class('Foo')
+     *    Class()
      *
-     *   // base class named Foo
-     *   Class('Foo', (Public, Protected, Private) => {
-     *     someMethod() { ... },
-     *   })
+     * - named empty class
      *
-     *   // anonymous base class
-     *   Class((Public, Protected, Private) => {
-     *     someMethod() { ... },
-     *   })
+     *    Class('Foo')
      *
-     *   Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({
-     *     someMethod() { ... },
-     *   }))
+     * - base class named Foo
      *
-     *   OtherClass.subclass = Class
-     *   const Bar = OtherClass.subclass('Bar', (Public, Protected, Private) => {...})
+     *    Class('Foo', (Public, Protected, Private) => {
+     *      someMethod() { ... },
+     *    })
      *
-     *   // any class made with lowclass has a static subclass if you prefer using that:
-     *   Bar.subclass('Baz', (Public, Protected, Private) => {...})
+     * - anonymous base class
      *
-     *   // But you could as well do
-     *   Class('Baz').extends(Bar, (Public, Protected, Private) => {...})
+     *    Class((Public, Protected, Private) => {
+     *      someMethod() { ... },
+     *    })
+     *
+     *    Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({
+     *      someMethod() { ... },
+     *    }))
+     *
+     *    OtherClass.subclass = Class
+     *    const Bar = OtherClass.subclass((Public, Protected, Private) => {
+     *      ...
+     *    })
+     *
+     * - any class made with lowclass has a static subclass if you prefer using
+     *   that:
+     *
+     *    Bar.subclass('Baz', (Public, Protected, Private) => {...})
+     *
+     * - but you could as well do
+     *
+     *    Class('Baz').extends(Bar, (Public, Protected, Private) => {...})
      */
-    return function Class(...args) {
+    return function Class( ...args ) {
 
         let makingSubclass = false
 
         // if called as SomeConstructor.subclass, or bound to SomeConstructor
         if ( typeof this === 'function' ) makingSubclass = true
 
-        // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or `class Foo {}`
+        // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or
+        // `class Foo {}`
         if ( args.length <= 2 ) {
 
             let name = ''
@@ -87,18 +102,26 @@ function createClassHelper( options ) {
             if ( typeof args[0] === 'string' ) name = args[0]
 
             // f.e. `Class((pub, prot, priv) => ({ ... }))`
-            else if ( typeof args[0] === 'function' || typeof args[0] === 'object' ) definer = args[0]
+            else if (
+                typeof args[0] === 'function' || typeof args[0] === 'object'
+            ) {
+                definer = args[0]
+            }
 
             // f.e. `Class('Foo', (pub, prot, priv) => ({ ... }))`
-            if ( typeof args[1] === 'function' || typeof args[1] === 'object' ) definer = args[1]
+            if ( typeof args[1] === 'function' || typeof args[1] === 'object' )
+                definer = args[1]
 
-            // Make a class in case we wanted to do just `Class()` or `Class('Foo')`...
+            // Make a class in case we wanted to do just `Class()` or
+            // `Class('Foo')`...
             const Ctor = makingSubclass ?
                 createClass.call( this, name, definer ) :
                 createClass( name, definer )
 
-            // ...but add the extends helper in case we wanted to do
-            // `Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({ ... }))`
+            // ...but add the extends helper in case we wanted to do like:
+            // Class().extends(OtherClass, (Public, Protected, Private) => ({
+            //   ...
+            // }))
             Ctor.extends = function( ParentClass, def ) {
                 def = def || definer
                 return createClass.call( ParentClass, name, def )
@@ -107,11 +130,12 @@ function createClassHelper( options ) {
             return Ctor
         }
 
-        throw new TypeError('invalid args')
+        throw new TypeError( 'invalid args' )
     }
 
     /**
-     * @param {string} className The name that the class being defined should have.
+     * @param {string} className The name that the class being defined should
+     * have.
      * @param {Function} definer A function or object for defining the class.
      * If definer a function, it is passed the Public, Protected, Private, and
      * _super helpers. Methods and properties can be defined on the helpers
@@ -119,7 +143,7 @@ function createClassHelper( options ) {
      * returned from the function. If definer is an object, the object should
      * be in the same format as the one returned if definer were a function.
      */
-    function createClass(className, definer) {
+    function createClass( className, definer ) {
         "use strict"
 
         const { mode } = options
@@ -127,9 +151,11 @@ function createClassHelper( options ) {
         // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
         let ParentClass = this
 
-        // TODO the TypeError doesn't make sense if first arg is string and second arg is object.
-        if (typeof className !== 'string')
-            throw new TypeError(`If supplying two arguments, you must specify a string for the first 'className' argument. If supplying only one argument, it must be a function.`)
+        if ( typeof className !== 'string' ) {
+            throw new TypeError(`
+                You must specify a string for the 'className' argument.
+            `)
+        }
 
         let definition = null
 
@@ -141,11 +167,21 @@ function createClassHelper( options ) {
         // Return early if there's no definition or parent class, just a simple
         // extension of Object. f.e. when doing just `Class()` or
         // `Class('Foo')`
-        else if ( !ParentClass && (!definer || ( typeof definer !== 'function' && typeof definer !== 'object' ) ) ) {
+        else if (
+            !ParentClass && (
+                !definer || (
+                    typeof definer !== 'function' &&
+                    typeof definer !== 'object'
+                )
+            )
+        ) {
             let Ctor
 
-            if ( className ) eval(`Ctor = function ${className}() {}`)
-            else Ctor = (() => function() {})() // force anonymous even in ES6+
+            if ( className ) eval( `Ctor = function ${ className }() {}` )
+            else {
+                // force anonymous even in ES6+
+                Ctor = ( () => function() {} )()
+            }
 
             Ctor.prototype = { __proto__: Object.prototype, constructor: Ctor }
 
@@ -160,10 +196,10 @@ function createClassHelper( options ) {
 
         // A two-way map to associate public instances with private instances.
         // Unlike publicToProtected, this is inside here because there is one
-        // private instance per class scope per instance (or to say it another way,
-        // each instance has as many private instances as the number of classes
-        // that the given instance has in its inheritance chain, one private
-        // instance per class)
+        // private instance per class scope per instance (or to say it another
+        // way, each instance has as many private instances as the number of
+        // classes that the given instance has in its inheritance chain, one
+        // private instance per class)
         const publicToPrivate = new WeakTwoWayMap
 
         // the class "scope" that we will bind to the helper functions
@@ -182,13 +218,17 @@ function createClassHelper( options ) {
         const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
         // pass the helper functions to the user's class definition function
-        definition = definition ||
-            ( definer && definer( _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super) )
+        definition = definition || definer && definer(
+            _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super
+        )
 
         // the user has the option of returning an object that defines which
         // properties are public/protected/private.
-        if (definition && typeof definition !== 'object') {
-            throw new TypeError('The return value of a class definer function, if any, should be an object.')
+        if ( definition && typeof definition !== 'object' ) {
+            throw new TypeError(`
+                The return value of a class definer function, if any, should be
+                an object.
+            `)
         }
 
         // if functions were provided for the public/protected/private
@@ -217,17 +257,19 @@ function createClassHelper( options ) {
         }
 
         // extend the parent class
-        const publicPrototype = definition && definition.public || definition || {}
+        const publicPrototype = definition && definition.public ||
+            definition || {}
         publicPrototype.__proto__ = parentPublicPrototype
 
         // extend the parent protected prototype
-        const parentProtectedPrototype = publicProtoToProtectedProto.get(parentPublicPrototype) || {}
+        const parentProtectedPrototype =
+            publicProtoToProtectedProto.get( parentPublicPrototype) || {}
         const protectedPrototype = definition && definition.protected || {}
         protectedPrototype.__proto__ = parentProtectedPrototype
         publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
 
-        // private prototype does not inherit from parent, each private instance is
-        // private only for the class of this scope
+        // private prototype does not inherit from parent, each private
+        // instance is private only for the class of this scope
         const privatePrototype = definition && definition.private || {}
 
         scope.publicPrototype = publicPrototype
@@ -236,21 +278,21 @@ function createClassHelper( options ) {
         scope.parentProtectedPrototype = parentProtectedPrototype
 
         // the user has the option of assigning methods and properties to the
-        // helpers that we passed in, to let us know which methods and properties are
-        // public/protected/private so we can assign them onto the respective
-        // prototypes.
+        // helpers that we passed in, to let us know which methods and
+        // properties are public/protected/private so we can assign them onto
+        // the respective prototypes.
         copyDescriptors(_getPublicMembers, publicPrototype)
         copyDescriptors(_getProtectedMembers, protectedPrototype)
         copyDescriptors(_getPrivateMembers, privatePrototype)
 
-        // if a `public` object was also supplied, also copy the definition props
-        // to the `public` prototype
+        // if a `public` object was also supplied, also copy the definition
+        // props to the `public` prototype
         //
         // TODO For now we prioritize the "public" object returned from the
-        // definer, and copy from the definition to the publicPrototype, but this
-        // won't work with `super`. Maybe later, we can use a Proxy to read props
-        // from both the root object and the public object, so that `super` works
-        // from both.
+        // definer, and copy from the definition to the publicPrototype, but
+        // this won't work with `super`. Maybe later, we can use a Proxy to
+        // read props from both the root object and the public object, so that
+        // `super` works from both.
         if (definition && definition !== publicPrototype) {
 
             // delete these so we don't copy them
@@ -269,10 +311,6 @@ function createClassHelper( options ) {
 
             const userConstructor = publicPrototype.constructor
 
-            // Create the constructor for the class of this scope.
-            // We create the constructor inside of this immediately-invoked function (IIFE)
-            // just so that we can give it a `className`.
-            // We pass whatever we need from the outer scope into the IIFE.
             NewClass = new Function(`
                 userConstructor,
                 publicPrototype,
@@ -284,19 +322,20 @@ function createClassHelper( options ) {
             `, `
                 return function ${className}() {
 
-                    // make a protected instance if it doesn't exist already. Only the
-                    // child-most class constructor will create the protected instance,
-                    // because the publicToProtected map is shared among them all.
+                    // make a protected instance if it doesn't exist already.
+                    // Only the child-most class constructor will create the
+                    // protected instance, because the publicToProtected map is
+                    // shared among them all.
                     let protectedInstance = publicToProtected.get( this )
                     if ( !protectedInstance ) {
                         protectedInstance = Object.create( protectedPrototype )
                         publicToProtected.set( this, protectedInstance )
                     }
 
-                    // make a private instance. Each class constructor will create one
-                    // for a given instance because each constructor accesses the
-                    // publicToPrivate map from its class scope (it isn't shared like
-                    // publicToProtected is)
+                    // make a private instance. Each class constructor will
+                    // create one for a given instance because each constructor
+                    // accesses the publicToPrivate map from its class scope
+                    // (it isn't shared like publicToProtected is)
                     privateInstance = Object.create( privatePrototype )
                     publicToPrivate.set( this, privateInstance )
 
@@ -316,27 +355,29 @@ function createClassHelper( options ) {
             // standard ES5 class definition
             NewClass.__proto__ = ParentClass // static inheritance
             NewClass.prototype = publicPrototype
-            NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+            // TODO: make constructor non-writable / non-configurable like ES6+
+            NewClass.prototype.constructor = NewClass
 
         }
 
         // ES6+ version (which seems to be dumb)
         else if ( mode === 'Reflect.construct' ) {
 
-            const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : false
+            const userConstructor =
+                publicPrototype.hasOwnProperty('constructor') ?
+                publicPrototype.constructor :
+                false
 
             if (userConstructor) {
                 console.log('userConstructor:', userConstructor)
                 console.log('parent class:', ParentClass)
                 userConstructor.__proto__ = ParentClass // static inheritance
                 userConstructor.prototype = publicPrototype
-                //userConstructor.prototype.constructor = userConstructor // already the case
+
+                // already the case
+                //userConstructor.prototype.constructor = userConstructor
             }
 
-            // Create the constructor for the class of this scope.
-            // We create the constructor inside of this immediately-invoked function (IIFE)
-            // just so that we can give it a `className`.
-            // We pass whatever we need from the outer scope into the IIFE.
             NewClass = new Function(`
                 userConstructor,
                 publicPrototype,
@@ -360,26 +401,32 @@ function createClassHelper( options ) {
                     else newTarget = newTargetStack[ newTargetStack.length - 1 ]
 
                     if (userConstructor) {
-                        console.log('??????????', userConstructor, arguments, newTarget)
-                        self = Reflect.construct( userConstructor, arguments, newTarget )
+                        console.log('??????????', userConstructor, arguments,
+                            newTarget)
+                        self = Reflect.construct(
+                            userConstructor, arguments, newTarget
+                        )
                     }
-                    else self = Reflect.construct( ParentClass, arguments, newTarget )
+                    else self = Reflect.construct(
+                        ParentClass, arguments, newTarget
+                    )
 
                     newTargetStack.pop()
 
-                    // make a protected instance if it doesn't exist already. Only the
-                    // child-most class constructor will create the protected instance,
-                    // because the publicToProtected map is shared among them all.
+                    // make a protected instance if it doesn't exist already.
+                    // Only the child-most class constructor will create the
+                    // protected instance, because the publicToProtected map is
+                    // shared among them all.
                     let protectedInstance = publicToProtected.get( self )
                     if ( !protectedInstance ) {
                         protectedInstance = Object.create( protectedPrototype )
                         publicToProtected.set( self, protectedInstance )
                     }
 
-                    // make a private instance. Each class constructor will create one
-                    // for a given instance because each constructor accesses the
-                    // publicToPrivate map from its class scope (it isn't shared like
-                    // publicToProtected is)
+                    // make a private instance. Each class constructor will
+                    // create one for a given instance because each constructor
+                    // accesses the publicToPrivate map from its class scope
+                    // (it isn't shared like publicToProtected is)
                     privateInstance = Object.create( privatePrototype )
                     publicToPrivate.set( self, privateInstance )
 
@@ -401,16 +448,20 @@ function createClassHelper( options ) {
             else NewClass.__proto__ = ParentClass
 
             NewClass.prototype = Object.create( publicPrototype )
-            NewClass.prototype.constructor = NewClass // TODO: make non-writable and non-configurable like ES6+
+            // TODO: make non-writable and non-configurable like ES6+
+            NewClass.prototype.constructor = NewClass
 
         }
 
         else {
-            throw new TypeError('The lowclass mode option should be one of: "es5", "Reflect.construct".')
+            throw new TypeError(`
+                The lowclass mode option should be one of:
+                "es5", "Reflect.construct".
+            `)
         }
 
-        // allow users to make subclasses. This defines what `this` is in the above
-        // definition of ParentClass.
+        // allow users to make subclasses. This defines what `this` is and gets
+        // assigned to ParentClass above in subsequent calls.
         NewClass.subclass = Class
 
         return NewClass
@@ -456,7 +507,8 @@ function getPrivateMembers( scope, instance ) {
     if ( hasPrototype( instance, scope.publicPrototype ) )
         return scope.publicToPrivate.get( instance )
 
-    // check for a protected instance that is or inherits from this class' protectedPrototype
+    // check for a protected instance that is or inherits from this class'
+    // protectedPrototype
     else if ( hasPrototype( instance, scope.protectedPrototype ) )
         return scope.publicToPrivate.get( publicToProtected.get( instance ) )
 
@@ -503,7 +555,9 @@ function superHelper( supers, scope, instance ) {
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
 
     if ( hasPrototype( instance, protectedPrototype ) )
-        return getSuperHelperObject( instance, parentProtectedPrototype, supers )
+        return getSuperHelperObject(
+            instance, parentProtectedPrototype, supers
+        )
 
     // TODO: does it make sense to add _super support for private members
     // here? Let's add it when/if we need it.
