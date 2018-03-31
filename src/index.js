@@ -309,48 +309,57 @@ function createClassHelper( options ) {
         // ES5 version (which seems to be so much better)
         if ( mode === 'es5' ) {
 
+            NewClass = ( () => function() {
+
+                // make a protected instance if it doesn't exist already.
+                // Only the child-most class constructor will create the
+                // protected instance, because the publicToProtected map is
+                // shared among them all.
+                let protectedInstance = publicToProtected.get( this )
+                if ( !protectedInstance ) {
+                    protectedInstance = Object.create( protectedPrototype )
+                    publicToProtected.set( this, protectedInstance )
+                }
+
+                // make a private instance. Each class constructor will
+                // create one for a given instance because each constructor
+                // accesses the publicToPrivate map from its class scope
+                // (it isn't shared like publicToProtected is)
+                const privateInstance = Object.create( privatePrototype )
+                publicToPrivate.set( this, privateInstance )
+
+                if (userConstructor) userConstructor.apply(this, arguments)
+                else ParentClass.apply(this, arguments)
+
+            } )()
+
             const userConstructor = publicPrototype.constructor
 
-            NewClass = new Function(`
-                userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
-                ParentClass,
-                publicToProtected,
-                publicToPrivate
-            `, `
-                return function ${className}() {
+            if ( className ) {
 
-                    // make a protected instance if it doesn't exist already.
-                    // Only the child-most class constructor will create the
-                    // protected instance, because the publicToProtected map is
-                    // shared among them all.
-                    let protectedInstance = publicToProtected.get( this )
-                    if ( !protectedInstance ) {
-                        protectedInstance = Object.create( protectedPrototype )
-                        publicToProtected.set( this, protectedInstance )
-                    }
+                const code = getFunctionBody( NewClass )
 
-                    // make a private instance. Each class constructor will
-                    // create one for a given instance because each constructor
-                    // accesses the publicToPrivate map from its class scope
-                    // (it isn't shared like publicToProtected is)
-                    privateInstance = Object.create( privatePrototype )
-                    publicToPrivate.set( this, privateInstance )
+                NewClass = new Function(`
+                    userConstructor,
+                    publicPrototype,
+                    protectedPrototype,
+                    privatePrototype,
+                    ParentClass,
+                    publicToProtected,
+                    publicToPrivate
+                `, `
+                    return function ${className}() { ${code} }
+                `)(
+                    userConstructor,
+                    publicPrototype,
+                    protectedPrototype,
+                    privatePrototype,
+                    ParentClass,
+                    publicToProtected,
+                    publicToPrivate
+                )
 
-                    if (userConstructor) userConstructor.apply(this, arguments)
-                    else ParentClass.apply(this, arguments)
-                }
-            `)(
-                userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
-                ParentClass,
-                publicToProtected,
-                publicToPrivate
-            )
+            }
 
             // standard ES5 class definition
             NewClass.__proto__ = ParentClass // static inheritance
@@ -378,70 +387,83 @@ function createClassHelper( options ) {
                 //userConstructor.prototype.constructor = userConstructor
             }
 
-            NewClass = new Function(`
-                userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
-                ParentClass,
-                publicToProtected,
-                publicToPrivate,
-                newTargetStack
-            `, `
-                //return class ${className} extends ParentClass
-                return function ${className}() {
-                    let self = null
+            NewClass = ( () => function() {
+                let self = null
 
-                    console.log(" ------------- userConstructor?")
-                    console.log(userConstructor && userConstructor.toString())
+                console.log(" ------------- userConstructor?")
+                console.log(userConstructor &&
+                    userConstructor.toString())
 
-                    let newTarget = new.target
+                let newTarget = new.target
 
-                    if ( newTarget ) newTargetStack.push( newTarget )
-                    else newTarget = newTargetStack[ newTargetStack.length - 1 ]
+                if ( newTarget ) newTargetStack.push( newTarget )
+                else newTarget = newTargetStack[
+                    newTargetStack.length - 1
+                ]
 
-                    if (userConstructor) {
-                        console.log('??????????', userConstructor, arguments,
-                            newTarget)
-                        self = Reflect.construct(
-                            userConstructor, arguments, newTarget
-                        )
-                    }
-                    else self = Reflect.construct(
-                        ParentClass, arguments, newTarget
+                if (userConstructor) {
+                    console.log('??????????', userConstructor,
+                        arguments, newTarget)
+                    self = Reflect.construct(
+                        userConstructor, arguments, newTarget
                     )
-
-                    newTargetStack.pop()
-
-                    // make a protected instance if it doesn't exist already.
-                    // Only the child-most class constructor will create the
-                    // protected instance, because the publicToProtected map is
-                    // shared among them all.
-                    let protectedInstance = publicToProtected.get( self )
-                    if ( !protectedInstance ) {
-                        protectedInstance = Object.create( protectedPrototype )
-                        publicToProtected.set( self, protectedInstance )
-                    }
-
-                    // make a private instance. Each class constructor will
-                    // create one for a given instance because each constructor
-                    // accesses the publicToPrivate map from its class scope
-                    // (it isn't shared like publicToProtected is)
-                    privateInstance = Object.create( privatePrototype )
-                    publicToPrivate.set( self, privateInstance )
-
-                    return self
                 }
-            `)(
-                userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
-                ParentClass,
-                publicToProtected,
-                publicToPrivate,
-                newTargetStack
-            )
+                else self = Reflect.construct(
+                    ParentClass, arguments, newTarget
+                )
+
+                newTargetStack.pop()
+
+                // make a protected instance if it doesn't exist
+                // already.  Only the child-most class constructor will
+                // create the protected instance, because the
+                // publicToProtected map is shared among them all.
+                let protectedInstance = publicToProtected.get( self )
+                if ( !protectedInstance ) {
+                    protectedInstance = Object.create(
+                        protectedPrototype
+                    )
+                    publicToProtected.set( self, protectedInstance )
+                }
+
+                // make a private instance. Each class constructor will
+                // create one for a given instance because each
+                // constructor accesses the publicToPrivate map from
+                // its class scope (it isn't shared like
+                // publicToProtected is)
+                const privateInstance = Object.create( privatePrototype )
+                publicToPrivate.set( self, privateInstance )
+
+                return self
+            } )()
+
+            if ( className ) {
+
+                const code = getFunctionBody( NewClass )
+
+                NewClass = new Function(`
+                    userConstructor,
+                    publicPrototype,
+                    protectedPrototype,
+                    privatePrototype,
+                    ParentClass,
+                    publicToProtected,
+                    publicToPrivate,
+                    newTargetStack
+                `, `
+                    //return class ${className} extends ParentClass
+                    return function ${className}() { ${code} }
+                `)(
+                    userConstructor,
+                    publicPrototype,
+                    protectedPrototype,
+                    privatePrototype,
+                    ParentClass,
+                    publicToProtected,
+                    publicToPrivate,
+                    newTargetStack
+                )
+            }
 
             // static inheritance
             if (userConstructor) NewClass.__proto__ = userConstructor
@@ -466,6 +488,14 @@ function createClassHelper( options ) {
 
         return NewClass
     }
+}
+
+// assumes the function opening, body, and closing are on separate lines
+function getFunctionBody( fn ) {
+    const code = fn.toString().split("\n")
+    code.shift() // remove opening line (function() {)
+    code.pop() // remove closing line (})
+    return code.join("\n")
 }
 
 function getPublicMembers( scope, instance ) {
