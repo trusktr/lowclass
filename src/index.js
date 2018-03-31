@@ -195,9 +195,25 @@ function createClassHelper( options ) {
         // properties of the definition object, execute them with their
         // respective access helpers, and use the objects returned from them.
         if ( definition ) {
-            if ( typeof definition.public === 'function' ) definition.public = definition.public( _getProtectedMembers, _getPrivateMembers )
-            if ( typeof definition.protected === 'function' ) definition.protected = definition.protected( _getPublicMembers, _getPrivateMembers )
-            if ( typeof definition.private === 'function' ) definition.private = definition.private( _getPublicMembers, _getProtectedMembers )
+
+            if ( typeof definition.public === 'function' ) {
+                definition.public = definition.public(
+                    _getProtectedMembers, _getPrivateMembers
+                )
+            }
+
+            if ( typeof definition.protected === 'function' ) {
+                definition.protected = definition.protected(
+                    _getPublicMembers, _getPrivateMembers
+                )
+            }
+
+            if ( typeof definition.private === 'function' ) {
+                definition.private = definition.private(
+                    _getPublicMembers, _getProtectedMembers
+                )
+            }
+
         }
 
         // extend the parent class
