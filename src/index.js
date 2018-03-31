@@ -1,3 +1,5 @@
+const { getFunctionBody, setDescriptor } = require( './utils' )
+
 const publicProtoToProtectedProto = new WeakMap
 
 class WeakTwoWayMap {
@@ -453,14 +455,6 @@ function createClassHelper( options ) {
     }
 }
 
-// assumes the function opening, body, and closing are on separate lines
-function getFunctionBody( fn ) {
-    const code = fn.toString().split("\n")
-    code.shift() // remove opening line (function() {)
-    code.pop() // remove closing line (})
-    return code.join("\n")
-}
-
 function getPublicMembers( scope, instance ) {
 
     // check only for the private instance of this class scope
@@ -573,10 +567,4 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
         })
     }
     return _super
-}
-
-function setDescriptor( obj, key, def ) {
-    const descriptor = Object.getOwnPropertyDescriptor( obj, key ) || def
-    if ( descriptor !== def ) Object.assign( descriptor, def )
-    Object.defineProperty( obj, key, descriptor )
 }

@@ -1,4 +1,5 @@
 const { Class, createClassHelper, InvalidAccessError } = require('./src/index')
+const newless = require('./src/newless')
 
 const assert = console.assert.bind( console )
 
@@ -805,6 +806,31 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     })
 
     assert( Foo.length === 4 )
+}
+
+// ##################################################
+// extend es2015-style classes made with native `class` syntax
+{
+    class Foo {
+        method() {
+            return 'it works'
+        }
+    }
+
+    const Bar = Class().extends( newless(Foo), (Public, Protected, Private, _super) => ({
+        method() {
+            return super.method()
+        },
+
+        method2() {
+            return super.method()
+        },
+    }))
+
+    const b = new Bar
+
+    assert( b.method() === 'it works' )
+    assert( b.method2() === 'it works' )
 }
 
 console.log('')
