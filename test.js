@@ -823,11 +823,14 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         },
 
         method2() {
-            return super.method()
+            return _super(this).method()
         },
     }))
 
     const b = new Bar
+
+    assert( b instanceof Bar )
+    assert( b instanceof Foo )
 
     assert( b.method() === 'it works' )
     assert( b.method2() === 'it works' )

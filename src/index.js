@@ -520,7 +520,7 @@ function hasPrototype( obj, proto ) {
 
 // copy all properties (as descriptors) from source to destination
 function copyDescriptors(source, destination, mod) {
-    const props = Object.keys(source)
+    const props = Object.getOwnPropertyNames(source)
     let i = props.length
     while (i--) {
         const prop = props[i]
