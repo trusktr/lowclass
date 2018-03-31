@@ -782,6 +782,18 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     const Bar = Class().extends(Foo)
     assert( Bar.getFoo() === 'foo' )
+
+    // extends Object by default, but doesn't inherit library features, similar to `class {}`
+    let Lorem = Class()
+    let l = new Lorem
+    assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
+    assert( typeof Lorem.create === 'undefined' )
+
+    // extending Object directly inherits library features, similar to `class extends Object {}`
+    Lorem = Class().extends( Object )
+    l = new Lorem
+    assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
+    assert( typeof Lorem.create === 'function' )
 }
 
 console.log('')
