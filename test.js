@@ -1,5 +1,5 @@
 const { Class, createClassHelper, InvalidAccessError } = require('./src/index')
-const { newless } = require('./src/newless')
+const { native } = require('./src/newless')
 
 const assert = console.assert.bind( console )
 
@@ -809,7 +809,8 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 // ##################################################
-// extend es2015-style classes made with native `class` syntax
+// extend es2015-style classes that were made with native `class` syntax, and
+// using _super helper
 {
     class Foo {
         constructor( msg ) {
@@ -821,7 +822,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         }
     }
 
-    const Bar = Class().extends( newless(Foo), (Public, Protected, Private, _super) => ({
+    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
         constructor( msg ) {
             _super(this).constructor( msg )
 

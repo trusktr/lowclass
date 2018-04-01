@@ -8,7 +8,7 @@ const { getFunctionBody, setDescriptor } = require( './utils' )
 const newlessConstructors = new WeakMap
 
 module.exports = {
-  newless,
+  native: newless,
   newlessConstructors,
 }
 
