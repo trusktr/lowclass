@@ -841,5 +841,60 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( b.method() === 'it works!' )
 }
 
+// ##################################################
+// Make sure that the 'private' and 'protected' prototype objects are not
+// visible on the 'public' prototype (implementation was exposing it in the
+// case no `public` object was supplied, in which case the base definition
+// object is used as the public prototype).
+{
+    const definition = {
+        foo: 'foo',
+        protected: {
+            bar: 'bar'
+        },
+        private: {
+            baz: 'baz'
+        },
+    }
+
+    const Foo = Class( definition )
+
+    // lowclass uses the class definition as the class prototype directly (this
+    // allows `super` to work in ES6+ environments)
+    assert( Foo.prototype === definition )
+
+    // lowclass also uses the protected and private sub-objects as the internal
+    // protected and private prototypes as well, but they shouldn't be visible
+    // on the public prototype:
+    assert( typeof definition.protected === 'undefined' )
+    assert( typeof Foo.prototype.protected === 'undefined' )
+    assert( typeof definition.private === 'undefined' )
+    assert( typeof Foo.prototype.private === 'undefined' )
+
+    // prove the previous comment about directly using protected and private
+    // sub-objects as prototypes is true {
+
+    const protectedDefinition = { bar: 'bar' }
+    const privateDefinition = { baz: 'baz' }
+
+    const Bar = Class((Public, Protected, Private) => ({
+        foo: 'foo',
+
+        test() {
+            return [ Protected(this), Private(this) ]
+        },
+
+        protected: protectedDefinition,
+        private: privateDefinition,
+    }))
+
+    const b = new Bar
+
+    assert( b.test()[0].__proto__ === protectedDefinition )
+    assert( b.test()[1].__proto__ === privateDefinition )
+
+    // }
+}
+
 console.log('')
 console.log(' All tests passed! ')

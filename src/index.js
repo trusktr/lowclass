@@ -288,23 +288,27 @@ function createClassHelper( options ) {
         copyDescriptors(_getProtectedMembers, protectedPrototype)
         copyDescriptors(_getPrivateMembers, privatePrototype)
 
-        // if a `public` object was also supplied, also copy the definition
-        // props to the `public` prototype
-        //
-        // TODO For now we prioritize the "public" object returned from the
-        // definer, and copy from the definition to the publicPrototype, but
-        // this won't work with `super`. Maybe later, we can use a Proxy to
-        // read props from both the root object and the public object, so that
-        // `super` works from both.
-        if (definition && definition !== publicPrototype) {
-
-            // delete these so we don't copy them
+        if ( definition ) {
+            // delete these so we don't expose them on the class' public
+            // prototype
             delete definition.public
             delete definition.protected
             delete definition.private
 
-            // copy whatever remains
-            copyDescriptors(definition, publicPrototype)
+            // if a `public` object was also supplied, we treat that as the public
+            // prototype instead of the base definition object, so we copy the
+            // definition's props to the `public` object
+            //
+            // TODO For now we prioritize the "public" object returned from the
+            // definer, and copy from the definition to the publicPrototype, but
+            // this won't work with `super`. We should document this (write a test
+            // for it). Maybe later, we can use a Proxy to read props from both the
+            // root object and the public object, so that `super` works from both.
+            if (definition !== publicPrototype) {
+
+                // copy whatever remains
+                copyDescriptors(definition, publicPrototype)
+            }
         }
 
         const userConstructor =
