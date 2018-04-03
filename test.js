@@ -808,6 +808,119 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( Foo.length === 4 )
 }
 
+
+// ##################################################
+// make sure calling a super method that isn't on the direct parent class works
+// (f.e. a grand parent method will be called if the parent class doesn't have
+// the method)
+{
+    const Foo = Class({
+        method() {
+            return 'it works'
+        }
+    })
+
+    const Bar = Class().extends(Foo)
+
+    const Baz = Class().extends(Bar, (Public, Protected, Private, _super) => ({
+        test() {
+            return _super(this).method()
+        }
+    }))
+
+    const b = new Baz
+
+    assert( b.test() === 'it works' )
+}
+
+// ##################################################
+// make sure getters/setters work
+{
+    const Foo = Class((Public, Protected) => ({
+        get foo() {
+            return Protected(this).foo
+        },
+        set foo( value ) {
+            Protected(this).foo = value
+        },
+    }))
+
+    const f = new Foo
+
+    f.foo = 1
+
+    assert( f.foo === 1 )
+
+    const Bar = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+        test() {
+            this.foo = 10
+            return this.foo
+        }
+    }))
+
+    const bar = new Bar
+
+    assert( bar.test() === 10 )
+
+    const Baz = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+        test() {
+            _super(this).foo = 20
+            return _super(this).foo
+        }
+    }))
+
+    const baz = new Baz
+
+    assert( baz.test() === 20 )
+
+    let count = 0
+
+    const Lorem = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+        get foo() {
+            count++
+            return _super(this).foo
+        },
+        set foo( value ) {
+            count++
+            _super(this).foo = value
+        },
+        protectedFoo() {
+            return Protected(this).foo
+        },
+    }))
+
+    const l = new Lorem
+
+    l.foo = 15
+    assert( l.foo === 15 )
+    assert( count === 2 )
+    assert( l.protectedFoo() === 15 )
+
+    const Ipsum = Class().extends(Lorem, (Public, Protected, Private, _super) => ({
+        protected: {
+            get bar() {
+                return Public(this).foo * 2
+            },
+            set bar( value ) {
+                Public(this).foo = value
+            },
+        },
+
+        test() {
+            Protected(this).bar = 50
+            return Protected(this).bar
+        },
+    }))
+
+    const i = new Ipsum
+
+    i.foo = 33
+    assert( i.foo === 33 )
+    assert( count === 4 )
+    assert( i.test() === 100 )
+    assert( i.protectedFoo() === 50 )
+}
+
 // ##################################################
 // extend es2015-style classes that were made with native `class` syntax, and
 // using _super helper

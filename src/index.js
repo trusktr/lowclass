@@ -1,4 +1,9 @@
-const { getFunctionBody, setDescriptor } = require( './utils' )
+const {
+    getFunctionBody,
+    setDescriptor,
+    propertyIsAccessor,
+    getInheritedDescriptor,
+} = require( './utils' )
 const { newlessConstructors } = require('./newless')
 
 const publicProtoToProtectedProto = new WeakMap
@@ -563,27 +568,63 @@ function superHelper( supers, scope, instance ) {
 
 function getSuperHelperObject( instance, parentPrototype, supers ) {
     let _super = supers.get( instance )
+
+    // TODO PERFORMANCE: there's probably some ways to improve speed here using caching
     if ( !_super ) {
-        supers.set( instance, _super = {} )
-        copyDescriptors( parentPrototype, _super, (descriptor) => {
-            let { value } = descriptor
+        supers.set( instance, _super = Object.create( parentPrototype ) )
 
-            if ( value && typeof value === 'function' ) {
-                if (
-                    value === parentPrototype.constructor &&
-                    newlessConstructors.has( value )
-                ) {
-                    value = newlessConstructors.get( value )
-                }
+        const keys = Object.getOwnPropertyNames( parentPrototype )
+        let i = keys.length
 
-                descriptor.value = value.bind( instance )
-            }
+        while (i--) {
+            const key = keys[i]
 
-            //else { TODO how to handle get/set
-                //descriptor.get = descriptor.get.bind( instance )
-                //descriptor.set = descriptor.set.bind( instance )
-            //}
-        })
+            setDescriptor( _super, key, {
+
+                get: function() {
+                    let value = void undefined
+
+                    const descriptor = getInheritedDescriptor( parentPrototype, key )
+
+                    if ( descriptor && propertyIsAccessor( descriptor ) ) {
+                        const getter = descriptor.get
+                        if ( getter ) value = getter.call( instance )
+                    }
+                    else {
+                        value = parentPrototype[ key ]
+                    }
+
+                    if ( value && value.call && typeof value === 'function' ) {
+                        if (
+                            value === parentPrototype.constructor &&
+                            newlessConstructors.has( value )
+                        ) {
+                            value = newlessConstructors.get( value )
+                        }
+
+                        value = value.bind( instance )
+                    }
+
+                    return value
+                },
+
+                // like native `super`, setting a super property does nothing.
+                set: function( value ) {
+                    const descriptor = getInheritedDescriptor( parentPrototype, key )
+
+                    if ( descriptor && propertyIsAccessor( descriptor ) ) {
+                        const setter = descriptor.set
+                        if ( setter ) value = setter.call( instance, value )
+                    }
+                    else {
+                        // just like native `super`
+                        instance[ key ] = value
+                    }
+                },
+
+            }, true)
+        }
     }
+
     return _super
 }

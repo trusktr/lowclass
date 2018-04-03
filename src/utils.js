@@ -2,6 +2,8 @@
 module.exports = {
     getFunctionBody,
     setDescriptor,
+    propertyIsAccessor,
+    getInheritedDescriptor,
 }
 
 // assumes the function opening, body, and closing are on separate lines
@@ -18,8 +20,14 @@ const descriptorDefaults = {
 }
 
 // makes it easier and less verbose to work with descriptors
-function setDescriptor( obj, key, def ) {
-    const descriptor = Object.getOwnPropertyDescriptor( obj, key ) || {}
+function setDescriptor( obj, key, def, inherited = false ) {
+    let descriptor = (
+        inherited ?
+        getInheritedDescriptor( obj, key ) :
+        Object.getOwnPropertyDescriptor( obj, key )
+    )
+
+    descriptor = descriptor || {}
 
     if ( ( def.get || def.set ) && (
         typeof def.value !== 'undefined' ||
@@ -36,11 +44,40 @@ function setDescriptor( obj, key, def ) {
         typeof def.value !== 'undefined' ||
         typeof def.writable !== 'undefined'
     ) {
-        delete def.get
-        delete def.set
+        delete descriptor.get
+        delete descriptor.set
     }
 
     Object.defineProperty( obj, key,
         Object.assign( {}, descriptorDefaults, descriptor, def )
     )
+}
+
+function propertyIsAccessor( obj, key, inherited = true ) {
+    let result = false
+    let descriptor
+
+    if ( arguments.length === 1 ) {
+        descriptor = obj
+    }
+    else {
+        descriptor = inherited ?
+            getInheritedDescriptor( obj, key ) :
+            Object.getOwnPropertyDescriptor( obj, key )
+    }
+
+    if ( descriptor && ( descriptor.get || descriptor.set ) ) result = true
+
+    return result
+}
+
+function getInheritedDescriptor( obj, key ) {
+    let currentProto = obj
+    let descriptor
+
+    while ( currentProto ) {
+        descriptor = Object.getOwnPropertyDescriptor( currentProto, key )
+        if ( descriptor ) return descriptor
+        currentProto = currentProto.__proto__
+    }
 }
