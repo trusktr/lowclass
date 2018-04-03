@@ -530,16 +530,17 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         protected: {
 
             protectedMethod() {
-                console.log('extending a protected method')
                 Super(this).protectedMethod()
             },
 
         },
 
+        // TODO make private code inheritable? It might be useful, and does not
+        // break privacy.
         //private: {
 
             //privateMethod() {
-                //SomeClass.prototype.privateMethod.call(this)
+                //super.privateMethod()
             //},
 
         //},
@@ -568,7 +569,6 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
         // default access is public, like C++ structs
         publicMethod() {
-            console.log('base class publicMethod')
             Protected(this).protectedMethod()
         },
 
@@ -578,7 +578,6 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
         protected: {
             protectedMethod() {
-                console.log('base class protectedMethod:', Private(this).lorem)
                 Private(this).lorem = 'foo'
             },
         },
@@ -592,7 +591,6 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
         publicMethod() {
             Super(this).publicMethod()
-            console.log('extended a public method')
             Private(this).lorem = 'baaaaz'
             this.checkPrivateProp()
         },
@@ -606,7 +604,6 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
             protectedMethod() {
                 Super(this).protectedMethod()
-                console.log('extended a protected method')
             },
 
         },
@@ -1023,7 +1020,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         }
     }
 
-    const Bar = Class().extends( native(Foo), (Public, Protected, Private) => ({
+    const Bar = Class().extends( native(Foo), {
         constructor( msg ) {
             super.constructor( msg )
 
@@ -1033,7 +1030,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         method() {
             return super.method()
         },
-    }))
+    })
 
     const b = new Bar( 'it works' )
 
@@ -1047,15 +1044,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 {
     // this shows original behavior (conditions negated to pass)
 
-    class Foo {
-        constructor( msg ) {
-            this.message = msg
-        }
-
-        method() {
-            return this.message
-        }
-    }
+    class Foo {}
 
     const _Foo = native(Foo)
     assert( !( _Foo.prototype === Foo.prototype ) )
@@ -1070,15 +1059,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 {
     // this shows the new behavior
 
-    class Foo {
-        constructor( msg ) {
-            this.message = msg
-        }
-
-        method() {
-            return this.message
-        }
-    }
+    class Foo {}
 
     const _Foo = native(Foo)
     assert(_Foo.prototype === _Foo.prototype)
