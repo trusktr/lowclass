@@ -4,6 +4,7 @@ module.exports = {
     setDescriptor,
     propertyIsAccessor,
     getInheritedDescriptor,
+    getInheritedPropertyNames,
 }
 
 // assumes the function opening, body, and closing are on separate lines
@@ -80,4 +81,19 @@ function getInheritedDescriptor( obj, key ) {
         if ( descriptor ) return descriptor
         currentProto = currentProto.__proto__
     }
+}
+
+function getInheritedPropertyNames( obj ) {
+    let currentProto = obj
+    let keys = []
+
+    while ( currentProto ) {
+        keys = keys.concat( Object.getOwnPropertyNames( currentProto ) )
+        currentProto = currentProto.__proto__
+    }
+
+    // remove duplicates
+    keys = Array.from( new Set( keys ) )
+
+    return keys
 }

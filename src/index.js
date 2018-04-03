@@ -3,6 +3,7 @@ const {
     setDescriptor,
     propertyIsAccessor,
     getInheritedDescriptor,
+    getInheritedPropertyNames,
 } = require( './utils' )
 const { newlessConstructors } = require('./newless')
 
@@ -200,7 +201,19 @@ function createClassHelper( options ) {
 
         ParentClass = ParentClass || Object
 
-        const parentPublicPrototype = ParentClass.prototype
+        let parentPublicPrototype = ParentClass.prototype
+
+        // if the parent constructor is a newless constructor we add a
+        // prototype layer so that the user's constructor can call
+        // `super.constructor()` natively.
+        if ( newlessConstructors.has( ParentClass.prototype.constructor ) ) {
+
+            parentPublicPrototype = {
+                __proto__: parentPublicPrototype,
+                constructor: ParentClass,
+            }
+
+        }
 
         // A two-way map to associate public instances with private instances.
         // Unlike publicToProtected, this is inside here because there is one
@@ -573,7 +586,7 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     if ( !_super ) {
         supers.set( instance, _super = Object.create( parentPrototype ) )
 
-        const keys = Object.getOwnPropertyNames( parentPrototype )
+        const keys = getInheritedPropertyNames( parentPrototype )
         let i = keys.length
 
         while (i--) {

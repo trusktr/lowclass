@@ -922,39 +922,6 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 // ##################################################
-// extend es2015-style classes that were made with native `class` syntax, and
-// using _super helper
-{
-    class Foo {
-        constructor( msg ) {
-            this.message = msg
-        }
-
-        method() {
-            return this.message
-        }
-    }
-
-    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
-        constructor( msg ) {
-            _super(this).constructor( msg )
-
-            this.message += '!'
-        },
-
-        method() {
-            return _super(this).method()
-        },
-    }))
-
-    const b = new Bar( 'it works' )
-
-    assert( b instanceof Bar )
-    assert( b instanceof Foo )
-    assert( b.method() === 'it works!' )
-}
-
-// ##################################################
 // Make sure that the 'private' and 'protected' prototype objects are not
 // visible on the 'public' prototype (implementation was exposing it in the
 // case no `public` object was supplied, in which case the base definition
@@ -1007,6 +974,73 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( b.test()[1].__proto__ === privateDefinition )
 
     // }
+}
+
+// ##################################################
+// extend es2015-style classes that were made with native `class` syntax, and
+// using _super helper
+{
+    class Foo {
+        constructor( msg ) {
+            this.message = msg
+        }
+
+        method() {
+            return this.message
+        }
+    }
+
+    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
+        constructor( msg ) {
+            //debugger
+            _super(this).constructor( msg )
+
+            this.message += '!'
+        },
+
+        method() {
+            return _super(this).method()
+        },
+    }))
+
+    const b = new Bar( 'it works' )
+
+    assert( b instanceof Bar )
+    assert( b instanceof Foo )
+    assert( b.method() === 'it works!' )
+}
+
+// ##################################################
+// extend es2015-style classes that were made with native `class` syntax, and
+// using native `super`
+{
+    class Foo {
+        constructor( msg ) {
+            this.message = msg
+        }
+
+        method() {
+            return this.message
+        }
+    }
+
+    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
+        constructor( msg ) {
+            super.constructor( msg )
+
+            this.message += '!'
+        },
+
+        method() {
+            return super.method()
+        },
+    }))
+
+    const b = new Bar( 'it works' )
+
+    assert( b instanceof Bar )
+    assert( b instanceof Foo )
+    assert( b.method() === 'it works!' )
 }
 
 console.log('')
