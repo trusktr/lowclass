@@ -4,12 +4,8 @@
 
 const { getFunctionBody, setDescriptor } = require( './utils' )
 
-// TODO this is publicly modifiable (exported), make it private or readonly
-const newlessConstructors = new WeakMap
-
 module.exports = {
   native: newless,
-  newlessConstructors,
 }
 
 var supportsSpread = isSyntaxSupported("Object(...[{}])");
@@ -188,7 +184,7 @@ function newless(constructor) {
     }
     // make a reasonably good replacement for 'new.target' which is a
     // syntax error in older engines
-    var newTarget = (this instanceof newlessConstructor) ? 
+    var newTarget = (this instanceof newlessConstructor) ?
                      this.constructor : constructor;
     var returnValue = construct(constructor, arguments, newTarget);
     // best effort to make things easy for functions inheriting from classes
@@ -218,26 +214,35 @@ function newless(constructor) {
   }
 
   copyProperties(constructor, newlessConstructor);
-  newlessConstructor.prototype = constructor.prototype;
+
+  //newlessConstructor.prototype = constructor.prototype;
+  newlessConstructor.prototype = {
+      __proto__: constructor.prototype,
+      constructor: newlessConstructor,
+  }
+
   // NOTE: *usually* the below will already be true, but we ensure it here.
   // Safari 9 requires this for the 'super' keyword to work. Newer versions
   // of WebKit and other engines do not. Instead, they use the constructor's
   // prototype chain (which is correct by ES2015 spec) (see below).
-  newlessConstructor.prototype.constructor = constructor;
+  //newlessConstructor.prototype.constructor = constructor;
+  constructor.prototype.constructor = constructor;
 
   // for ES2015 classes, we need to make sure the constructor's prototype
   // is the super class's constructor. Further, optimize performance by
   // pointing at the actual constructor implementation instead of the
   // newless wrapper (in the case that it is wrapped by newless).
   newlessConstructor[TRUE_CONSTRUCTOR] = constructor;
+
   var superConstructor = getPrototype(constructor);
   var realSuperConstructor = superConstructor[TRUE_CONSTRUCTOR];
-  setPrototype(newlessConstructor, realSuperConstructor || superConstructor);
+
+  //setPrototype(newlessConstructor, realSuperConstructor || superConstructor);
+  setPrototype(newlessConstructor, constructor);
+
   if (realSuperConstructor) {
     setPrototype(constructor, realSuperConstructor);
   }
-
-  newlessConstructors.set(constructor, newlessConstructor)
 
   return newlessConstructor;
 };

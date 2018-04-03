@@ -5,7 +5,6 @@ const {
     getInheritedDescriptor,
     getInheritedPropertyNames,
 } = require( './utils' )
-const { newlessConstructors } = require('./newless')
 
 const publicProtoToProtectedProto = new WeakMap
 
@@ -202,18 +201,6 @@ function createClassHelper( options ) {
         ParentClass = ParentClass || Object
 
         let parentPublicPrototype = ParentClass.prototype
-
-        // if the parent constructor is a newless constructor we add a
-        // prototype layer so that the user's constructor can call
-        // `super.constructor()` natively.
-        if ( newlessConstructors.has( ParentClass.prototype.constructor ) ) {
-
-            parentPublicPrototype = {
-                __proto__: parentPublicPrototype,
-                constructor: ParentClass,
-            }
-
-        }
 
         // A two-way map to associate public instances with private instances.
         // Unlike publicToProtected, this is inside here because there is one
@@ -608,13 +595,6 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
                     }
 
                     if ( value && value.call && typeof value === 'function' ) {
-                        if (
-                            value === parentPrototype.constructor &&
-                            newlessConstructors.has( value )
-                        ) {
-                            value = newlessConstructors.get( value )
-                        }
-
                         value = value.bind( instance )
                     }
 

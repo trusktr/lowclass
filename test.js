@@ -1043,5 +1043,54 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( b.method() === 'it works!' )
 }
 
+// ##################################################
+// behavior that is different from original newless:
+{
+    // this shows original behavior (conditions negated to pass)
+
+    class Foo {
+        constructor( msg ) {
+            this.message = msg
+        }
+
+        method() {
+            return this.message
+        }
+    }
+
+    const _Foo = native(Foo)
+    assert( !( _Foo.prototype === Foo.prototype ) )
+    assert( !( _Foo.prototype.constructor === Foo ) )
+
+    const f = new _Foo()
+    assert(f instanceof Foo)
+    assert(f instanceof _Foo)
+    assert( !( f.constructor !== _Foo ) )
+    assert( !( f.constructor === Foo ) )
+}
+{
+    // this shows the new behavior
+
+    class Foo {
+        constructor( msg ) {
+            this.message = msg
+        }
+
+        method() {
+            return this.message
+        }
+    }
+
+    const _Foo = native(Foo)
+    assert(_Foo.prototype === _Foo.prototype)
+    assert(_Foo.prototype.constructor === _Foo)
+
+    const f = new _Foo()
+    assert(f instanceof Foo)
+    assert(f instanceof _Foo)
+    assert(f.constructor === _Foo)
+    assert(f.constructor !== Foo)
+}
+
 console.log('')
 console.log(' All tests passed! ')
