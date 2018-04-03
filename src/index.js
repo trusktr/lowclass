@@ -220,6 +220,10 @@ function createClassHelper( options ) {
         const _getProtectedMembers = getProtectedMembers.bind( null, scope )
         const _getPrivateMembers = getPrivateMembers.bind( null, scope )
 
+        _getPublicMembers.prototype = { __proto__: null }
+        _getProtectedMembers.prototype = { __proto__: null }
+        _getPrivateMembers.prototype = { __proto__: null }
+
         // pass the helper functions to the user's class definition function
         definition = definition || definer && definer(
             _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super
@@ -284,9 +288,9 @@ function createClassHelper( options ) {
         // helpers that we passed in, to let us know which methods and
         // properties are public/protected/private so we can assign them onto
         // the respective prototypes.
-        copyDescriptors(_getPublicMembers, publicPrototype)
-        copyDescriptors(_getProtectedMembers, protectedPrototype)
-        copyDescriptors(_getPrivateMembers, privatePrototype)
+        copyDescriptors(_getPublicMembers.prototype, publicPrototype)
+        copyDescriptors(_getProtectedMembers.prototype, protectedPrototype)
+        copyDescriptors(_getPrivateMembers.prototype, privatePrototype)
 
         if ( definition ) {
             // delete these so we don't expose them on the class' public

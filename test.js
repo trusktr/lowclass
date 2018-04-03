@@ -199,11 +199,11 @@ const assert = console.assert.bind( console )
 // we should not be able to access protected members from an unrelated class
 try {
     const Dog = Class('Dog', (Public, Protected, Private) => {
-        Protected.sound = "Woof!"
+        Protected.prototype.sound = "Woof!"
     })
 
     const UnrelatedClass = Class(function UnrelatedClass(Public, Protected, Private) {
-        Public.testInvalidAccess = function() {
+        Public.prototype.testInvalidAccess = function() {
             const dog = new Dog
             console.log('should fail:', Protected(dog).sound)
         }
@@ -221,11 +221,11 @@ catch (e) {
 // we should not be able to access private members from an unrelated class
 try {
     const Dog = Class('Dog', (Public, Protected, Private) => {
-        Private.breed = "labrador"
+        Private.prototype.breed = "labrador"
     })
 
     const UnrelatedClass = Class(function UnrelatedClass(Public, Protected, Private) {
-        Public.testInvalidAccess = function() {
+        Public.prototype.testInvalidAccess = function() {
             const dog = new Dog
             console.log('should fail:', Private(dog).breed)
         }
@@ -250,7 +250,7 @@ catch (e) {
     }))
 
     const Dog = Animal.subclass('Dog', (Public, Protected) => {
-        Protected.sound = "Woof!"
+        Protected.prototype.sound = "Woof!"
     })
 
     const animal = new Animal
@@ -263,7 +263,7 @@ catch (e) {
 // we can access a super class protected member from a child class
 {
     const Animal = Class('Animal', (Public, Protected, Private) => {
-        Protected.alive = true
+        Protected.prototype.alive = true
     })
 
     const Dog = Animal.subclass('Dog', (Public, Protected) => ({
@@ -317,17 +317,17 @@ catch (e) {
     let dogPrivate = null
 
     const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
-        Private.sound = "Woof!"
-        Public.verifySound = function() {
+        Private.prototype.sound = "Woof!"
+        Public.prototype.verifySound = function() {
             console.assert( Private(this).sound === 'Woof!' )
         }
-        Public.changeSound = function() {
+        Public.prototype.changeSound = function() {
             Private(this).sound = "grrr!"
         }
-        Public.checkBar = function() {
+        Public.prototype.checkBar = function() {
             assert( Private(this).bar === undefined )
         }
-        Public.exposePrivate = function() {
+        Public.prototype.exposePrivate = function() {
             dogPrivate = Private(this)
         }
     })
@@ -347,8 +347,8 @@ catch (e) {
     }))
 
     const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
-        Private.sound = "Woof!"
-        Public.foo = function() {
+        Private.prototype.sound = "Woof!"
+        Public.prototype.foo = function() {
 
             // should not be able to access Animal's private bar property
             console.assert( Private(this).bar === undefined )
@@ -402,8 +402,8 @@ catch (e) {
 {
 
     const Dog = Class(function Dog(Public, Protected, Private) {
-        Private.sound = "Woof!"
-        Public.talk = function() {
+        Private.prototype.sound = "Woof!"
+        Public.prototype.talk = function() {
             console.assert( Private(this).sound === "Woof!" )
         }
     })
@@ -706,7 +706,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     const Foo = Class((Public, Protected, Private) => {
         fooPrivate = Private
 
-        Private.foo = "foo"
+        Private.prototype.foo = "foo"
     })
 
     const Bar = Foo.subclass((Public, Protected, Private) => ({
