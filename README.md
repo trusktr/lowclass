@@ -51,13 +51,14 @@ arguments: the Public helper, the Protected helper, and the Private helper.
 
 Extend a class with the `.subclass` static method, into which you also pass a
 definer function that receives the three same type of args. You can also assign
-properties onto the three args to define properties and methods, not just
-returning an object definition like in the Animal class.
+properties onto the `prototype` properties of the three args to define
+properties and methods, not just return an object definition like in the Animal
+class.
 
 ```js
 const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
 
-    Public.constructor = function(name) {
+    Public.prototype.constructor = function(name) {
         Animal.call(this, name+'!')
         Private(this).trained = true
         Protected(this).foo()
@@ -66,20 +67,20 @@ const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
         Private(this).saySecret() // error, because saySecret is private in the above Animal class, not in the Dog class
     }
 
-    Public.talk = function() {
+    Public.prototype.talk = function() {
         Animal.prototype.talk.call(this)
 
         Protected(this).animalMethod() // it works, protected methods are available in all sub classes.
     }
 
-    Protected.sound = "Woof!"
-    Protected.foo = function() {
+    Protected.prototype.sound = "Woof!"
+    Protected.prototype.foo = function() {
         if (Private(this).trained) console.log(Private(this).lorem + "!")
         Private(this).downwardDog()
     }
 
-    Private.lorem = "lorem"
-    Private.downwardDog = function() {
+    Private.prototype.lorem = "lorem"
+    Private.prototype.downwardDog = function() {
         console.log('did downwardDog')
     }
 })
