@@ -521,17 +521,17 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 // check that various ways to access public/protected/private members work inside a subclass
 {
 
-    const SubClass = SomeClass.subclass((Public, Protected, Private, _super) => ({
+    const SubClass = SomeClass.subclass((Public, Protected, Private, Super) => ({
 
         publicMethod() {
-            _super(this).publicMethod()
+            Super(this).publicMethod()
         },
 
         protected: {
 
             protectedMethod() {
                 console.log('extending a protected method')
-                _super(this).protectedMethod()
+                Super(this).protectedMethod()
             },
 
         },
@@ -588,24 +588,24 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         },
     }))
 
-    const SubClass = SomeClass.subclass((Public, Protected, Private, _super) => ({
+    const SubClass = SomeClass.subclass((Public, Protected, Private, Super) => ({
 
         publicMethod() {
-            _super(this).publicMethod()
+            Super(this).publicMethod()
             console.log('extended a public method')
             Private(this).lorem = 'baaaaz'
             this.checkPrivateProp()
         },
 
         checkPrivateProp() {
-            _super(this).checkPrivateProp()
+            Super(this).checkPrivateProp()
             console.assert( Private(this).lorem === 'baaaaz' )
         },
 
         protected: {
 
             protectedMethod() {
-                _super(this).protectedMethod()
+                Super(this).protectedMethod()
                 console.log('extended a protected method')
             },
 
@@ -616,7 +616,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         },
     }))
 
-    const GrandChildClass = SubClass.subclass((Public, Protected, Private, _super) => ({
+    const GrandChildClass = SubClass.subclass((Public, Protected, Private, Super) => ({
 
         test() {
             Private(this).begin()
@@ -628,7 +628,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
         protected: {
             reallyReallyBegin() {
-                _super(Public(this)).publicMethod()
+                Super(Public(this)).publicMethod()
             },
         },
 
@@ -655,16 +655,16 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         foo: function (n) { return n }
     }))
 
-    const B = A.subclass((Public, Protected, Private, _super) => ({
+    const B = A.subclass((Public, Protected, Private, Super) => ({
         foo: function (n) {
             if (n > 100) return -1;
-            return _super(this).foo(n+1);
+            return Super(this).foo(n+1);
         }
     }))
 
-    const C = B.subclass((Public, Protected, Private, _super) => ({
+    const C = B.subclass((Public, Protected, Private, Super) => ({
         foo: function (n) {
-            return _super(this).foo(n+2);
+            return Super(this).foo(n+2);
         }
     }))
 
@@ -822,9 +822,9 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     const Bar = Class().extends(Foo)
 
-    const Baz = Class().extends(Bar, (Public, Protected, Private, _super) => ({
+    const Baz = Class().extends(Bar, (Public, Protected, Private, Super) => ({
         test() {
-            return _super(this).method()
+            return Super(this).method()
         }
     }))
 
@@ -851,7 +851,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     assert( f.foo === 1 )
 
-    const Bar = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+    const Bar = Class().extends(Foo, (Public, Protected, Private, Super) => ({
         test() {
             this.foo = 10
             return this.foo
@@ -862,10 +862,10 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     assert( bar.test() === 10 )
 
-    const Baz = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+    const Baz = Class().extends(Foo, (Public, Protected, Private, Super) => ({
         test() {
-            _super(this).foo = 20
-            return _super(this).foo
+            Super(this).foo = 20
+            return Super(this).foo
         }
     }))
 
@@ -875,14 +875,14 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
     let count = 0
 
-    const Lorem = Class().extends(Foo, (Public, Protected, Private, _super) => ({
+    const Lorem = Class().extends(Foo, (Public, Protected, Private, Super) => ({
         get foo() {
             count++
-            return _super(this).foo
+            return Super(this).foo
         },
         set foo( value ) {
             count++
-            _super(this).foo = value
+            Super(this).foo = value
         },
         protectedFoo() {
             return Protected(this).foo
@@ -896,7 +896,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( count === 2 )
     assert( l.protectedFoo() === 15 )
 
-    const Ipsum = Class().extends(Lorem, (Public, Protected, Private, _super) => ({
+    const Ipsum = Class().extends(Lorem, (Public, Protected, Private, Super) => ({
         protected: {
             get bar() {
                 return Public(this).foo * 2
@@ -978,7 +978,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
 // ##################################################
 // extend es2015-style classes that were made with native `class` syntax, and
-// using _super helper
+// using Super helper
 {
     class Foo {
         constructor( msg ) {
@@ -990,16 +990,15 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         }
     }
 
-    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
+    const Bar = Class().extends( native(Foo), (Public, Protected, Private, Super) => ({
         constructor( msg ) {
-            //debugger
-            _super(this).constructor( msg )
+            Super(this).constructor( msg )
 
             this.message += '!'
         },
 
         method() {
-            return _super(this).method()
+            return Super(this).method()
         },
     }))
 
@@ -1024,7 +1023,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         }
     }
 
-    const Bar = Class().extends( native(Foo), (Public, Protected, Private, _super) => ({
+    const Bar = Class().extends( native(Foo), (Public, Protected, Private) => ({
         constructor( msg ) {
             super.constructor( msg )
 

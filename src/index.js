@@ -146,7 +146,7 @@ function createClassHelper( options ) {
      * have.
      * @param {Function} definer A function or object for defining the class.
      * If definer a function, it is passed the Public, Protected, Private, and
-     * _super helpers. Methods and properties can be defined on the helpers
+     * Super helpers. Methods and properties can be defined on the helpers
      * directly.  An object containing methods and properties can also be
      * returned from the function. If definer is an object, the object should
      * be in the same format as the one returned if definer were a function.
@@ -218,7 +218,7 @@ function createClassHelper( options ) {
 
         // create the super helper for this class scope
         const supers = new WeakMap
-        const _super = superHelper.bind( null, supers, scope )
+        const Super = superHelper.bind( null, supers, scope )
 
         // bind this class' scope to the helper functions
         const _getPublicMembers = getPublicMembers.bind( null, scope )
@@ -231,7 +231,7 @@ function createClassHelper( options ) {
 
         // pass the helper functions to the user's class definition function
         definition = definition || definer && definer(
-            _getPublicMembers, _getProtectedMembers, _getPrivateMembers, _super
+            _getPublicMembers, _getProtectedMembers, _getPrivateMembers, Super
         )
 
         // the user has the option of returning an object that defines which
@@ -560,7 +560,7 @@ function superHelper( supers, scope, instance ) {
             instance, parentProtectedPrototype, supers
         )
 
-    // TODO: does it make sense to add _super support for private members
+    // TODO: does it make sense to add Super support for private members
     // here? Let's add it when/if we need it.
 
     throw new InvalidSuperAccessError('invalid super access')
