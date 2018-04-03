@@ -7,7 +7,7 @@
   "browser": "global.js",
   "global": "global.js",
   "license": "MIT",
-  "homepage": "http://github.com/trusktr/clath",
+  "homepage": "http://github.com/trusktr/lowclass",
   "scripts": {
     "test": "echo 'TODO: Make tests.' && exit 1",
     "clean": "mkdir save && mv webpack.config.js test.js save && rm -rf ./*.js ./*.js.map && mv save/* . && rmdir save",
