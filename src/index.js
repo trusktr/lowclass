@@ -19,16 +19,11 @@ class WeakTwoWayMap {
 // There is one protected instance per public instance
 const publicToProtected = new WeakTwoWayMap
 
-// used during construction of any class (always synchronous)
-const newTargetStack = []
-
 const defaultOptions = {
 
     // es5 class inheritance is simple, nice, easy, and robust
+    // There was another mode, but it has been removed
     mode: 'es5'
-
-    // es2015+ class inheritance is tricky, difficult, and restrictive
-    //mode: 'Reflect.construct',
 
 }
 
@@ -359,55 +354,9 @@ function createClassHelper( options ) {
 
         }
 
-        // ES6+ version (which seems to be dumb)
-        else if ( mode === 'Reflect.construct' ) {
-
-            if (userConstructor) {
-                console.log('userConstructor:', userConstructor)
-                console.log('parent class:', ParentClass)
-                userConstructor.__proto__ = ParentClass // static inheritance
-                userConstructor.prototype = publicPrototype
-
-                // already the case
-                //userConstructor.prototype.constructor = userConstructor
-            }
-
-            NewClass = ( () => function() {
-                let self = null
-
-                console.log(" ------------- userConstructor?")
-                console.log(userConstructor && userConstructor.toString())
-
-                let newTarget = new.target
-
-                if ( newTarget ) newTargetStack.push( newTarget )
-                else newTarget = newTargetStack[ newTargetStack.length - 1 ]
-
-                if (userConstructor) {
-                    console.log('??????????', userConstructor, arguments, newTarget)
-                    self = Reflect.construct(
-                        userConstructor, arguments, newTarget
-                    )
-                }
-                else {
-                    self = Reflect.construct(
-                        ParentClass, arguments, newTarget
-                    )
-                }
-
-                newTargetStack.pop()
-
-                return self
-            } )()
-
-            NewClass.prototype = Object.create( publicPrototype )
-
-        }
-
         else {
             throw new TypeError(`
-                The lowclass mode option should be one of:
-                "es5", "Reflect.construct".
+                The lowclass mode option can only be 'es5' for now.
             `)
         }
 
@@ -416,17 +365,9 @@ function createClassHelper( options ) {
             const code = getFunctionBody( NewClass )
             const proto = NewClass.prototype
 
-            NewClass = new Function(`
-                userConstructor,
-                ParentClass,
-                newTargetStack,
-            `, `
+            NewClass = new Function(` userConstructor, ParentClass `, `
                 return function ${className}() { ${code} }
-            `)(
-                userConstructor,
-                ParentClass,
-                newTargetStack,
-            )
+            `)( userConstructor, ParentClass )
 
             NewClass.prototype = proto
         }
