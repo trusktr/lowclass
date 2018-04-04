@@ -1,10 +1,18 @@
 
+class WeakTwoWayMap {
+    constructor() { this.m = new WeakMap }
+    set( a, b ) { this.m.set( a, b ); this.m.set( b, a ) }
+    get( item ) { return this.m.get( item ) }
+    has( item ) { return this.m.has( item ) }
+}
+
 module.exports = {
     getFunctionBody,
     setDescriptor,
     propertyIsAccessor,
     getInheritedDescriptor,
     getInheritedPropertyNames,
+    WeakTwoWayMap,
 }
 
 // assumes the function opening, body, and closing are on separate lines

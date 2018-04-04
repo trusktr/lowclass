@@ -4,16 +4,10 @@ const {
     propertyIsAccessor,
     getInheritedDescriptor,
     getInheritedPropertyNames,
+    WeakTwoWayMap,
 } = require( './utils' )
 
 const publicProtoToProtectedProto = new WeakMap
-
-class WeakTwoWayMap {
-    constructor() { this.m = new WeakMap }
-    set( a, b ) { this.m.set( a, b ); this.m.set( b, a ) }
-    get( item ) { return this.m.get( item ) }
-    has( item ) { return this.m.has( item ) }
-}
 
 // A two-way map to associate public instances with protected instances.
 // There is one protected instance per public instance
