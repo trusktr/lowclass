@@ -28,6 +28,7 @@ module.exports = {
 
 var supportsSpread = isSyntaxSupported("Object(...[{}])");
 var supportsClass = isSyntaxSupported("class Test {}")
+var supportsNewTarget = isSyntaxSupported("new.target")
 
 // Used to track the original wrapped constructor on a newless instance
 var TRUE_CONSTRUCTOR = Symbol
@@ -203,8 +204,13 @@ function newless(constructor) {
         // Do our best to only capture errors triggred by class syntax.
         // Unfortunately, there's no special error type for this and the
         // message is non-standard, so this is the best check we can do.
-        if (!(error instanceof TypeError &&
-          /class constructor/i.test(error.message))) {
+        if (!(error instanceof TypeError && (
+          /class constructor/i.test(error.message) ||
+          /use the 'new' operator/i.test(error.message) // Custom Elements in Chrome
+          // TODO: there might be other error messages we need to catch,
+          // depending on engine and use case. Need to test in all browsers
+          // TODO See if this code is even reached with Custom Elements
+        ))) {
           throw error;
         }
         // mark this constructor as requiring 'new' for next time
@@ -213,8 +219,16 @@ function newless(constructor) {
     }
     // make a reasonably good replacement for 'new.target' which is a
     // syntax error in older engines
-    var newTarget = (this instanceof newlessConstructor) ?
-                     this.constructor : constructor;
+    var newTarget;
+    var hasNewTarget = false;
+    if (supportsNewTarget) {
+      eval('newTarget = new.target');
+      if (newTarget) hasNewTarget = true;
+    }
+    if ( !supportsNewTarget || !hasNewTarget ) {
+      newTarget = (this instanceof newlessConstructor) ?
+         this.constructor : constructor;
+    }
     var returnValue = construct(constructor, arguments, newTarget);
     // best effort to make things easy for functions inheriting from classes
     if (this instanceof newlessConstructor) {
@@ -227,10 +241,10 @@ function newless(constructor) {
   if ( name ) {
     const code = getFunctionBody( newlessConstructor )
 
-    newlessConstructor = Function("constructor, construct, setPrototype, requiresNew", `
+    newlessConstructor = Function("constructor, construct, setPrototype, requiresNew, supportsNewTarget", `
       var newlessConstructor = function ${name}() { ${code} };
       return newlessConstructor
-    `)(constructor, construct, setPrototype, requiresNew);
+    `)(constructor, construct, setPrototype, requiresNew, supportsNewTarget);
   }
 
   // copy the `.length` value to the newless constructor
