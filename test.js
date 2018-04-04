@@ -211,6 +211,8 @@ try {
 
     let u = new UnrelatedClass
     u.testInvalidAccess()
+
+    throw 'fail'
 }
 catch (e) {
     if ( !( e instanceof InvalidAccessError ) )
@@ -233,6 +235,8 @@ try {
 
     const u = new UnrelatedClass
     u.testInvalidAccess()
+
+    throw 'fail'
 }
 catch (e) {
     if ( !( e instanceof InvalidAccessError ) )
