@@ -210,17 +210,28 @@ function createClassHelper( options ) {
         const Super = superHelper.bind( null, supers, scope )
 
         // bind this class' scope to the helper functions
-        const _getPublicMembers = getPublicMembers.bind( null, scope )
-        const _getProtectedMembers = getProtectedMembers.bind( null, scope )
-        const _getPrivateMembers = getPrivateMembers.bind( null, scope )
+        const Public = getPublicMembers.bind( null, scope )
+        const Protected = getProtectedMembers.bind( null, scope )
+        const Private = getPrivateMembers.bind( null, scope )
 
-        _getPublicMembers.prototype = { __proto__: null }
-        _getProtectedMembers.prototype = { __proto__: null }
-        _getPrivateMembers.prototype = { __proto__: null }
+        Public.prototype = { __proto__: null }
+        Protected.prototype = { __proto__: null }
+        Private.prototype = { __proto__: null }
+
+        // alows the user to destructure arguments to definer functions
+        Public.Public = Public
+        Public.Protected = Protected
+        Public.Private = Private
+        Public.Super = Super
+        Protected.Public = Public
+        Protected.Protected = Protected
+        Protected.Private = Private
+        Protected.Super = Super
+        // Private and Super are never passed as first argument
 
         // pass the helper functions to the user's class definition function
         definition = definition || definer && definer(
-            _getPublicMembers, _getProtectedMembers, _getPrivateMembers, Super
+            Public, Protected, Private, Super
         )
 
         // the user has the option of returning an object that defines which
@@ -239,19 +250,19 @@ function createClassHelper( options ) {
 
             if ( typeof definition.public === 'function' ) {
                 definition.public = definition.public(
-                    _getProtectedMembers, _getPrivateMembers
+                    Protected, Private
                 )
             }
 
             if ( typeof definition.protected === 'function' ) {
                 definition.protected = definition.protected(
-                    _getPublicMembers, _getPrivateMembers
+                    Public, Private
                 )
             }
 
             if ( typeof definition.private === 'function' ) {
                 definition.private = definition.private(
-                    _getPublicMembers, _getProtectedMembers
+                    Public, Protected
                 )
             }
 
@@ -284,9 +295,9 @@ function createClassHelper( options ) {
         // helpers that we passed in, to let us know which methods and
         // properties are public/protected/private so we can assign them onto
         // the respective prototypes.
-        copyDescriptors(_getPublicMembers.prototype, publicPrototype)
-        copyDescriptors(_getProtectedMembers.prototype, protectedPrototype)
-        copyDescriptors(_getPrivateMembers.prototype, privatePrototype)
+        copyDescriptors(Public.prototype, publicPrototype)
+        copyDescriptors(Protected.prototype, protectedPrototype)
+        copyDescriptors(Private.prototype, privatePrototype)
 
         if ( definition ) {
             // delete these so we don't expose them on the class' public
