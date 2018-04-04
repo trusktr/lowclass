@@ -424,8 +424,9 @@ function createClassHelper( options ) {
         }
 
         // static inheritance
-        if (userConstructor) NewClass.__proto__ = userConstructor
-        else NewClass.__proto__ = ParentClass
+        // TODO: add an easy way to define static members (and eventually
+        // protected/private static members too)
+        NewClass.__proto__ = ParentClass
 
         // TODO: make constructor non-writable / non-configurable like ES6+
         NewClass.prototype.constructor = NewClass

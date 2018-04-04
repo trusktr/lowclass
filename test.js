@@ -776,7 +776,8 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 // ##################################################
-// static props and methods (only public for now, TODO)
+// static members and static inheritance (only public for now, TODO:
+// protected/private static members)
 {
     const Foo = Class()
     Foo.foo = 'foo'
@@ -785,13 +786,18 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     const Bar = Class().extends(Foo)
     assert( Bar.getFoo() === 'foo' )
 
-    // extends Object by default, but doesn't inherit library features, similar to `class {}`
+    const Baz = Class().extends(Foo, {
+        constructor() {}
+    })
+    assert( Baz.getFoo() === 'foo' )
+
+    // extends Object by default, but doesn't inherit static features, similar to `class {}`
     let Lorem = Class()
     let l = new Lorem
     assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
     assert( typeof Lorem.create === 'undefined' )
 
-    // extending Object directly inherits library features, similar to `class extends Object {}`
+    // extending Object directly inherits static features, similar to `class extends Object {}`
     Lorem = Class().extends( Object )
     l = new Lorem
     assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
