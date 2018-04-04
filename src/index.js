@@ -214,9 +214,9 @@ function createClassHelper( options ) {
         const Protected = getProtectedMembers.bind( null, scope )
         const Private = getPrivateMembers.bind( null, scope )
 
-        Public.prototype = { __proto__: null }
-        Protected.prototype = { __proto__: null }
-        Private.prototype = { __proto__: null }
+        Public.prototype = {}
+        Protected.prototype = {}
+        Private.prototype = {}
 
         // alows the user to destructure arguments to definer functions
         Public.Public = Public
