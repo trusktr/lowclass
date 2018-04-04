@@ -334,8 +334,24 @@ function createClassHelper( options ) {
 
             NewClass = ( () => function() {
 
-                if (userConstructor) userConstructor.apply(this, arguments)
-                else ParentClass.apply(this, arguments)
+                let ret = null
+
+                let constructor = null
+
+                if ( userConstructor ) constructor = userConstructor
+                else constructor = ParentClass
+
+                // Object is a special case because otherwise
+                // `Object.apply(this)` returns a different object and we don't
+                // want to deal with return value in that case
+                if ( constructor !== Object )
+                    ret = constructor.apply( this, arguments )
+
+                if ( ret && typeof ret === 'object' ) {
+                    // TODO should we set ret.__proto__ = constructor.prototype
+                    // here? Or let the user deal with that?
+                    return ret
+                }
 
             } )()
 

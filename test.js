@@ -3,6 +3,38 @@ const { native } = require('./src/newless')
 
 const assert = console.assert.bind( console )
 
+/////////////////////////////////////////////////////////////////////
+// Example of etending Array
+{
+    const MyArray = Class().extends( native(Array), (Public, Protected, Private, Super) => ({
+        constructor(...args) {
+            const self = super.constructor(...args)
+            self.__proto__ = MyArray.prototype
+            return self
+        },
+        add(...args) {
+            return Protected(this).add(...args)
+        },
+        protected: {
+            add(...args) {
+                return Public(this).push(...args)
+            },
+        },
+    }))
+
+    MyArray[Symbol.species] = MyArray
+
+    const a = new MyArray
+    assert( a instanceof Array )
+    assert( a instanceof MyArray )
+
+    assert( a.add(1,2,3) === 3 )
+    assert( a.length === 3 )
+    assert( a.concat(4,5,6).length === 6 )
+    assert( a.concat(4,5,6) instanceof MyArray )
+    assert( Array.isArray(a) )
+}
+
 // ##################################################
 // anonymous empty base classes
 {
@@ -997,6 +1029,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         }
     }
 
+    // TODO auto-detect `class`es
     const Bar = Class().extends( native(Foo), (Public, Protected, Private, Super) => ({
         constructor( msg ) {
             Super(this).constructor( msg )
