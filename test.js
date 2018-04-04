@@ -1076,5 +1076,53 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert(f.constructor !== Foo)
 }
 
+// ##################################################
+// assert that the protected instance in different code of a class hierarchy
+// are the same instance.
+{
+    let fooProtectedGetter
+    let fooProtected
+    const Foo = Class((Public, Protected) => {
+        fooProtectedGetter = Protected
+        Protected.prototype.foo = 'foo'
+        Public.prototype.constructor = function() {
+            fooProtected = Protected(this)
+        }
+    })
+
+    let barProtectedGetter
+    let barProtected
+    const Bar = Class().extends(Foo, (Public, Protected, Private, Super) => {
+        barProtectedGetter = Protected
+        Protected.prototype.bar = 'bar'
+        Public.prototype.constructor = function() {
+            Super(this).constructor()
+            barProtected = Protected(this)
+        }
+        Public.prototype.test = function() {
+            const f = new Foo
+            Protected(f)
+        }
+    })
+
+    assert( fooProtectedGetter !== barProtectedGetter )
+
+    const f = new Foo
+    const b = new Bar
+
+    assert( fooProtected === barProtected )
+    assert( fooProtectedGetter(b) === barProtectedGetter(b) )
+
+    // XXX 
+    try {
+        b.test()
+        throw 'fail'
+    }
+    catch (e) {
+        if ( !( e instanceof InvalidAccessError ) )
+            throw e
+    }
+}
+
 console.log('')
 console.log(' All tests passed! ')

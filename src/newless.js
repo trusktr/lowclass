@@ -53,8 +53,8 @@ var construct = Reflect && Reflect.construct || (function() {
     return Function("constructor, args, target", `
       'use strict';
 
-      if (arguments.length === 3 && typeof newTarget === undefined)
-        throw new TypeError('undefined is not a constructor');
+      if (arguments.length === 3 && typeof target !== 'function')
+        throw new TypeError(target + ' is not a constructor');
 
       target = target || constructor;
 
@@ -83,10 +83,14 @@ var construct = Reflect && Reflect.construct || (function() {
           if (i > 0) argList += ',';
           argList += 'args[' + i + ']';
         }
-        var constructCall = Function('constructor, args', \`
-          return new constructor( \${ argList } );
-        \`);
+        var constructCall = Function('constructor, args',
+          'return new constructor( ' + argList + ' );'
+        );
         var value = constructCall(constructor, args);
+
+        args = Array.prototype.slice.call(args);
+        args = [null].concat(args);
+        var value = new constructor.bind.apply(constructor, args);
 
       `}
 
@@ -123,10 +127,17 @@ var construct = Reflect && Reflect.construct || (function() {
   else {
     var instantiator = function() {};
     return function construct(constructor, args, target) {
+      if (arguments.length === 3 && typeof target !== 'function')
+        throw new TypeError(target + ' is not a constructor');
       instantiator.prototype = (target || constructor).prototype;
       var instance = new instantiator();
       var value = constructor.apply(instance, args);
-      return (typeof value === "object" && value) || instance;
+      if (typeof value === "object" && value) {
+        // we can do better if __proto__ is available (in some ES5 environments)
+        value.__proto__ = (target || constructor).prototype;
+        return value
+      }
+      return instance;
     }
   }
 })();
@@ -231,19 +242,13 @@ function newless(constructor) {
       })
   }
 
-  copyProperties(constructor, newlessConstructor);
-
-  //newlessConstructor.prototype = constructor.prototype;
-  newlessConstructor.prototype = {
-      __proto__: constructor.prototype,
-      constructor: newlessConstructor,
-  }
+  newlessConstructor.prototype = Object.create( constructor.prototype );
+  newlessConstructor.prototype.constructor = newlessConstructor;
 
   // NOTE: *usually* the below will already be true, but we ensure it here.
   // Safari 9 requires this for the 'super' keyword to work. Newer versions
   // of WebKit and other engines do not. Instead, they use the constructor's
   // prototype chain (which is correct by ES2015 spec) (see below).
-  //newlessConstructor.prototype.constructor = constructor;
   constructor.prototype.constructor = constructor;
 
   // for ES2015 classes, we need to make sure the constructor's prototype
@@ -252,15 +257,8 @@ function newless(constructor) {
   // newless wrapper (in the case that it is wrapped by newless).
   newlessConstructor[TRUE_CONSTRUCTOR] = constructor;
 
-  var superConstructor = getPrototype(constructor);
-  var realSuperConstructor = superConstructor[TRUE_CONSTRUCTOR];
-
-  //setPrototype(newlessConstructor, realSuperConstructor || superConstructor);
+  copyProperties(constructor, newlessConstructor);
   setPrototype(newlessConstructor, constructor);
-
-  if (realSuperConstructor) {
-    setPrototype(constructor, realSuperConstructor);
-  }
 
   return newlessConstructor;
 };

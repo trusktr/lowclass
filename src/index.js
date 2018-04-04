@@ -282,6 +282,8 @@ function createClassHelper( options ) {
 
         // private prototype does not inherit from parent, each private
         // instance is private only for the class of this scope
+        // TODO: it might be useful for privatePrototype to extend the parent
+        // privatePrototype, to make it easier to re-use private code.
         const privatePrototype = definition && definition.private || {}
 
         scope.publicPrototype = publicPrototype
@@ -332,17 +334,6 @@ function createClassHelper( options ) {
 
             NewClass = ( () => function() {
 
-                // make a protected instance if it doesn't exist already
-                let protectedInstance = publicToProtected.get( this )
-                if ( !protectedInstance ) {
-                    protectedInstance = Object.create( protectedPrototype )
-                    publicToProtected.set( this, protectedInstance )
-                }
-
-                // make one private instance per class
-                const privateInstance = Object.create( privatePrototype )
-                publicToPrivate.set( this, privateInstance )
-
                 if (userConstructor) userConstructor.apply(this, arguments)
                 else ParentClass.apply(this, arguments)
 
@@ -390,17 +381,6 @@ function createClassHelper( options ) {
 
                 newTargetStack.pop()
 
-                // make a protected instance if it doesn't exist already
-                let protectedInstance = publicToProtected.get( self )
-                if ( !protectedInstance ) {
-                    protectedInstance = Object.create( protectedPrototype )
-                    publicToProtected.set( self, protectedInstance )
-                }
-
-                // make one private instance per class
-                const privateInstance = Object.create( privatePrototype )
-                publicToPrivate.set( self, privateInstance )
-
                 return self
             } )()
 
@@ -422,25 +402,14 @@ function createClassHelper( options ) {
 
             NewClass = new Function(`
                 userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
                 ParentClass,
-                publicToProtected,
-                publicToPrivate,
-                newTargetStack
+                newTargetStack,
             `, `
-                //return class ${className} extends ParentClass
                 return function ${className}() { ${code} }
             `)(
                 userConstructor,
-                publicPrototype,
-                protectedPrototype,
-                privatePrototype,
                 ParentClass,
-                publicToProtected,
-                publicToPrivate,
-                newTargetStack
+                newTargetStack,
             )
 
             NewClass.prototype = proto
@@ -489,11 +458,13 @@ function getProtectedMembers( scope, instance ) {
     // This allows for example an instance of an Animal base class to access
     // protected members of an instance of a Dog child class.
     if ( hasPrototype( instance, scope.publicPrototype ) )
-        return publicToProtected.get( instance )
+        return publicToProtected.get( instance ) || createProtectedInstance( scope, instance )
 
     // check only for the private instance of this class scope
-    else if ( instance.__proto__ === scope.privatePrototype )
-        return publicToProtected.get( scope.publicToPrivate.get( instance ) )
+    else if ( instance.__proto__ === scope.privatePrototype ) {
+        const publicInstance = scope.publicToPrivate.get( instance )
+        return publicToProtected.get( publicInstance ) || createProtectedInstance( scope, publicInstance )
+    }
 
     // return the protected instance if it was passed in
     else if ( hasPrototype( instance, scope.protectedPrototype ) )
@@ -502,22 +473,54 @@ function getProtectedMembers( scope, instance ) {
     throw new InvalidAccessError('invalid access of protected member')
 }
 
+function createProtectedInstance( scope, publicInstance ) {
+
+    // traverse instance proto chain, find first protected prototype
+    const protectedPrototype = findLeafmostProtectedPrototype( publicInstance )
+
+    // make the protected instance from the found protected prototype
+    const protectedInstance = Object.create( protectedPrototype )
+    publicToProtected.set( publicInstance, protectedInstance )
+    return protectedInstance
+}
+
+function findLeafmostProtectedPrototype( publicInstance ) {
+    let result = null
+    let currentProto = publicInstance.__proto__
+
+    while ( currentProto ) {
+        result = publicProtoToProtectedProto.get( currentProto )
+        if ( result ) return result
+        currentProto = currentProto.__proto__
+    }
+
+    return result
+}
+
 function getPrivateMembers( scope, instance ) {
 
     // check for a public instance that is or inherits from this class
     if ( hasPrototype( instance, scope.publicPrototype ) )
-        return scope.publicToPrivate.get( instance )
+        return scope.publicToPrivate.get( instance ) || createPrivateInstance( scope, instance )
 
     // check for a protected instance that is or inherits from this class'
     // protectedPrototype
-    else if ( hasPrototype( instance, scope.protectedPrototype ) )
-        return scope.publicToPrivate.get( publicToProtected.get( instance ) )
+    else if ( hasPrototype( instance, scope.protectedPrototype ) ) {
+        const publicInstance = publicToProtected.get( instance )
+        return scope.publicToPrivate.get( publicInstance ) || createPrivateInstance( scope, publicInstance )
+    }
 
     // return the private instance if it was passed in
     else if ( instance.__proto__ === scope.privatePrototype )
         return instance
 
     throw new InvalidAccessError('invalid access of private member')
+}
+
+function createPrivateInstance( scope, publicInstance ) {
+    const privateInstance = Object.create( scope.privatePrototype )
+    scope.publicToPrivate.set( publicInstance, privateInstance )
+    return privateInstance
 }
 
 // check if an object has the given prototype in its chain
