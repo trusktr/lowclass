@@ -1,5 +1,5 @@
-const { Class, createClassHelper, InvalidAccessError, InvalidSuperAccessError } = require('./src/index')
-const { native } = require('./src/newless')
+const { Class, createClassHelper, InvalidAccessError, InvalidSuperAccessError } = require('./index')
+const { native } = require('./newless')
 
 const assert = console.assert.bind( console )
 
