@@ -187,10 +187,6 @@ function createClassHelper( options ) {
             return Ctor
         }
 
-        ParentClass = ParentClass || Object
-
-        let parentPublicPrototype = ParentClass.prototype
-
         // A two-way map to associate public instances with private instances.
         // Unlike publicToProtected, this is inside here because there is one
         // private instance per class scope per instance (or to say it another
@@ -202,7 +198,6 @@ function createClassHelper( options ) {
         // the class "scope" that we will bind to the helper functions
         const scope = {
             publicToPrivate,
-            parentPublicPrototype,
         }
 
         // create the super helper for this class scope
@@ -236,11 +231,20 @@ function createClassHelper( options ) {
 
         // the user has the option of returning an object that defines which
         // properties are public/protected/private.
-        if ( definition && typeof definition !== 'object' ) {
+        if ( definition && typeof definition !== 'object' && typeof definition !== 'function' ) {
             throw new TypeError(`
                 The return value of a class definer function, if any, should be
-                an object.
+                an object, or a class constructor.
             `)
+        }
+
+        // if a function was returned, we assume it is a class from which we
+        // get the public definition from.
+        let customClass = null
+        if ( typeof definition === 'function' ) {
+            customClass = definition
+            definition = definition.prototype
+            ParentClass = customClass.prototype.__proto__.constructor
         }
 
         // if functions were provided for the public/protected/private
@@ -268,6 +272,10 @@ function createClassHelper( options ) {
 
         }
 
+        ParentClass = ParentClass || Object
+
+        let parentPublicPrototype = ParentClass.prototype
+
         // extend the parent class
         const publicPrototype = definition && definition.public ||
             definition || {}
@@ -289,6 +297,7 @@ function createClassHelper( options ) {
         scope.publicPrototype = publicPrototype
         scope.privatePrototype = privatePrototype
         scope.protectedPrototype = protectedPrototype
+        scope.parentPublicPrototype = parentPublicPrototype
         scope.parentProtectedPrototype = parentProtectedPrototype
 
         // the user has the option of assigning methods and properties to the
@@ -321,6 +330,8 @@ function createClassHelper( options ) {
                 copyDescriptors(definition, publicPrototype)
             }
         }
+
+        if ( customClass ) return customClass
 
         const userConstructor =
             publicPrototype.hasOwnProperty('constructor') ?

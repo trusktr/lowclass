@@ -1,7 +1,15 @@
-const { Class, createClassHelper, InvalidAccessError } = require('./src/index')
+const { Class, createClassHelper, InvalidAccessError, InvalidSuperAccessError } = require('./src/index')
 const { native } = require('./src/newless')
 
 const assert = console.assert.bind( console )
+
+/////////////////////////////////////////////////////////////////////
+// example of extending HTMLElement for use with customElements.define
+if ( typeof customElements !== 'undefined' && customElements.define ) {
+}
+
+/////////////////////////////////////////////////////////////////////
+// TODO test invalid Super access, InvalidSuperAccessError
 
 /////////////////////////////////////////////////////////////////////
 // Example of etending Array
@@ -33,6 +41,98 @@ const assert = console.assert.bind( console )
     assert( a.concat(4,5,6).length === 6 )
     assert( a.concat(4,5,6) instanceof MyArray )
     assert( Array.isArray(a) )
+}
+
+// ##################################################
+// protected and private members for custom-made classes (es5 or native es6)
+{
+    const Foo = Class(({Protected, Private}) => {
+
+        // make and return our own es5-style base class, with Protected and
+        // Private helpers in scope.
+
+        function Foo() {
+            this.foo = 'foo'
+            Private(this).bar = 'bar'
+            Protected(this).baz = 'baz'
+        }
+
+        Foo.prototype = {
+            constructor: Foo,
+            test() {
+                assert( this.foo === 'foo' )
+                assert( Private(this).bar === 'bar' )
+                assert( Protected(this).baz === 'baz' )
+            }
+        }
+
+        return Foo
+    })
+
+    const foo = new Foo
+    foo.test()
+
+    const Bar = Class(({Super, Private}) => {
+
+        // make and return our own es5-style subclass
+
+        const prototype = {
+            __proto__: Foo.prototype,
+
+            constructor: function() {
+                Super(this).constructor()
+            },
+
+            test() {
+                super.test()
+                assert( Private(this).who === 'you' )
+            },
+
+            private: {
+                who: 'you'
+            },
+        }
+
+        prototype.constructor.prototype = prototype
+
+        return prototype.constructor
+    })
+
+    const bar = new Bar
+    bar.test()
+
+    // wrap our own es6 native-style base class with access helpers in scope.
+    const Lorem = Class(({Protected, Private}) => class {
+        constructor() {
+            this.foo = 'foo'
+            Private(this).bar = 'bar'
+            Protected(this).baz = 'baz'
+        }
+
+        test() {
+            assert( this.foo === 'foo' )
+            assert( Private(this).bar === 'bar' )
+            assert( Protected(this).baz === 'baz' )
+        }
+    })
+
+    const lorem = new Lorem
+    lorem.test()
+
+    // wrap our own es6 native-style subclass with the access helpers in scope
+    const Ipsum = Class(({Private}) => class extends Lorem {
+        constructor() {
+            super()
+            Private(this).secret = 'he did it'
+        }
+        test() {
+            super.test()
+            assert( Private(this).secret === 'he did it' )
+        }
+    })
+
+    const ip = new Ipsum
+    ip.test()
 }
 
 // ##################################################
