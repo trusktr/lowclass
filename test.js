@@ -53,8 +53,6 @@ if ( typeof customElements !== 'undefined' && customElements.define ) {
 
         function Foo() {
             this.foo = 'foo'
-            Private(this).bar = 'bar'
-            Protected(this).baz = 'baz'
         }
 
         Foo.prototype = {
@@ -63,7 +61,15 @@ if ( typeof customElements !== 'undefined' && customElements.define ) {
                 assert( this.foo === 'foo' )
                 assert( Private(this).bar === 'bar' )
                 assert( Protected(this).baz === 'baz' )
-            }
+            },
+
+            // define access just like with regular class definitions
+            private: {
+                bar: 'bar'
+            },
+            protected: {
+                baz: 'baz'
+            },
         }
 
         return Foo
@@ -105,8 +111,6 @@ if ( typeof customElements !== 'undefined' && customElements.define ) {
     const Lorem = Class(({Protected, Private}) => class {
         constructor() {
             this.foo = 'foo'
-            Private(this).bar = 'bar'
-            Protected(this).baz = 'baz'
         }
 
         test() {
@@ -114,20 +118,30 @@ if ( typeof customElements !== 'undefined' && customElements.define ) {
             assert( Private(this).bar === 'bar' )
             assert( Protected(this).baz === 'baz' )
         }
+
+        get private() { return {
+            bar: 'bar'
+        }}
+
+        get protected() { return {
+            baz: 'baz'
+        }}
     })
 
     const lorem = new Lorem
     lorem.test()
 
     // wrap our own es6 native-style subclass with the access helpers in scope
-    const Ipsum = Class(({Private}) => class extends Lorem {
-        constructor() {
-            super()
-            Private(this).secret = 'he did it'
-        }
-        test() {
-            super.test()
-            assert( Private(this).secret === 'he did it' )
+    const Ipsum = Class(({Private}) => {
+        return class extends Lorem {
+            test() {
+                super.test()
+                assert( Private(this).secret === 'he did it' )
+            }
+
+            get private() { return {
+                secret: 'he did it'
+            }}
         }
     })
 
