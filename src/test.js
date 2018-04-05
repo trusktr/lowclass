@@ -1372,7 +1372,10 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         },
     }))
 
-    Object.getOwnPropertyDescriptors(Duck.prototype)
+    const protoDescriptor = Object.getOwnPropertyDescriptor( Duck, 'prototype' )
+    assert( !protoDescriptor.writable )
+    assert( !protoDescriptor.enumerable )
+    assert( !protoDescriptor.configurable )
 
     checkDescriptors( Duck )
     checkDescriptors( Duck.prototype )
@@ -1381,7 +1384,60 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     duck.test()
 }
 
-function checkDescriptors( obj ) {
+// ##################################################
+// Show how to change class creation configuration, for example suppose we want
+// static and prototype props/methods to be enumerable, and the prototype to be
+// writable.
+{
+    const Class = createClassHelper({
+        prototypeWritable: true,
+        defaultClassDescriptor: {
+            enumerable: true,
+        },
+    })
+
+    const AwesomeThing = Class(({Protected, Private}) => ({
+        constructor() {},
+        add() {},
+        get foo() {},
+
+        protected: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
+
+        private: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
+
+        static: {
+            foo: 'foo',
+            add() {},
+            set foo(v) {},
+        },
+
+        test() {
+            checkDescriptors( Protected(this).__proto__, true )
+            checkDescriptors( Private(this).__proto__, true )
+        },
+    }))
+
+    const protoDescriptor = Object.getOwnPropertyDescriptor( AwesomeThing, 'prototype' )
+    assert( protoDescriptor.writable )
+    assert( !protoDescriptor.enumerable )
+    assert( !protoDescriptor.configurable )
+
+    checkDescriptors( AwesomeThing, true )
+    checkDescriptors( AwesomeThing.prototype, true )
+
+    const thing = new AwesomeThing
+    thing.test()
+}
+
+function checkDescriptors( obj, enumerable = false ) {
     let blacklist = [ 'subclass', 'extends' ]
 
     if ( typeof obj === 'function' ) {
@@ -1404,7 +1460,7 @@ function checkDescriptors( obj ) {
         else
             assert( 'get' in descriptor )
 
-        assert( !descriptor.enumerable )
+        assert( descriptor.enumerable === enumerable )
         assert( descriptor.configurable )
     }
 }

@@ -49,6 +49,11 @@ function createClassHelper( options ) {
 
     options = options ? { ...defaultOptions, ...options } : defaultOptions
 
+    options.defaultClassDescriptor = {
+        ...defaultOptions.defaultClassDescriptor,
+        ...options.defaultClassDescriptor
+    }
+
     const { mode, prototypeWritable } = options
 
     /*
