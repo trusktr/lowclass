@@ -430,52 +430,67 @@ catch (e) {
 // we can not access a child class' private member from a parent class
 {
 
-    const Animal = Class('Animal', ({Private}) => ({
-        public: {
-            foo: function talk() {
-                const dog = new Dog
+    let AnimalPrivate = null
 
-                // like in C++, accessing the private variable of a child class does not work.
-                console.assert( Private(dog).sound === undefined )
+    const Animal = Class('Animal', ({Private}) => {
 
-                // like in C++, we can only access the private members associated with the class that we are currently in:
-                console.assert( Private(dog).bar === 'BAR' )
+        AnimalPrivate = Private
 
-                Private(dog).sound = 'Awoooo!'
-                dog.verifySound()
-                dog.changeSound()
-                console.assert( Private(dog).sound === 'Awoooo!' )
+        return {
+            public: {
+                foo: function talk() {
+                    const dog = new Dog
 
-                Private(dog).bar = 'of soap'
-                dog.checkBar()
+                    // like in C++, accessing the private variable of a child class does not work.
+                    console.assert( Private(dog).sound === undefined )
 
-                Private(this).bar = 'of soap'
-                dog.checkBar()
+                    // like in C++, we can only access the private members associated with the class that we are currently in:
+                    console.assert( Private(dog).bar === 'BAR' )
 
-                dog.exposePrivate()
-                assert( Private(dog) !== dogPrivate )
-                assert( Private(this) !== dogPrivate )
-                assert( Private(this) !== Private(dog) )
+                    Private(dog).sound = 'Awoooo!'
+                    dog.verifySound()
+                    dog.changeSound()
+                    console.assert( Private(dog).sound === 'Awoooo!' )
+
+                    Private(dog).bar = 'of soap'
+                    dog.checkBar() // dog's is still "BAR"
+
+                    Private(this).bar = 'of soap'
+                    dog.checkBar() // dog's is still "BAR"
+
+                    dog.exposePrivate()
+                    assert( Private(dog) !== dogPrivate )
+                    assert( Private(this) !== dogPrivate )
+                    assert( Private(this) !== Private(dog) )
+                },
             },
-        },
 
-        private: {
-            bar: 'BAR',
-        },
-    }))
+            private: {
+                bar: 'BAR',
+            },
+        }
+    })
 
     let dogPrivate = null
 
     const Dog = Animal.subclass(function Dog({Public, Private}) {
         Private.prototype.sound = "Woof!"
         Public.prototype.verifySound = function() {
-            console.assert( Private(this).sound === 'Woof!' )
+            assert( Private(this).sound === 'Woof!' )
         }
         Public.prototype.changeSound = function() {
             Private(this).sound = "grrr!"
         }
         Public.prototype.checkBar = function() {
-            assert( Private(this).bar === undefined )
+
+            // the private instance for the Dog class is not the same instance a for the Animal class
+            assert( Private(this) !== AnimalPrivate(this) )
+
+            // private bar was inherited, but the instance is still private
+            assert( Private(this).bar === 'BAR' )
+
+            // and therefore this value is different, because it's a different instance
+            assert( AnimalPrivate(this).bar === 'of soap' )
         }
         Public.prototype.exposePrivate = function() {
             dogPrivate = Private(this)
@@ -490,19 +505,27 @@ catch (e) {
 // we can not access a parent class' private member from a child class
 {
 
-    const Animal = Class('Animal', {
+    const Animal = Class('Animal', ({Private}) => ({
         private: {
             bar: 'BAR',
         },
-    })
+        changeBar() {
+            Private(this).bar = 'hokey pokey'
+        },
+    }))
 
     const Dog = Animal.subclass(function Dog({Public, Private}) {
         Private.prototype.sound = "Woof!"
         Public.prototype.foo = function() {
 
-            // should not be able to access Animal's private bar property
-            console.assert( Private(this).bar === undefined )
-            console.assert( this.bar === undefined )
+            // we should not be able to access Animal's private bar property
+            this.changeBar() // changed Animal's private bar property
+
+            // 'BAR' is inherited, and is unique to Dog code, so the value is
+            // not 'hokey pokey'
+            assert( Private(this).bar === 'BAR' )
+
+            assert( this.bar === undefined )
         }
     })
 

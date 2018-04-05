@@ -8,6 +8,7 @@ const {
 } = require( './utils' )
 
 const publicProtoToProtectedProto = new WeakMap
+const publicProtoToPrivateProto = new WeakMap
 
 // A two-way map to associate public instances with protected instances.
 // There is one protected instance per public instance
@@ -274,9 +275,8 @@ function createClassHelper( options ) {
 
         ParentClass = ParentClass || Object
 
-        let parentPublicPrototype = ParentClass.prototype
-
         // extend the parent class
+        const parentPublicPrototype = ParentClass.prototype
         const publicPrototype = definition && definition.public ||
             definition || Object.create( parentPublicPrototype )
         if ( publicPrototype.__proto__ !== parentPublicPrototype )
@@ -284,18 +284,22 @@ function createClassHelper( options ) {
 
         // extend the parent protected prototype
         const parentProtectedPrototype =
-            publicProtoToProtectedProto.get( parentPublicPrototype) || {}
+            publicProtoToProtectedProto.get( parentPublicPrototype ) || {}
         const protectedPrototype = definition && definition.protected
             || Object.create( parentProtectedPrototype )
         if ( protectedPrototype.__proto__ !== parentProtectedPrototype )
             protectedPrototype.__proto__ = parentProtectedPrototype
-        publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
+        publicProtoToProtectedProto.set( publicPrototype, protectedPrototype )
 
-        // private prototype does not inherit from parent, each private
-        // instance is private only for the class of this scope
-        // TODO: it might be useful for privatePrototype to extend the parent
-        // privatePrototype, to make it easier to re-use private code.
-        const privatePrototype = definition && definition.private || {}
+        // private prototype inherits from parent, but each private instance is
+        // private only for the class of this scope
+        const parentPrivatePrototype =
+            publicProtoToPrivateProto.get( parentPublicPrototype ) || {}
+        const privatePrototype = definition && definition.private
+            || Object.create( parentPrivatePrototype )
+        if ( privatePrototype.__proto__ !== parentPrivatePrototype )
+            privatePrototype.__proto__ = parentPrivatePrototype
+        publicProtoToPrivateProto.set( publicPrototype, privatePrototype )
 
         scope.publicPrototype = publicPrototype
         scope.privatePrototype = privatePrototype
@@ -327,6 +331,8 @@ function createClassHelper( options ) {
             // this won't work with `super`. We should document this (write a test
             // for it). Maybe later, we can use a Proxy to read props from both the
             // root object and the public object, so that `super` works from both.
+            // Another option is to not allow a `public` object, only protected
+            // and private
             if (definition !== publicPrototype) {
 
                 // copy whatever remains
@@ -362,7 +368,7 @@ function createClassHelper( options ) {
                     ret = constructor.apply( this, arguments )
 
                 if ( ret && typeof ret === 'object' ) {
-                    // TODO should we set ret.__proto__ = constructor.prototype
+                    // XXX should we set ret.__proto__ = constructor.prototype
                     // here? Or let the user deal with that?
                     return ret
                 }
