@@ -1320,5 +1320,30 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     }
 }
 
+// ##################################################
+// make sure constructor is not writable or configurable
+~function() {
+    "use strict"
+
+    let ctor = 'supercalifragilisticexpialidocious'
+    let Duck
+    let errorThrown = false
+
+    try {
+        Duck = Class({
+            constructor() {}
+        })
+
+        ctor = Duck.prototype.constructor
+        Duck.prototype.constructor = function() {}
+    }
+    catch(e) {
+        assert( Duck.prototype.constructor === ctor )
+        errorThrown = true
+    }
+
+    assert(errorThrown, 'should not reach here if constructor is not writable')
+}()
+
 console.log('')
 console.log(' All tests passed! ')

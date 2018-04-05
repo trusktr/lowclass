@@ -410,8 +410,11 @@ function createClassHelper( options ) {
         // protected/private static members too)
         NewClass.__proto__ = ParentClass
 
-        // TODO: make constructor non-writable / non-configurable like ES6+
-        NewClass.prototype.constructor = NewClass
+        setDescriptor(NewClass.prototype, 'constructor', {
+            value: NewClass,
+            configurable: false,
+            writable: false,
+        })
 
         // allow users to make subclasses. This defines what `this` is and gets
         // assigned to ParentClass above in subsequent calls.
