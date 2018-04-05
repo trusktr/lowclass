@@ -1345,5 +1345,54 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert(errorThrown, 'should not reach here if constructor is not writable')
 }()
 
+// ##################################################
+// Super works with private members
+{
+    const Foo = Class(({Private}) => ({
+        checkThought() {
+            return Private(this).thought
+        },
+        private: {
+            thought: 'weeeee',
+            think() {
+                this.thought = 'hmmmmm'
+            }
+        }
+    }))
+
+    const Bar = Class().extends(Foo, ({Private, Super}) => ({
+        test() {
+            Private(this).think()
+
+            // Foo's value is still undefined, as expected
+            assert( this.checkThought() === 'weeeee' )
+
+            // but Bar's value is now 'hmmmmm'
+            assert( Private(this).thought === 'hmmmmm' )
+        },
+        private: {
+            think() {
+                // code re-use
+                Super(this).think()
+            }
+        }
+    }))
+
+    const b = new Bar
+    b.test()
+
+    // native `super` works too:
+    const Baz = Class().extends(Bar, ({Super}) => ({
+        private: {
+            think() {
+                super.think()
+            }
+        }
+    }))
+
+    const baz = new Baz
+    baz.test()
+}
+
 console.log('')
 console.log(' All tests passed! ')

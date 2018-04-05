@@ -306,6 +306,7 @@ function createClassHelper( options ) {
         scope.protectedPrototype = protectedPrototype
         scope.parentPublicPrototype = parentPublicPrototype
         scope.parentProtectedPrototype = parentProtectedPrototype
+        scope.parentPrivatePrototype = parentPrivatePrototype
 
         // the user has the option of assigning methods and properties to the
         // helpers that we passed in, to let us know which methods and
@@ -537,20 +538,20 @@ function superHelper( supers, scope, instance ) {
     const {
         publicPrototype,
         protectedPrototype,
+        privatePrototype,
         parentPublicPrototype,
         parentProtectedPrototype,
+        parentPrivatePrototype
     } = scope
 
     if ( hasPrototype( instance, publicPrototype ) )
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
 
     if ( hasPrototype( instance, protectedPrototype ) )
-        return getSuperHelperObject(
-            instance, parentProtectedPrototype, supers
-        )
+        return getSuperHelperObject(instance, parentProtectedPrototype, supers)
 
-    // TODO: does it make sense to add Super support for private members
-    // here? Let's add it when/if we need it.
+    if ( hasPrototype( instance, privatePrototype ) )
+        return getSuperHelperObject( instance, parentPrivatePrototype, supers )
 
     throw new InvalidSuperAccessError('invalid super access')
 }
@@ -558,7 +559,7 @@ function superHelper( supers, scope, instance ) {
 function getSuperHelperObject( instance, parentPrototype, supers ) {
     let _super = supers.get( instance )
 
-    // TODO PERFORMANCE: there's probably some ways to improve speed here using caching
+    // XXX PERFORMANCE: there's probably some ways to improve speed here using caching
     if ( !_super ) {
         supers.set( instance, _super = Object.create( parentPrototype ) )
 
