@@ -1,6 +1,7 @@
 const {
     getFunctionBody,
     setDescriptor,
+    setDescriptors,
     propertyIsAccessor,
     getInheritedDescriptor,
     getInheritedPropertyNames,
@@ -18,7 +19,15 @@ const defaultOptions = {
 
     // es5 class inheritance is simple, nice, easy, and robust
     // There was another mode, but it has been removed
-    mode: 'es5'
+    mode: 'es5',
+
+    // similar to ES6 classes:
+    prototypeWritable: false,
+    defaultClassDescriptor: {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+    },
 
 }
 
@@ -38,7 +47,9 @@ Object.assign( module.exports, {
 function createClassHelper( options ) {
     "use strict"
 
-    options = options || defaultOptions
+    options = options ? { ...defaultOptions, ...options } : defaultOptions
+
+    const { mode, prototypeWritable } = options
 
     /*
      * this is just the public interface adapter for createClass(). Depending
@@ -143,8 +154,6 @@ function createClassHelper( options ) {
      */
     function createClass( className, definer ) {
         "use strict"
-
-        const { mode } = options
 
         // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
         let ParentClass = this
@@ -357,6 +366,7 @@ function createClassHelper( options ) {
             null
 
         let NewClass = null
+        let newPrototype = null
 
         // ES5 version (which seems to be so much better)
         if ( mode === 'es5' ) {
@@ -384,7 +394,7 @@ function createClassHelper( options ) {
 
             } )()
 
-            NewClass.prototype = publicPrototype
+            newPrototype = publicPrototype
 
         }
 
@@ -414,20 +424,38 @@ function createClassHelper( options ) {
             })
         }
 
+        // static stuff {
+
         // static inheritance
         NewClass.__proto__ = ParentClass
 
         if ( staticMembers ) copyDescriptors( staticMembers, NewClass )
 
-        setDescriptor(NewClass.prototype, 'constructor', {
-            value: NewClass,
+        // allow users to make subclasses. When subclass is called on a
+        // constructor, it defines `this` which is assigned to ParentClass
+        // above.
+        setDescriptor(NewClass, 'subclass', {
+            value: Class,
+            writable: true,
+            enumerable: false,
             configurable: false,
-            writable: false,
         })
 
-        // allow users to make subclasses. This defines what `this` is and gets
-        // assigned to ParentClass above in subsequent calls.
-        NewClass.subclass = Class
+        setDefaultStaticDescriptors( NewClass, options )
+
+        // }
+
+        // prototype stuff {
+
+        NewClass.prototype = newPrototype
+        setDescriptor(NewClass, 'prototype', { writable: prototypeWritable })
+        NewClass.prototype.constructor = NewClass
+        setDefaultPrototypeDescriptors( NewClass.prototype, options )
+
+        setDefaultPrototypeDescriptors( protectedPrototype, options )
+        setDefaultPrototypeDescriptors( privatePrototype, options )
+
+        // }
 
         return NewClass
     }
@@ -618,4 +646,48 @@ function getSuperHelperObject( instance, parentPrototype, supers ) {
     }
 
     return _super
+}
+
+function setDefaultPrototypeDescriptors( prototype,
+    { defaultClassDescriptor: { writable, enumerable, configurable } }
+) {
+    const descriptors = Object.getOwnPropertyDescriptors( prototype )
+    let descriptor
+
+    for ( const key in descriptors ) {
+        descriptor = descriptors[ key ]
+
+        // regular value
+        if ( 'value' in descriptor || 'writable' in descriptor ) {
+            descriptor.writable = writable
+        }
+
+        // accessor or regular value
+        descriptor.enumerable = enumerable
+        descriptor.configurable = configurable
+    }
+
+    setDescriptors( prototype, descriptors )
+}
+
+function setDefaultStaticDescriptors( Ctor,
+    { defaultClassDescriptor: { writable, enumerable, configurable } }
+) {
+    const descriptors = Object.getOwnPropertyDescriptors( Ctor )
+    let descriptor
+
+    for ( const key of Object.keys( Ctor ) ) {
+        descriptor = descriptors[ key ]
+
+        // regular value
+        if ( 'value' in descriptor || 'writable' in descriptor ) {
+            descriptor.writable = writable
+        }
+
+        // accessor or regular value
+        descriptor.enumerable = enumerable
+        descriptor.configurable = configurable
+    }
+
+    setDescriptors( Ctor, descriptors )
 }

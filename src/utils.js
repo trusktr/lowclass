@@ -9,6 +9,7 @@ class WeakTwoWayMap {
 module.exports = {
     getFunctionBody,
     setDescriptor,
+    setDescriptors,
     propertyIsAccessor,
     getInheritedDescriptor,
     getInheritedPropertyNames,
@@ -29,37 +30,56 @@ const descriptorDefaults = {
 }
 
 // makes it easier and less verbose to work with descriptors
-function setDescriptor( obj, key, def, inherited = false ) {
-    let descriptor = (
+function setDescriptor( obj, key, newDescriptor, inherited = false ) {
+    let currentDescriptor = (
         inherited ?
         getInheritedDescriptor( obj, key ) :
         Object.getOwnPropertyDescriptor( obj, key )
     )
 
-    descriptor = descriptor || {}
+    newDescriptor = overrideDescriptor( currentDescriptor, newDescriptor )
+    Object.defineProperty( obj, key, newDescriptor )
+}
 
-    if ( ( def.get || def.set ) && (
-        typeof def.value !== 'undefined' ||
-        typeof def.writable !== 'undefined'
-    )) {
+function setDescriptors( obj, newDescriptors ) {
+    let newDescriptor
+    let currentDescriptor
+    const currentDescriptors = Object.getOwnPropertyDescriptors( obj )
+
+    debugger
+
+    for ( const key in newDescriptors ) {
+        newDescriptor = newDescriptors[ key ]
+        currentDescriptor = currentDescriptors[ key ]
+        currentDescriptors[ key ] = overrideDescriptor( currentDescriptor, newDescriptor )
+    }
+
+    Object.defineProperties( obj, currentDescriptors )
+}
+
+function overrideDescriptor( oldDescriptor, newDescriptor ) {
+
+    if (
+        ( 'get' in newDescriptor || 'set' in newDescriptor ) &&
+        ( 'value' in newDescriptor || 'writable' in newDescriptor )
+    ) {
         throw new TypeError('cannot specify both accessors and a value or writable attribute')
     }
 
-    if ( def.get || def.set ) {
-        delete descriptor.value
-        delete descriptor.writable
-    }
-    else if (
-        typeof def.value !== 'undefined' ||
-        typeof def.writable !== 'undefined'
-    ) {
-        delete descriptor.get
-        delete descriptor.set
+    if ( oldDescriptor ) {
+
+        if ( 'get' in newDescriptor || 'set' in newDescriptor ) {
+            delete oldDescriptor.value
+            delete oldDescriptor.writable
+        }
+        else if ( 'value' in newDescriptor || 'writable' in newDescriptor ) {
+            delete oldDescriptor.get
+            delete oldDescriptor.set
+        }
+
     }
 
-    Object.defineProperty( obj, key,
-        Object.assign( {}, descriptorDefaults, descriptor, def )
-    )
+    return { ...descriptorDefaults, ...oldDescriptor, ...newDescriptor }
 }
 
 function propertyIsAccessor( obj, key, inherited = true ) {

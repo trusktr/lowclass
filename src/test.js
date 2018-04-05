@@ -30,8 +30,6 @@ if ( typeof customElements !== 'undefined' && customElements.define ) {
         },
     }))
 
-    MyArray[Symbol.species] = MyArray
-
     const a = new MyArray
     assert( a instanceof Array )
     assert( a instanceof MyArray )
@@ -1342,29 +1340,74 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 // ##################################################
-// make sure constructor is not writable or configurable
-~function() {
-    "use strict"
+// ensure that class prototype and static descriptors are like ES6 classes
+{
 
-    let ctor = 'supercalifragilisticexpialidocious'
-    let Duck
-    let errorThrown = false
+    const Duck = Class(({Protected, Private}) => ({
+        constructor() {},
+        add() {},
+        get foo() {},
 
-    try {
-        Duck = Class({
-            constructor() {}
-        })
+        protected: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
 
-        ctor = Duck.prototype.constructor
-        Duck.prototype.constructor = function() {}
+        private: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
+
+        static: {
+            foo: 'foo',
+            add() {},
+            set foo(v) {},
+        },
+
+        test() {
+            checkDescriptors( Protected(this).__proto__ )
+            checkDescriptors( Private(this).__proto__ )
+        },
+    }))
+
+    Object.getOwnPropertyDescriptors(Duck.prototype)
+
+    checkDescriptors( Duck )
+    checkDescriptors( Duck.prototype )
+
+    const duck = new Duck
+    duck.test()
+}
+
+function checkDescriptors( obj ) {
+    let blacklist = [ 'subclass', 'extends' ]
+
+    if ( typeof obj === 'function' ) {
+        function reference() {}
+        blacklist = blacklist.concat( Object.getOwnPropertyNames( reference ) )
     }
-    catch(e) {
-        assert( Duck.prototype.constructor === ctor )
-        errorThrown = true
-    }
 
-    assert(errorThrown, 'should not reach here if constructor is not writable')
-}()
+    const descriptors = Object.getOwnPropertyDescriptors( obj )
+    let descriptor
+
+    assert( Object.keys( descriptors ).length )
+
+    for ( const key in descriptors ) {
+        if ( blacklist.includes( key ) ) continue
+
+        descriptor = descriptors[ key ]
+
+        if ( 'writable' in descriptor )
+            assert( descriptor.writable )
+        else
+            assert( 'get' in descriptor )
+
+        assert( !descriptor.enumerable )
+        assert( descriptor.configurable )
+    }
+}
 
 // ##################################################
 // Super works with private members
