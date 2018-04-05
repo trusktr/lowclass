@@ -278,14 +278,17 @@ function createClassHelper( options ) {
 
         // extend the parent class
         const publicPrototype = definition && definition.public ||
-            definition || {}
-        publicPrototype.__proto__ = parentPublicPrototype
+            definition || Object.create( parentPublicPrototype )
+        if ( publicPrototype.__proto__ !== parentPublicPrototype )
+            publicPrototype.__proto__ = parentPublicPrototype
 
         // extend the parent protected prototype
         const parentProtectedPrototype =
             publicProtoToProtectedProto.get( parentPublicPrototype) || {}
-        const protectedPrototype = definition && definition.protected || {}
-        protectedPrototype.__proto__ = parentProtectedPrototype
+        const protectedPrototype = definition && definition.protected
+            || Object.create( parentProtectedPrototype )
+        if ( protectedPrototype.__proto__ !== parentProtectedPrototype )
+            protectedPrototype.__proto__ = parentProtectedPrototype
         publicProtoToProtectedProto.set(publicPrototype, protectedPrototype)
 
         // private prototype does not inherit from parent, each private
