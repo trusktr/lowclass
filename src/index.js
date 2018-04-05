@@ -248,10 +248,15 @@ function createClassHelper( options ) {
             ParentClass = customClass.prototype.__proto__.constructor
         }
 
+        let staticMembers
+
         // if functions were provided for the public/protected/private
         // properties of the definition object, execute them with their
         // respective access helpers, and use the objects returned from them.
         if ( definition ) {
+
+            staticMembers = definition.static
+            delete definition.static
 
             if ( typeof definition.public === 'function' ) {
                 definition.public = definition.public(
@@ -341,7 +346,10 @@ function createClassHelper( options ) {
             }
         }
 
-        if ( customClass ) return customClass
+        if ( customClass ) {
+            if ( staticMembers ) copyDescriptors( staticMembers, customClass )
+            return customClass
+        }
 
         const userConstructor =
             publicPrototype.hasOwnProperty('constructor') ?
@@ -407,9 +415,9 @@ function createClassHelper( options ) {
         }
 
         // static inheritance
-        // TODO: add an easy way to define static members (and eventually
-        // protected/private static members too)
         NewClass.__proto__ = ParentClass
+
+        if ( staticMembers ) copyDescriptors( staticMembers, NewClass )
 
         setDescriptor(NewClass.prototype, 'constructor', {
             value: NewClass,

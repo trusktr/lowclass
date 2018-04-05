@@ -966,7 +966,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 
 // ##################################################
 // static members and static inheritance (only public for now, TODO:
-// protected/private static members)
+// protected/private static members along with Super helper support)
 {
     const Foo = Class()
     Foo.foo = 'foo'
@@ -991,6 +991,27 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     l = new Lorem
     assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
     assert( typeof Lorem.create === 'function' )
+}
+
+// ##################################################
+// shortcut for defining static members inside the class definition
+{
+    const Car = Class({
+        wheels: [1,2,3,4],
+        static: {
+            isCar( obj ) {
+                return obj.wheels.length === 4
+            }
+        }
+    })
+
+    const car = new Car
+    assert( Car.isCar( car ) )
+
+    const Buggy = Class().extends(Car)
+
+    const buggy = new Car
+    assert( Car.isCar( buggy ) )
 }
 
 // ##################################################
