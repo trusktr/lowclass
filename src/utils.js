@@ -46,8 +46,6 @@ function setDescriptors( obj, newDescriptors ) {
     let currentDescriptor
     const currentDescriptors = Object.getOwnPropertyDescriptors( obj )
 
-    debugger
-
     for ( const key in newDescriptors ) {
         newDescriptor = newDescriptors[ key ]
         currentDescriptor = currentDescriptors[ key ]
