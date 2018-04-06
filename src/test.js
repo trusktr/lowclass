@@ -853,7 +853,6 @@ test('everything works', () => {
 
                     Public(this).testedFail = true
 
-                    debugger
                     return fails
                 },
             }
@@ -885,7 +884,6 @@ test('everything works', () => {
 
         const b = new Bar
         b.test()
-        debugger
         expect( b.testFail() ).toBe( 2 )
 
         // TODO b.testedFail isn't set because the private instance passed to
