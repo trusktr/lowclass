@@ -11,19 +11,12 @@ const {
 
 const { native } = require('./newless')
 
-const assert = console.assert.bind( console )
-
 test('everything works', () => {
 
-    /////////////////////////////////////////////////////////////////////
-    // example of extending HTMLElement for use with customElements.define
-    if ( typeof customElements !== 'undefined' && customElements.define ) {
-    }
-
-    /////////////////////////////////////////////////////////////////////
+    // ##################################################
     // TODO test invalid Super access, InvalidSuperAccessError
 
-    /////////////////////////////////////////////////////////////////////
+    // ##################################################
     // Example of etending Array
     {
         const MyArray = Class().extends( native(Array), (Public, Protected) => ({

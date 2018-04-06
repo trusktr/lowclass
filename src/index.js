@@ -5,7 +5,7 @@
 //  [x] accept a function as return value of function definer, to be treated as a class to derive the definition from, so that it can have access to Protected and Private helpers
 //  [x] let the returned class define protected and private getters which return the protected and private definitions.
 //  [x] migrate to builder-js-package so tests can run in the browser, and we can test custom elements
-//  [ ] allow property names to be prefixed with 'public', 'protected', and 'private' as an alternate way to specify visibility
+//  [ ] protected and private static members
 //  [ ] other TODOs in the code
 
 "use strict"
