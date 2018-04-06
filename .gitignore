@@ -2,4 +2,8 @@ node_modules
 
 /*.js
 /*.js.map
-!test.js
+!/global.js
+!/babel.config.js
+!/buble.config.js
+!/jest.config.js
+!/webpack.config.js
