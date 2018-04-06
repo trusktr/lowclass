@@ -35,6 +35,7 @@ const defaultOptions = {
         enumerable: false,
         configurable: true,
     },
+    setClassDescriptors: true,
 
 }
 
@@ -60,7 +61,7 @@ function createClassHelper( options ) {
         ...options.defaultClassDescriptor
     }
 
-    const { mode, prototypeWritable } = options
+    const { mode, prototypeWritable, setClassDescriptors } = options
 
     /*
      * this is just the public interface adapter for createClass(). Depending
@@ -452,21 +453,23 @@ function createClassHelper( options ) {
             configurable: false,
         })
 
-        setDefaultStaticDescriptors( NewClass, options )
-
         // }
 
         // prototype stuff {
 
         NewClass.prototype = newPrototype
-        setDescriptor(NewClass, 'prototype', { writable: prototypeWritable })
-        NewClass.prototype.constructor = NewClass
-        setDefaultPrototypeDescriptors( NewClass.prototype, options )
 
-        setDefaultPrototypeDescriptors( protectedPrototype, options )
-        setDefaultPrototypeDescriptors( privatePrototype, options )
+        NewClass.prototype.constructor = NewClass
 
         // }
+
+        if ( setClassDescriptors ) {
+            setDefaultStaticDescriptors( NewClass, options )
+            setDescriptor(NewClass, 'prototype', {writable: prototypeWritable})
+            setDefaultPrototypeDescriptors( NewClass.prototype, options )
+            setDefaultPrototypeDescriptors( protectedPrototype, options )
+            setDefaultPrototypeDescriptors( privatePrototype, options )
+        }
 
         return NewClass
     }

@@ -1403,6 +1403,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         prototypeWritable: true,
         defaultClassDescriptor: {
             enumerable: true,
+            configurable: false,
         },
     })
 
@@ -1430,8 +1431,8 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
         },
 
         test() {
-            checkDescriptors( Protected(this).__proto__, true )
-            checkDescriptors( Private(this).__proto__, true )
+            checkDescriptors( Protected(this).__proto__, true, false )
+            checkDescriptors( Private(this).__proto__, true, false )
         },
     }))
 
@@ -1440,14 +1441,64 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
     assert( !protoDescriptor.enumerable )
     assert( !protoDescriptor.configurable )
 
-    checkDescriptors( AwesomeThing, true )
-    checkDescriptors( AwesomeThing.prototype, true )
+    checkDescriptors( AwesomeThing, true, false )
+    checkDescriptors( AwesomeThing.prototype, true, false )
 
     const thing = new AwesomeThing
     thing.test()
 }
 
-function checkDescriptors( obj, enumerable = false ) {
+// ##################################################
+// Show how to disable setting of descriptors, leaving them like ES5 classes
+// (gives better performance while defining classes too, if you don't need the
+// stricter descriptors)
+{
+    const Class = createClassHelper({
+        setClassDescriptors: false,
+    })
+
+    const PeanutBrittle = Class(({Protected, Private}) => ({
+        constructor() {},
+        add() {},
+        get foo() {},
+
+        protected: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
+
+        private: {
+            foo: 'foo',
+            add() {},
+            get foo() {},
+        },
+
+        static: {
+            foo: 'foo',
+            add() {},
+            set foo(v) {},
+        },
+
+        test() {
+            checkDescriptors( Protected(this).__proto__, true, true )
+            checkDescriptors( Private(this).__proto__, true, true )
+        },
+    }))
+
+    const protoDescriptor = Object.getOwnPropertyDescriptor( PeanutBrittle, 'prototype' )
+    assert( protoDescriptor.writable )
+    assert( !protoDescriptor.enumerable )
+    assert( !protoDescriptor.configurable )
+
+    checkDescriptors( PeanutBrittle, true, true )
+    checkDescriptors( PeanutBrittle.prototype, true, true )
+
+    const thing = new PeanutBrittle
+    thing.test()
+}
+
+function checkDescriptors( obj, enumerable = false, configurable = true ) {
     const useBlacklist = typeof obj === 'function'
 
     const descriptors = Object.getOwnPropertyDescriptors( obj )
@@ -1466,7 +1517,7 @@ function checkDescriptors( obj, enumerable = false ) {
             assert( 'get' in descriptor )
 
         assert( descriptor.enumerable === enumerable )
-        assert( descriptor.configurable )
+        assert( descriptor.configurable === configurable )
     }
 }
 
