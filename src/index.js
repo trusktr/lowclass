@@ -1,3 +1,12 @@
+// TODO
+//  [x] remove the now-unnecessary modes (leave just what was 'es5' mode)
+//  [x] link helpers to each other, making it possible to destructure the arguments to definer functions
+//  [x] let access helper prototype objects extend from Object, otherwise common tools are not available.
+//  [x] accept a function as return value of function definer, to be treated as a class to derive the definition from, so that it can have access to Protected and Private helpers
+//  [x] let the returned class define protected and private getters which return the protected and private definitions.
+//  [ ] migrate to builder-js-package so tests can run in the browser, and we can test custom elements
+//  [ ] allow property names to be prefixed with 'public', 'protected', and 'private' as an alternate way to specify visibility
+//  [ ] other TODOs in the code
 
 "use strict"
 
@@ -27,6 +36,10 @@ const defaultOptions = {
     // es5 class inheritance is simple, nice, easy, and robust
     // There was another mode, but it has been removed
     mode: 'es5',
+
+    // false is better for performance, but true will use Function (similar to
+    // eval) to name your class functions in the most accurate way.
+    nativeNaming: false,
 
     // similar to ES6 classes:
     prototypeWritable: false,
@@ -61,7 +74,9 @@ function createClassHelper( options ) {
         ...options.defaultClassDescriptor
     }
 
-    const { mode, prototypeWritable, setClassDescriptors } = options
+    const {
+        mode, prototypeWritable, setClassDescriptors, nativeNaming
+    } = options
 
     /*
      * this is just the public interface adapter for createClass(). Depending
@@ -196,10 +211,14 @@ function createClassHelper( options ) {
         ) {
             let Ctor
 
-            if ( className ) Ctor = new Function( `return function ${ className }() {}` )()
+            if ( nativeNaming && className )
+                Ctor = new Function( `return function ${ className }() {}` )()
             else {
                 // force anonymous even in ES6+
                 Ctor = ( () => function() {} )()
+
+                if ( className )
+                    setDescriptor( Ctor, 'name', { value: className } )
             }
 
             Ctor.prototype = { __proto__: Object.prototype, constructor: Ctor }
@@ -417,15 +436,20 @@ function createClassHelper( options ) {
         }
 
         if ( className ) {
+            if ( nativeNaming ) {
 
-            const code = getFunctionBody( NewClass )
-            const proto = NewClass.prototype
+                const code = getFunctionBody( NewClass )
+                const proto = NewClass.prototype
 
-            NewClass = new Function(` userConstructor, ParentClass `, `
-                return function ${className}() { ${code} }
-            `)( userConstructor, ParentClass )
+                NewClass = new Function(` userConstructor, ParentClass `, `
+                    return function ${className}() { ${code} }
+                `)( userConstructor, ParentClass )
 
-            NewClass.prototype = proto
+                NewClass.prototype = proto
+            }
+            else {
+                setDescriptor( NewClass, 'name', { value: className } )
+            }
         }
 
         if ( userConstructor && userConstructor.length ) {

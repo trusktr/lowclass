@@ -1571,5 +1571,65 @@ test('everything works', () => {
             expect( descriptor.configurable === configurable ).toBeTruthy()
         }
     }
+
+    // ##################################################
+    // Show use of nativeNaming (default is false)
+    {
+        // without native naming
+        {
+            const Class = createClassHelper({
+                nativeNaming: false, // default
+            })
+
+            // anonymous:
+            const Something = Class()
+            expect( Something.name === '' ).toBeTruthy()
+
+            // named:
+            const OtherThing = Class('OtherThing')
+            expect( OtherThing.name === 'OtherThing' ).toBeTruthy()
+
+            expect( ! OtherThing.toString().includes('OtherThing') ).toBeTruthy()
+
+            // make sure works with non-simple classes (because different code
+            // path)
+            const AwesomeThing = Class({ method() {} })
+            expect( AwesomeThing.name ).toBe('')
+            const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
+            expect( AwesomeThing2.name ).toBe('AwesomeThing2')
+            expect( ! AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
+        }
+
+        // with native naming
+        {
+            // this config causes functions to be created using naming that is
+            // native to the engine, by doing something like this:
+            // new Function(` return function ${ className }() { ... } `)
+            const Class = createClassHelper({
+                nativeNaming: true,
+            })
+
+            // anonymous:
+            const AnotherThing = Class()
+            expect( AnotherThing.name === '' ).toBeTruthy()
+
+            // named:
+            const YetAnotherThing = Class('YetAnotherThing')
+            expect( YetAnotherThing.name === 'YetAnotherThing' ).toBeTruthy()
+
+            // here's the difference
+            expect( YetAnotherThing.toString().includes('YetAnotherThing') ).toBeTruthy()
+
+            // make sure works with non-simple classes (because different code
+            // path)
+            // make sure works with non-simple classes (because different code
+            // path)
+            const AwesomeThing = Class({ method() {} })
+            expect( AwesomeThing.name ).toBe('')
+            const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
+            expect( AwesomeThing2.name ).toBe('AwesomeThing2')
+            expect( AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
+        }
+    }
 })
 
