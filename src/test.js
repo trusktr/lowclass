@@ -628,7 +628,6 @@ test('everything works', () => {
                 privateAccesses.push( Private(this) )
 
                 Protected(this).protectedMethod()
-                Private(this).privateMethod()
             },
 
             protected: {
@@ -650,6 +649,8 @@ test('everything works', () => {
                     publicAccesses.push( Public(this) )
                     protectedAccesses.push( Protected(this) )
                     privateAccesses.push( Private(this) )
+
+                    Private(this).privateMethod()
                 },
             },
 
@@ -718,15 +719,6 @@ test('everything works', () => {
 
             },
 
-            // TODO make private code inheritable? It might be useful, and does not
-            // break privacy.
-            //private: {
-
-                //privateMethod() {
-                    //super.privateMethod()
-                //},
-
-            //},
         }))
 
         const o = new SubClass
@@ -830,15 +822,40 @@ test('everything works', () => {
     // ##################################################
     // Show how Super works with private members (private inheritance)
     {
-        const Foo = Class(({Private}) => ({
+        const Foo = Class(({Private, Protected, Public}) => ({
             checkThought() {
                 return Private(this).thought
             },
+
             private: {
                 thought: 'weeeee',
                 think() {
                     this.thought = 'hmmmmm'
-                }
+                },
+
+                // private inheritance is (for now) only good for inheriting
+                // logic that can manipulate public members. This one will
+                // fail, don't use Protected or Private inside a private method
+                // that will be inherited, and don't inherit methods that use
+                // Protected or Private. (unless you leak the accessors outside
+                // of the class scope and wire something up manually, TODO
+                // example).
+                willFail() {
+                    let fails = 0
+
+                    try { Private(this) }
+                    catch(e) { fails++ }
+
+                    try { Protected(this) }
+                    catch(e) { fails++ }
+
+                    expect( fails ).toBe( 2 )
+
+                    Public(this).testedFail = true
+
+                    debugger
+                    return fails
+                },
             }
         }))
 
@@ -852,6 +869,12 @@ test('everything works', () => {
                 // but Bar's value is now 'hmmmmm'
                 expect( Private(this).thought === 'hmmmmm' ).toBeTruthy()
             },
+
+            testFail() {
+                let result = Private(this).willFail()
+                return result
+            },
+
             private: {
                 think() {
                     // code re-use
@@ -862,6 +885,14 @@ test('everything works', () => {
 
         const b = new Bar
         b.test()
+        debugger
+        expect( b.testFail() ).toBe( 2 )
+
+        // TODO b.testedFail isn't set because the private instance passed to
+        // Private in willFail is not the instance Private expects. This can
+        // provide a hint on how we can make it work (traverse towards leaf of
+        // the private prototype chain and find the instance)
+        //expect( b.testedFail ).toBe( true )
 
         // native `super` works too:
         const Baz = Class().extends(Bar, ({Super}) => ({
@@ -874,6 +905,11 @@ test('everything works', () => {
 
         const baz = new Baz
         baz.test()
+        baz.testFail()
+        expect( baz.testFail() ).toBe( 2 )
+
+        // TODO same as previous TODO
+        //expect( baz.testedFail ).toBe(true)
     }
 
     // ##################################################
