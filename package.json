@@ -7,7 +7,7 @@
     "clean": "builder run build:clean",
     "build": "builder run build:prod",
     "dev": "builder run build:dev",
-    "test": "node src/test.js",
+    "test": "builder run npm:test",
     "preversion": "builder run npm:preversion",
     "version": "builder run npm:version",
     "postversion": "builder run npm:postversion"
