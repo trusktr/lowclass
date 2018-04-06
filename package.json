@@ -2,46 +2,29 @@
   "name": "lowclass",
   "version": "3.4.0",
   "description": "Low-complexity class inheritance with protected/public/private members.",
-  "format": "es5",
   "main": "index.js",
-  "browser": "global.js",
-  "global": "global.js",
-  "license": "MIT",
-  "homepage": "http://github.com/trusktr/lowclass",
   "scripts": {
-    "test": "echo 'TODO: Make tests.' && exit 1",
-    "clean": "mkdir save && mv webpack.config.js test.js save && rm -rf ./*.js ./*.js.map && mv save/* . && rmdir save",
-    "prepublish": "npm run build-cjs",
-    "build-umd": "babel src --source-maps --out-dir . --modules umd",
-    "build-cjs": "babel src --source-maps --out-dir . --modules common",
-    "build-amd": "babel src --source-maps --out-dir . --modules amd",
-    "build-global": "webpack --progress --colors --output-library-target umd src/index.js global.js --output-library lowclass"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "babel": "^5.6.6",
-    "babel-loader": "^5.3.2",
-    "babelify": "^6.3.0",
-    "browserify": "^11.1.0",
-    "glslify-loader": "^1.0.2",
-    "raw-loader": "^0.5.1",
-    "webpack": "^1.12.1"
-  },
-  "jspm": {
-    "registry": "jspm",
-    "directories": {
-      "lib": "src"
-    }
-  },
-  "bower": {
-    "TODO": "TODO"
+    "clean": "builder run build:clean",
+    "build": "builder run build:prod",
+    "dev": "builder run build:dev",
+    "test": "node src/test.js",
+    "preversion": "builder run npm:preversion",
+    "version": "builder run npm:version",
+    "postversion": "builder run npm:postversion"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trusktr/lowclass.git"
+    "url": "git+ssh://git@github.com/trusktr/lowclass.git"
   },
+  "author": "Joe Pea <joe@trusktr.io>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/trusktr/lowclass/issues"
+  },
+  "homepage": "http://github.com/trusktr/lowclass#readme",
+  "devDependencies": {
+    "builder": "^3.2.3",
+    "builder-js-package": "trusktr/builder-js-package"
   },
   "keywords": [
     "classes",
@@ -52,6 +35,5 @@
     "prototypical inheritance",
     "prototypes",
     "prototype classes"
-  ],
-  "author": "joe <joe@trusktr.io>"
+  ]
 }
