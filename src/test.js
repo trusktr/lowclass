@@ -43,14 +43,14 @@ test('everything works', () => {
         }))
 
         const a = new MyArray
-        assert( a instanceof Array )
-        assert( a instanceof MyArray )
+        expect( a instanceof Array ).toBeTruthy()
+        expect( a instanceof MyArray ).toBeTruthy()
 
-        assert( a.add(1,2,3) === 3 )
-        assert( a.length === 3 )
-        assert( a.concat(4,5,6).length === 6 )
-        assert( a.concat(4,5,6) instanceof MyArray )
-        assert( Array.isArray(a) )
+        expect( a.add(1,2,3) === 3 ).toBeTruthy()
+        expect( a.length === 3 ).toBeTruthy()
+        expect( a.concat(4,5,6).length === 6 ).toBeTruthy()
+        expect( a.concat(4,5,6) instanceof MyArray ).toBeTruthy()
+        expect( Array.isArray(a) ).toBeTruthy()
     }
 
     // ##################################################
@@ -68,9 +68,9 @@ test('everything works', () => {
             Foo.prototype = {
                 constructor: Foo,
                 test() {
-                    assert( this.foo === 'foo' )
-                    assert( Private(this).bar === 'bar' )
-                    assert( Protected(this).baz === 'baz' )
+                    expect( this.foo === 'foo' ).toBeTruthy()
+                    expect( Private(this).bar === 'bar' ).toBeTruthy()
+                    expect( Protected(this).baz === 'baz' ).toBeTruthy()
                 },
 
                 // define access just like with regular class definitions
@@ -101,7 +101,7 @@ test('everything works', () => {
 
                 test() {
                     super.test()
-                    assert( Private(this).who === 'you' )
+                    expect( Private(this).who === 'you' ).toBeTruthy()
                 },
 
                 private: {
@@ -124,9 +124,9 @@ test('everything works', () => {
             }
 
             test() {
-                assert( this.foo === 'foo' )
-                assert( Private(this).bar === 'bar' )
-                assert( Protected(this).baz === 'baz' )
+                expect( this.foo === 'foo' ).toBeTruthy()
+                expect( Private(this).bar === 'bar' ).toBeTruthy()
+                expect( Protected(this).baz === 'baz' ).toBeTruthy()
             }
 
             get private() { return {
@@ -146,7 +146,7 @@ test('everything works', () => {
             return class extends Lorem {
                 test() {
                     super.test()
-                    assert( Private(this).secret === 'he did it' )
+                    expect( Private(this).secret === 'he did it' ).toBeTruthy()
                 }
 
                 get private() { return {
@@ -164,9 +164,9 @@ test('everything works', () => {
     {
         const Constructor = Class()
         const instance = new Constructor
-        assert( instance instanceof Constructor )
-        assert( Constructor.name === '' )
-        assert( Constructor.prototype.__proto__ === Object.prototype )
+        expect( instance instanceof Constructor ).toBeTruthy()
+        expect( Constructor.name === '' ).toBeTruthy()
+        expect( Constructor.prototype.__proto__ === Object.prototype ).toBeTruthy()
     }
 
     // ##################################################
@@ -174,9 +174,9 @@ test('everything works', () => {
     {
         const Foo = Class("Foo")
         const foo = new Foo
-        assert( foo instanceof Foo )
-        assert( Foo.name === "Foo" )
-        assert( Foo.prototype.__proto__ === Object.prototype )
+        expect( foo instanceof Foo ).toBeTruthy()
+        expect( Foo.name === "Foo" ).toBeTruthy()
+        expect( Foo.prototype.__proto__ === Object.prototype ).toBeTruthy()
     }
 
     // ##################################################
@@ -186,12 +186,12 @@ test('everything works', () => {
             method() {}
         }))
 
-        assert( Dog.name === "" )
-        assert( Dog.prototype.__proto__ === Object.prototype )
+        expect( Dog.name === "" ).toBeTruthy()
+        expect( Dog.prototype.__proto__ === Object.prototype ).toBeTruthy()
 
         const dog = new Dog
-        assert( dog instanceof Dog )
-        assert( typeof dog.method === 'function' )
+        expect( dog instanceof Dog ).toBeTruthy()
+        expect( typeof dog.method === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -201,12 +201,12 @@ test('everything works', () => {
             method() {}
         }))
 
-        assert( Dog.name === "Dog" )
-        assert( Dog.prototype.__proto__ === Object.prototype )
+        expect( Dog.name === "Dog" ).toBeTruthy()
+        expect( Dog.prototype.__proto__ === Object.prototype ).toBeTruthy()
 
         const dog = new Dog
-        assert( dog instanceof Dog )
-        assert( typeof dog.method === 'function' )
+        expect( dog instanceof Dog ).toBeTruthy()
+        expect( typeof dog.method === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -214,11 +214,11 @@ test('everything works', () => {
     {
         const LivingThing = Class()
         const Alien = Class().extends(LivingThing)
-        assert( Alien.name === "" )
-        assert( Alien.prototype.__proto__ === LivingThing.prototype )
+        expect( Alien.name === "" ).toBeTruthy()
+        expect( Alien.prototype.__proto__ === LivingThing.prototype ).toBeTruthy()
 
         const a = new Alien
-        assert( a instanceof Alien )
+        expect( a instanceof Alien ).toBeTruthy()
     }
 
     // ##################################################
@@ -226,11 +226,11 @@ test('everything works', () => {
     {
         const LivingThing = Class("LivingThing")
         const Alien = Class("Alien").extends(LivingThing)
-        assert( Alien.name === "Alien" )
-        assert( Alien.prototype.__proto__ === LivingThing.prototype )
+        expect( Alien.name === "Alien" ).toBeTruthy()
+        expect( Alien.prototype.__proto__ === LivingThing.prototype ).toBeTruthy()
 
         const a = new Alien
-        assert( a instanceof Alien )
+        expect( a instanceof Alien ).toBeTruthy()
     }
 
     // ##################################################
@@ -242,13 +242,13 @@ test('everything works', () => {
         const Alien = Class().extends(LivingThing, () => ({
             method2() {}
         }))
-        assert( Alien.name === "" )
-        assert( Alien.prototype.__proto__ === LivingThing.prototype )
+        expect( Alien.name === "" ).toBeTruthy()
+        expect( Alien.prototype.__proto__ === LivingThing.prototype ).toBeTruthy()
 
         const a = new Alien
-        assert( a instanceof Alien )
-        assert( a.method1 )
-        assert( a.method2 )
+        expect( a instanceof Alien ).toBeTruthy()
+        expect( a.method1 ).toBeTruthy()
+        expect( a.method2 ).toBeTruthy()
     }
 
     // ##################################################
@@ -260,13 +260,13 @@ test('everything works', () => {
         const Alien = Class("Alien").extends(LivingThing, () => ({
             method2() {}
         }))
-        assert( Alien.name === "Alien" )
-        assert( Alien.prototype.__proto__ === LivingThing.prototype )
+        expect( Alien.name === "Alien" ).toBeTruthy()
+        expect( Alien.prototype.__proto__ === LivingThing.prototype ).toBeTruthy()
 
         const a = new Alien
-        assert( a instanceof Alien )
-        assert( typeof a.method1 === 'function' )
-        assert( typeof a.method2 === 'function' )
+        expect( a instanceof Alien ).toBeTruthy()
+        expect( typeof a.method1 === 'function' ).toBeTruthy()
+        expect( typeof a.method2 === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -280,13 +280,13 @@ test('everything works', () => {
             method2() {}
         })).extends(SeaCreature)
 
-        assert( Shark.name === "" )
-        assert( Shark.prototype.__proto__ === SeaCreature.prototype )
+        expect( Shark.name === "" ).toBeTruthy()
+        expect( Shark.prototype.__proto__ === SeaCreature.prototype ).toBeTruthy()
 
         const shark = new Shark
-        assert( shark instanceof Shark )
-        assert( typeof shark.method1 === 'function' )
-        assert( typeof shark.method2 === 'function' )
+        expect( shark instanceof Shark ).toBeTruthy()
+        expect( typeof shark.method1 === 'function' ).toBeTruthy()
+        expect( typeof shark.method2 === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -300,13 +300,13 @@ test('everything works', () => {
             method2() {}
         })).extends(SeaCreature)
 
-        assert( Shark.name === "Shark" )
-        assert( Shark.prototype.__proto__ === SeaCreature.prototype )
+        expect( Shark.name === "Shark" ).toBeTruthy()
+        expect( Shark.prototype.__proto__ === SeaCreature.prototype ).toBeTruthy()
 
         const shark = new Shark
-        assert( shark instanceof Shark )
-        assert( typeof shark.method1 === 'function' )
-        assert( typeof shark.method2 === 'function' )
+        expect( shark instanceof Shark ).toBeTruthy()
+        expect( typeof shark.method1 === 'function' ).toBeTruthy()
+        expect( typeof shark.method2 === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -318,36 +318,36 @@ test('everything works', () => {
                 this.foo = 'woo hoo'
             },
             checkFoo() {
-                console.assert( this.foo === 'weee' )
+                expect( this.foo === 'weee' ).toBeTruthy()
             },
             setBar() {
                 Protected(this).bar = 'yippee'
             },
             checkBar() {
-                console.assert( Protected(this).bar === 'yippee' )
+                expect( Protected(this).bar === 'yippee' ).toBeTruthy()
             },
             setBaz() {
                 Private(this).baz = 'oh yeah'
             },
             checkBaz() {
-                console.assert( Private(this).baz === 'oh yeah' )
+                expect( Private(this).baz === 'oh yeah' ).toBeTruthy()
             },
         }))
 
         const dog = new Dog
         dog.setFoo()
         dog.foo = 'weee'
-        console.assert( dog.foo === 'weee' )
+        expect( dog.foo === 'weee' ).toBeTruthy()
         dog.checkFoo()
 
         dog.bar = 'yoohoo'
         dog.setBar()
-        console.assert( dog.bar === 'yoohoo' )
+        expect( dog.bar === 'yoohoo' ).toBeTruthy()
         dog.checkBar()
 
         dog.baz = 'hee hee'
         dog.setBaz()
-        console.assert( dog.baz === 'hee hee' )
+        expect( dog.baz === 'hee hee' ).toBeTruthy()
         dog.checkBaz()
     }
 
@@ -416,7 +416,7 @@ test('everything works', () => {
         const animal = new Animal
         const dogSound = animal.getDogSound()
 
-        console.assert( dogSound === 'Woof!' )
+        expect( dogSound === 'Woof!' ).toBeTruthy()
     }
 
     // ##################################################
@@ -433,7 +433,7 @@ test('everything works', () => {
         }))
 
         const dog = new Dog
-        console.assert( dog.isAlive() === true )
+        expect( dog.isAlive() === true ).toBeTruthy()
     }
 
     // ##################################################
@@ -452,15 +452,15 @@ test('everything works', () => {
                         const dog = new Dog
 
                         // like in C++, accessing the private variable of a child class does not work.
-                        console.assert( Private(dog).sound === undefined )
+                        expect( Private(dog).sound === undefined ).toBeTruthy()
 
                         // like in C++, we can only access the private members associated with the class that we are currently in:
-                        console.assert( Private(dog).bar === 'BAR' )
+                        expect( Private(dog).bar === 'BAR' ).toBeTruthy()
 
                         Private(dog).sound = 'Awoooo!'
                         dog.verifySound()
                         dog.changeSound()
-                        console.assert( Private(dog).sound === 'Awoooo!' )
+                        expect( Private(dog).sound === 'Awoooo!' ).toBeTruthy()
 
                         Private(dog).bar = 'of soap'
                         dog.checkBar() // dog's is still "BAR"
@@ -469,9 +469,9 @@ test('everything works', () => {
                         dog.checkBar() // dog's is still "BAR"
 
                         dog.exposePrivate()
-                        assert( Private(dog) !== dogPrivate )
-                        assert( Private(this) !== dogPrivate )
-                        assert( Private(this) !== Private(dog) )
+                        expect( Private(dog) !== dogPrivate ).toBeTruthy()
+                        expect( Private(this) !== dogPrivate ).toBeTruthy()
+                        expect( Private(this) !== Private(dog) ).toBeTruthy()
                     },
                 },
 
@@ -486,7 +486,7 @@ test('everything works', () => {
         const Dog = Animal.subclass(function Dog({Public, Private}) {
             Private.prototype.sound = "Woof!"
             Public.prototype.verifySound = function() {
-                assert( Private(this).sound === 'Woof!' )
+                expect( Private(this).sound === 'Woof!' ).toBeTruthy()
             }
             Public.prototype.changeSound = function() {
                 Private(this).sound = "grrr!"
@@ -494,13 +494,13 @@ test('everything works', () => {
             Public.prototype.checkBar = function() {
 
                 // the private instance for the Dog class is not the same instance a for the Animal class
-                assert( Private(this) !== AnimalPrivate(this) )
+                expect( Private(this) !== AnimalPrivate(this) ).toBeTruthy()
 
                 // private bar was inherited, but the instance is still private
-                assert( Private(this).bar === 'BAR' )
+                expect( Private(this).bar === 'BAR' ).toBeTruthy()
 
                 // and therefore this value is different, because it's a different instance
-                assert( AnimalPrivate(this).bar === 'of soap' )
+                expect( AnimalPrivate(this).bar === 'of soap' ).toBeTruthy()
             }
             Public.prototype.exposePrivate = function() {
                 dogPrivate = Private(this)
@@ -533,9 +533,9 @@ test('everything works', () => {
 
                 // 'BAR' is inherited, and is unique to Dog code, so the value is
                 // not 'hokey pokey'
-                assert( Private(this).bar === 'BAR' )
+                expect( Private(this).bar === 'BAR' ).toBeTruthy()
 
-                assert( this.bar === undefined )
+                expect( this.bar === undefined ).toBeTruthy()
             }
         })
 
@@ -553,10 +553,10 @@ test('everything works', () => {
                     const dog = new Dog
                     dog.bar = 'bar'
                     dog.setBar()
-                    console.assert( Private(this).bar === 'oh yeah' )
+                    expect( Private(this).bar === 'oh yeah' ).toBeTruthy()
                     Private(this).bar = 'mmm hmmm'
                     dog.checkBar()
-                    console.assert( Private(this).bar === 'mmm hmmm' )
+                    expect( Private(this).bar === 'mmm hmmm' ).toBeTruthy()
                 },
             },
 
@@ -570,7 +570,7 @@ test('everything works', () => {
                 Private(this).bar = 'yippee'
             },
             checkBar: function() {
-                console.assert( Private(this).bar === 'yippee' )
+                expect( Private(this).bar === 'yippee' ).toBeTruthy()
                 Private(this).bar = 'woohoo'
             },
         }))
@@ -587,7 +587,7 @@ test('everything works', () => {
         const Dog = Class(function Dog({Public, Private}) {
             Private.prototype.sound = "Woof!"
             Public.prototype.talk = function() {
-                console.assert( Private(this).sound === "Woof!" )
+                expect( Private(this).sound === "Woof!" ).toBeTruthy()
             }
         })
 
@@ -595,7 +595,7 @@ test('everything works', () => {
 
         // set public `sound` property
         dog.sound = 'awooo!'
-        console.assert( dog.sound === 'awooo!' )
+        expect( dog.sound === 'awooo!' ).toBeTruthy()
 
         dog.talk()
 
@@ -611,17 +611,17 @@ test('everything works', () => {
             foo: 'foo',
 
             publicMethod: function() {
-                assert( this === Public(this) )
-                assert( this.foo === Public(this).foo )
+                expect( this === Public(this) ).toBeTruthy()
+                expect( this.foo === Public(this).foo ).toBeTruthy()
 
-                assert( this.foo === 'foo' )
-                assert( Public(this).foo === 'foo' )
-                assert( Protected(this).bar === 'bar' )
-                assert( Private(this).baz === 'baz' )
+                expect( this.foo === 'foo' ).toBeTruthy()
+                expect( Public(this).foo === 'foo' ).toBeTruthy()
+                expect( Protected(this).bar === 'bar' ).toBeTruthy()
+                expect( Private(this).baz === 'baz' ).toBeTruthy()
 
-                assert( Public(this) !== Protected(this) )
-                assert( Public(this) !== Private(this) )
-                assert( Protected(this) !== Private(this) )
+                expect( Public(this) !== Protected(this) ).toBeTruthy()
+                expect( Public(this) !== Private(this) ).toBeTruthy()
+                expect( Protected(this) !== Private(this) ).toBeTruthy()
 
                 publicAccesses.push( Public(this) )
                 protectedAccesses.push( Protected(this) )
@@ -635,17 +635,17 @@ test('everything works', () => {
                 bar: 'bar',
 
                 protectedMethod: function() {
-                    assert( this === Protected(this) )
-                    assert( this.bar === Protected(this).bar )
+                    expect( this === Protected(this) ).toBeTruthy()
+                    expect( this.bar === Protected(this).bar ).toBeTruthy()
 
-                    assert( this.bar === 'bar' )
-                    assert( Public(this).foo === 'foo' )
-                    assert( Protected(this).bar === 'bar' )
-                    assert( Private(this).baz === 'baz' )
+                    expect( this.bar === 'bar' ).toBeTruthy()
+                    expect( Public(this).foo === 'foo' ).toBeTruthy()
+                    expect( Protected(this).bar === 'bar' ).toBeTruthy()
+                    expect( Private(this).baz === 'baz' ).toBeTruthy()
 
-                    assert( Protected(this) !== Public(this) )
-                    assert( Protected(this) !== Private(this) )
-                    assert( Public(this) !== Private(this) )
+                    expect( Protected(this) !== Public(this) ).toBeTruthy()
+                    expect( Protected(this) !== Private(this) ).toBeTruthy()
+                    expect( Public(this) !== Private(this) ).toBeTruthy()
 
                     publicAccesses.push( Public(this) )
                     protectedAccesses.push( Protected(this) )
@@ -657,17 +657,17 @@ test('everything works', () => {
                 baz: 'baz',
 
                 privateMethod: function() {
-                    assert( this === Private(this) )
-                    assert( this.baz === Private(this).baz )
+                    expect( this === Private(this) ).toBeTruthy()
+                    expect( this.baz === Private(this).baz ).toBeTruthy()
 
-                    assert( this.baz === 'baz' )
-                    assert( Public(this).foo === 'foo' )
-                    assert( Protected(this).bar === 'bar' )
-                    assert( Private(this).baz === 'baz' )
+                    expect( this.baz === 'baz' ).toBeTruthy()
+                    expect( Public(this).foo === 'foo' ).toBeTruthy()
+                    expect( Protected(this).bar === 'bar' ).toBeTruthy()
+                    expect( Private(this).baz === 'baz' ).toBeTruthy()
 
-                    assert( Private(this) !== Public(this) )
-                    assert( Private(this) !== Protected(this) )
-                    assert( Public(this) !== Protected(this) )
+                    expect( Private(this) !== Public(this) ).toBeTruthy()
+                    expect( Private(this) !== Protected(this) ).toBeTruthy()
+                    expect( Public(this) !== Protected(this) ).toBeTruthy()
 
                     publicAccesses.push( Public(this) )
                     protectedAccesses.push( Protected(this) )
@@ -684,16 +684,16 @@ test('everything works', () => {
         const o = new SomeClass
         o.publicMethod()
 
-        assert( o.protectedMethod === undefined )
-        assert( o.privateMethod === undefined )
+        expect( o.protectedMethod === undefined ).toBeTruthy()
+        expect( o.privateMethod === undefined ).toBeTruthy()
 
-        assert( publicAccesses.length === 3 )
-        assert( protectedAccesses.length === 3 )
-        assert( privateAccesses.length === 3 )
+        expect( publicAccesses.length === 3 ).toBeTruthy()
+        expect( protectedAccesses.length === 3 ).toBeTruthy()
+        expect( privateAccesses.length === 3 ).toBeTruthy()
 
-        assert( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
-        assert( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
-        assert( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
+        expect( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
+        expect( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
+        expect( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
 
         publicAccesses.length = 0
         protectedAccesses.length = 0
@@ -732,13 +732,13 @@ test('everything works', () => {
         const o = new SubClass
         o.publicMethod()
 
-        assert( publicAccesses.length === 3 )
-        assert( protectedAccesses.length === 3 )
-        assert( privateAccesses.length === 3 )
+        expect( publicAccesses.length === 3 ).toBeTruthy()
+        expect( protectedAccesses.length === 3 ).toBeTruthy()
+        expect( privateAccesses.length === 3 ).toBeTruthy()
 
-        assert( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
-        assert( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
-        assert( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) )
+        expect( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
+        expect( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
+        expect( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
 
         publicAccesses.length = 0
         protectedAccesses.length = 0
@@ -756,7 +756,7 @@ test('everything works', () => {
             },
 
             checkPrivateProp() {
-                console.assert( Private(this).lorem === 'foo' )
+                expect( Private(this).lorem === 'foo' ).toBeTruthy()
             },
 
             protected: {
@@ -780,7 +780,7 @@ test('everything works', () => {
 
             checkPrivateProp() {
                 Super(this).checkPrivateProp()
-                console.assert( Private(this).lorem === 'baaaaz' )
+                expect( Private(this).lorem === 'baaaaz' ).toBeTruthy()
             },
 
             protected: {
@@ -822,9 +822,9 @@ test('everything works', () => {
         const o = new GrandChildClass
         o.test()
 
-        console.assert( typeof o.test === 'function' )
-        console.assert( o.reallyReallyBegin === undefined )
-        console.assert( o.begin === undefined )
+        expect( typeof o.test === 'function' ).toBeTruthy()
+        expect( o.reallyReallyBegin === undefined ).toBeTruthy()
+        expect( o.begin === undefined ).toBeTruthy()
     }
 
     // ##################################################
@@ -847,10 +847,10 @@ test('everything works', () => {
                 Private(this).think()
 
                 // Foo's value is still undefined, as expected
-                assert( this.checkThought() === 'weeeee' )
+                expect( this.checkThought() === 'weeeee' ).toBeTruthy()
 
                 // but Bar's value is now 'hmmmmm'
-                assert( Private(this).thought === 'hmmmmm' )
+                expect( Private(this).thought === 'hmmmmm' ).toBeTruthy()
             },
             private: {
                 think() {
@@ -898,7 +898,7 @@ test('everything works', () => {
         }))
 
         var c = new C();
-        assert( c.foo(0) === 3 )
+        expect( c.foo(0) === 3 ).toBeTruthy()
     }
 
     // ##################################################
@@ -923,7 +923,7 @@ test('everything works', () => {
         })
 
         var c = new C();
-        assert( c.foo(0) === 3 )
+        expect( c.foo(0) === 3 ).toBeTruthy()
     }
 
     // ##################################################
@@ -940,8 +940,8 @@ test('everything works', () => {
 
         const Bar = Foo.subclass(({Private}) => ({
             test() {
-                assert( fooPrivate(this).foo === 'foo' ) // "foo"
-                assert( Private(this).foo === 'bar' ) // "bar"
+                expect( fooPrivate(this).foo === 'foo' ) // "foo".toBeTruthy()
+                expect( Private(this).foo === 'bar' ) // "bar".toBeTruthy()
             },
             private: {
                 foo: "bar"
@@ -961,12 +961,12 @@ test('everything works', () => {
                 this.bar = 'bar'
             },
             foo() {
-                assert( this.bar === 'bar' )
+                expect( this.bar === 'bar' ).toBeTruthy()
             },
         })
 
         const f = new Foo
-        assert( f instanceof Foo )
+        expect( f instanceof Foo ).toBeTruthy()
         f.foo()
     }
 
@@ -980,9 +980,9 @@ test('everything works', () => {
                     this.bar = 'bar'
                 },
                 foo() {
-                    assert( this.bar === 'bar' )
-                    assert( Protected(this).foo() === 'barbar3' )
-                    assert( Private(this).foo() === 'barbar2' )
+                    expect( this.bar === 'bar' ).toBeTruthy()
+                    expect( Protected(this).foo() === 'barbar3' ).toBeTruthy()
+                    expect( Private(this).foo() === 'barbar2' ).toBeTruthy()
                     return 'it works'
                 },
             }),
@@ -1001,8 +1001,8 @@ test('everything works', () => {
         })
 
         const f = new Foo
-        assert( f instanceof Foo )
-        assert( f.foo() === 'it works' )
+        expect( f instanceof Foo ).toBeTruthy()
+        expect( f.foo() === 'it works' ).toBeTruthy()
 
         const Bar = Foo.subclass({
             public: Protected => ({
@@ -1019,8 +1019,8 @@ test('everything works', () => {
         })
 
         const b = new Bar
-        assert( b instanceof Bar )
-        assert( b.foo() === 'it works' )
+        expect( b instanceof Bar ).toBeTruthy()
+        expect( b.foo() === 'it works' ).toBeTruthy()
     }
 
     // ##################################################
@@ -1032,24 +1032,24 @@ test('everything works', () => {
         Foo.getFoo = function() { return this.foo }
 
         const Bar = Class().extends(Foo)
-        assert( Bar.getFoo() === 'foo' )
+        expect( Bar.getFoo() === 'foo' ).toBeTruthy()
 
         const Baz = Class().extends(Foo, {
             constructor() {}
         })
-        assert( Baz.getFoo() === 'foo' )
+        expect( Baz.getFoo() === 'foo' ).toBeTruthy()
 
         // extends Object by default, but doesn't inherit static features, similar to `class {}`
         let Lorem = Class()
         let l = new Lorem
-        assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
-        assert( typeof Lorem.create === 'undefined' )
+        expect( l instanceof Object && typeof l.hasOwnProperty === 'function' ).toBeTruthy()
+        expect( typeof Lorem.create === 'undefined' ).toBeTruthy()
 
         // extending Object directly inherits static features, similar to `class extends Object {}`
         Lorem = Class().extends( Object )
         l = new Lorem
-        assert( l instanceof Object && typeof l.hasOwnProperty === 'function' )
-        assert( typeof Lorem.create === 'function' )
+        expect( l instanceof Object && typeof l.hasOwnProperty === 'function' ).toBeTruthy()
+        expect( typeof Lorem.create === 'function' ).toBeTruthy()
     }
 
     // ##################################################
@@ -1065,12 +1065,12 @@ test('everything works', () => {
         })
 
         const car = new Car
-        assert( Car.isCar( car ) )
+        expect( Car.isCar( car ) ).toBeTruthy()
 
         const Buggy = Class().extends(Car)
 
         const buggy = new Car
-        assert( Car.isCar( buggy ) )
+        expect( Car.isCar( buggy ) ).toBeTruthy()
     }
 
     // ##################################################
@@ -1081,7 +1081,7 @@ test('everything works', () => {
             constructor( a, b, c, d ) { },
         })
 
-        assert( Foo.length === 4 )
+        expect( Foo.length === 4 ).toBeTruthy()
     }
 
 
@@ -1106,7 +1106,7 @@ test('everything works', () => {
 
         const b = new Baz
 
-        assert( b.test() === 'it works' )
+        expect( b.test() === 'it works' ).toBeTruthy()
     }
 
     // ##################################################
@@ -1125,7 +1125,7 @@ test('everything works', () => {
 
         f.foo = 1
 
-        assert( f.foo === 1 )
+        expect( f.foo === 1 ).toBeTruthy()
 
         const Bar = Class().extends(Foo, {
             test() {
@@ -1136,7 +1136,7 @@ test('everything works', () => {
 
         const bar = new Bar
 
-        assert( bar.test() === 10 )
+        expect( bar.test() === 10 ).toBeTruthy()
 
         const Baz = Class().extends(Foo, ({Super}) => ({
             test() {
@@ -1147,7 +1147,7 @@ test('everything works', () => {
 
         const baz = new Baz
 
-        assert( baz.test() === 20 )
+        expect( baz.test() === 20 ).toBeTruthy()
 
         let count = 0
 
@@ -1168,9 +1168,9 @@ test('everything works', () => {
         const l = new Lorem
 
         l.foo = 15
-        assert( l.foo === 15 )
-        assert( count === 2 )
-        assert( l.protectedFoo() === 15 )
+        expect( l.foo === 15 ).toBeTruthy()
+        expect( count === 2 ).toBeTruthy()
+        expect( l.protectedFoo() === 15 ).toBeTruthy()
 
         const Ipsum = Class().extends(Lorem, (Public, Protected) => ({
             protected: {
@@ -1191,10 +1191,10 @@ test('everything works', () => {
         const i = new Ipsum
 
         i.foo = 33
-        assert( i.foo === 33 )
-        assert( count === 4 )
-        assert( i.test() === 100 )
-        assert( i.protectedFoo() === 50 )
+        expect( i.foo === 33 ).toBeTruthy()
+        expect( count === 4 ).toBeTruthy()
+        expect( i.test() === 100 ).toBeTruthy()
+        expect( i.protectedFoo() === 50 ).toBeTruthy()
     }
 
     // ##################################################
@@ -1217,15 +1217,15 @@ test('everything works', () => {
 
         // lowclass uses the class definition as the class prototype directly (this
         // allows `super` to work in ES6+ environments)
-        assert( Foo.prototype === definition )
+        expect( Foo.prototype === definition ).toBeTruthy()
 
         // lowclass also uses the protected and private sub-objects as the internal
         // protected and private prototypes as well, but they shouldn't be visible
         // on the public prototype:
-        assert( typeof definition.protected === 'undefined' )
-        assert( typeof Foo.prototype.protected === 'undefined' )
-        assert( typeof definition.private === 'undefined' )
-        assert( typeof Foo.prototype.private === 'undefined' )
+        expect( typeof definition.protected === 'undefined' ).toBeTruthy()
+        expect( typeof Foo.prototype.protected === 'undefined' ).toBeTruthy()
+        expect( typeof definition.private === 'undefined' ).toBeTruthy()
+        expect( typeof Foo.prototype.private === 'undefined' ).toBeTruthy()
 
         // prove the previous comment about directly using protected and private
         // sub-objects as prototypes is true {
@@ -1246,8 +1246,8 @@ test('everything works', () => {
 
         const b = new Bar
 
-        assert( b.test()[0].__proto__ === protectedDefinition )
-        assert( b.test()[1].__proto__ === privateDefinition )
+        expect( b.test()[0].__proto__ === protectedDefinition ).toBeTruthy()
+        expect( b.test()[1].__proto__ === privateDefinition ).toBeTruthy()
 
         // }
     }
@@ -1281,9 +1281,9 @@ test('everything works', () => {
 
         const b = new Bar( 'it works' )
 
-        assert( b instanceof Bar )
-        assert( b instanceof Foo )
-        assert( b.method() === 'it works!' )
+        expect( b instanceof Bar ).toBeTruthy()
+        expect( b instanceof Foo ).toBeTruthy()
+        expect( b.method() === 'it works!' ).toBeTruthy()
     }
 
     // ##################################################
@@ -1314,9 +1314,9 @@ test('everything works', () => {
 
         const b = new Bar( 'it works' )
 
-        assert( b instanceof Bar )
-        assert( b instanceof Foo )
-        assert( b.method() === 'it works!' )
+        expect( b instanceof Bar ).toBeTruthy()
+        expect( b instanceof Foo ).toBeTruthy()
+        expect( b.method() === 'it works!' ).toBeTruthy()
     }
 
     // ##################################################
@@ -1327,14 +1327,14 @@ test('everything works', () => {
         class Foo {}
 
         const _Foo = native(Foo)
-        assert( !( _Foo.prototype === Foo.prototype ) )
-        assert( !( _Foo.prototype.constructor === Foo ) )
+        expect( !( _Foo.prototype === Foo.prototype ) ).toBeTruthy()
+        expect( !( _Foo.prototype.constructor === Foo ) ).toBeTruthy()
 
         const f = new _Foo()
-        assert(f instanceof Foo)
-        assert(f instanceof _Foo)
-        assert( !( f.constructor !== _Foo ) )
-        assert( !( f.constructor === Foo ) )
+        expect(f instanceof Foo).toBeTruthy()
+        expect(f instanceof _Foo).toBeTruthy()
+        expect( !( f.constructor !== _Foo ) ).toBeTruthy()
+        expect( !( f.constructor === Foo ) ).toBeTruthy()
     }
     {
         // this shows the new behavior
@@ -1342,18 +1342,18 @@ test('everything works', () => {
         class Foo {}
 
         const _Foo = native(Foo)
-        assert(_Foo.prototype === _Foo.prototype)
-        assert(_Foo.prototype.constructor === _Foo)
+        expect(_Foo.prototype === _Foo.prototype).toBeTruthy()
+        expect(_Foo.prototype.constructor === _Foo).toBeTruthy()
 
         const f = new _Foo()
-        assert(f instanceof Foo)
-        assert(f instanceof _Foo)
-        assert(f.constructor === _Foo)
-        assert(f.constructor !== Foo)
+        expect(f instanceof Foo).toBeTruthy()
+        expect(f instanceof _Foo).toBeTruthy()
+        expect(f.constructor === _Foo).toBeTruthy()
+        expect(f.constructor !== Foo).toBeTruthy()
     }
 
     // ##################################################
-    // assert that the protected instance in different code of a class hierarchy
+    // expect that the protected instance in different code of a class hierarchy.toBeTruthy()
     // are the same instance.
     {
         let fooProtectedGetter
@@ -1381,13 +1381,13 @@ test('everything works', () => {
             }
         })
 
-        assert( fooProtectedGetter !== barProtectedGetter )
+        expect( fooProtectedGetter !== barProtectedGetter ).toBeTruthy()
 
         const f = new Foo
         const b = new Bar
 
-        assert( fooProtected === barProtected )
-        assert( fooProtectedGetter(b) === barProtectedGetter(b) )
+        expect( fooProtected === barProtected ).toBeTruthy()
+        expect( fooProtectedGetter(b) === barProtectedGetter(b) ).toBeTruthy()
 
         // XXX 
         try {
@@ -1434,9 +1434,9 @@ test('everything works', () => {
         }))
 
         const protoDescriptor = Object.getOwnPropertyDescriptor( Duck, 'prototype' )
-        assert( !protoDescriptor.writable )
-        assert( !protoDescriptor.enumerable )
-        assert( !protoDescriptor.configurable )
+        expect( !protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
 
         checkDescriptors( Duck )
         checkDescriptors( Duck.prototype )
@@ -1488,9 +1488,9 @@ test('everything works', () => {
         }))
 
         const protoDescriptor = Object.getOwnPropertyDescriptor( AwesomeThing, 'prototype' )
-        assert( protoDescriptor.writable )
-        assert( !protoDescriptor.enumerable )
-        assert( !protoDescriptor.configurable )
+        expect( protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
 
         checkDescriptors( AwesomeThing, true, false )
         checkDescriptors( AwesomeThing.prototype, true, false )
@@ -1538,9 +1538,9 @@ test('everything works', () => {
         }))
 
         const protoDescriptor = Object.getOwnPropertyDescriptor( PeanutBrittle, 'prototype' )
-        assert( protoDescriptor.writable )
-        assert( !protoDescriptor.enumerable )
-        assert( !protoDescriptor.configurable )
+        expect( protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
 
         checkDescriptors( PeanutBrittle, true, true )
         checkDescriptors( PeanutBrittle.prototype, true, true )
@@ -1555,7 +1555,7 @@ test('everything works', () => {
         const descriptors = Object.getOwnPropertyDescriptors( obj )
         let descriptor
 
-        assert( Object.keys( descriptors ).length )
+        expect( Object.keys( descriptors ).length ).toBeTruthy()
 
         for ( const key in descriptors ) {
             if ( useBlacklist && staticBlacklist.includes( key ) ) continue
@@ -1563,12 +1563,12 @@ test('everything works', () => {
             descriptor = descriptors[ key ]
 
             if ( 'writable' in descriptor )
-                assert( descriptor.writable )
+                expect( descriptor.writable ).toBeTruthy()
             else
-                assert( 'get' in descriptor )
+                expect( 'get' in descriptor ).toBeTruthy()
 
-            assert( descriptor.enumerable === enumerable )
-            assert( descriptor.configurable === configurable )
+            expect( descriptor.enumerable === enumerable ).toBeTruthy()
+            expect( descriptor.configurable === configurable ).toBeTruthy()
         }
     }
 })
