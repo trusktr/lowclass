@@ -1,3 +1,6 @@
+
+"use strict"
+
 const {
     getFunctionBody,
     setDescriptor,
@@ -7,6 +10,10 @@ const {
     getInheritedPropertyNames,
     WeakTwoWayMap,
 } = require( './utils' )
+
+const staticBlacklist = [ 'subclass', 'extends',
+    ...Object.getOwnPropertyNames( new Function() )
+]
 
 const publicProtoToProtectedProto = new WeakMap
 const publicProtoToPrivateProto = new WeakMap
@@ -42,11 +49,10 @@ Object.assign( module.exports, {
     createClassHelper,
     InvalidSuperAccessError,
     InvalidAccessError,
+    staticBlacklist,
 })
 
 function createClassHelper( options ) {
-    "use strict"
-
     options = options ? { ...defaultOptions, ...options } : defaultOptions
 
     options.defaultClassDescriptor = {
@@ -681,7 +687,12 @@ function setDefaultStaticDescriptors( Ctor,
     const descriptors = Object.getOwnPropertyDescriptors( Ctor )
     let descriptor
 
-    for ( const key of Object.keys( Ctor ) ) {
+    for ( const key in descriptors ) {
+        if ( staticBlacklist.includes( key ) ) {
+            delete descriptors[ key ]
+            continue
+        }
+
         descriptor = descriptors[ key ]
 
         // regular value

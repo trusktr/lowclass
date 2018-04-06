@@ -1,4 +1,6 @@
 
+"use strict"
+
 class WeakTwoWayMap {
     constructor() { this.m = new WeakMap }
     set( a, b ) { this.m.set( a, b ); this.m.set( b, a ) }
@@ -49,10 +51,10 @@ function setDescriptors( obj, newDescriptors ) {
     for ( const key in newDescriptors ) {
         newDescriptor = newDescriptors[ key ]
         currentDescriptor = currentDescriptors[ key ]
-        currentDescriptors[ key ] = overrideDescriptor( currentDescriptor, newDescriptor )
+        newDescriptors[ key ] = overrideDescriptor( currentDescriptor, newDescriptor )
     }
 
-    Object.defineProperties( obj, currentDescriptors )
+    Object.defineProperties( obj, newDescriptors )
 }
 
 function overrideDescriptor( oldDescriptor, newDescriptor ) {
