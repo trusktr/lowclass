@@ -196,8 +196,7 @@ function createClassHelper( options ) {
         ) {
             let Ctor
 
-            if ( className )
-                Ctor = new Function( `return function ${ className }() {}` )()
+            if ( className ) Ctor = new Function( `return function ${ className }() {}` )()
             else {
                 // force anonymous even in ES6+
                 Ctor = ( () => function() {} )()
