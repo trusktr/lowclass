@@ -1,4 +1,14 @@
-const { Class, createClassHelper, InvalidAccessError, InvalidSuperAccessError } = require('./index')
+
+"use strict"
+
+const {
+    Class,
+    createClassHelper,
+    InvalidAccessError,
+    InvalidSuperAccessError,
+    staticBlacklist,
+} = require('./index')
+
 const { native } = require('./newless')
 
 const assert = console.assert.bind( console )
@@ -1342,6 +1352,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 // ##################################################
 // ensure that class prototype and static descriptors are like ES6 classes
 {
+    debugger
 
     const Duck = Class(({Protected, Private}) => ({
         constructor() {},
@@ -1438,12 +1449,7 @@ const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
 }
 
 function checkDescriptors( obj, enumerable = false ) {
-    let blacklist = [ 'subclass', 'extends' ]
-
-    if ( typeof obj === 'function' ) {
-        function reference() {}
-        blacklist = blacklist.concat( Object.getOwnPropertyNames( reference ) )
-    }
+    const useBlacklist = typeof obj === 'function'
 
     const descriptors = Object.getOwnPropertyDescriptors( obj )
     let descriptor
@@ -1451,7 +1457,7 @@ function checkDescriptors( obj, enumerable = false ) {
     assert( Object.keys( descriptors ).length )
 
     for ( const key in descriptors ) {
-        if ( blacklist.includes( key ) ) continue
+        if ( useBlacklist && staticBlacklist.includes( key ) ) continue
 
         descriptor = descriptors[ key ]
 

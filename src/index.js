@@ -1,3 +1,15 @@
+// TODO
+//  [x] remove the now-unnecessary modes (leave just what was 'es5' mode)
+//  [x] link helpers to each other, making it possible to destructure the arguments to definer functions
+//  [x] let access helper prototype objects extend from Object, otherwise common tools are not available.
+//  [x] accept a function as return value of function definer, to be treated as a class to derive the definition from, so that it can have access to Protected and Private helpers
+//  [x] let the returned class define protected and private getters which return the protected and private definitions.
+//  [ ] migrate to builder-js-package so tests can run in the browser, and we can test custom elements
+//  [ ] allow property names to be prefixed with 'public', 'protected', and 'private' as an alternate way to specify visibility
+//  [ ] other TODOs in the code
+
+"use strict"
+
 const {
     getFunctionBody,
     setDescriptor,
@@ -7,6 +19,10 @@ const {
     getInheritedPropertyNames,
     WeakTwoWayMap,
 } = require( './utils' )
+
+const staticBlacklist = [ 'subclass', 'extends',
+    ...Object.getOwnPropertyNames( new Function() )
+]
 
 const publicProtoToProtectedProto = new WeakMap
 const publicProtoToPrivateProto = new WeakMap
@@ -28,6 +44,7 @@ const defaultOptions = {
         enumerable: false,
         configurable: true,
     },
+    setClassDescriptors: true,
 
 }
 
@@ -42,11 +59,10 @@ Object.assign( module.exports, {
     createClassHelper,
     InvalidSuperAccessError,
     InvalidAccessError,
+    staticBlacklist,
 })
 
 function createClassHelper( options ) {
-    "use strict"
-
     options = options ? { ...defaultOptions, ...options } : defaultOptions
 
     options.defaultClassDescriptor = {
@@ -681,7 +697,12 @@ function setDefaultStaticDescriptors( Ctor,
     const descriptors = Object.getOwnPropertyDescriptors( Ctor )
     let descriptor
 
-    for ( const key of Object.keys( Ctor ) ) {
+    for ( const key in descriptors ) {
+        if ( staticBlacklist.includes( key ) ) {
+            delete descriptors[ key ]
+            continue
+        }
+
         descriptor = descriptors[ key ]
 
         // regular value
