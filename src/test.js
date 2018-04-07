@@ -883,7 +883,7 @@ test('everything works', () => {
         // Private in willFail is not the instance Private expects. This can
         // provide a hint on how we can make it work (traverse towards leaf of
         // the private prototype chain and find the instance)
-        //expect( b.testedFail ).toBe( true )
+        expect( b.testedFail ).toBe( true )
 
         // native `super` works too:
         const Baz = Class().extends(Bar, ({Super}) => ({
