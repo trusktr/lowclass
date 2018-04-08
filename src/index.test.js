@@ -1079,3 +1079,36 @@ test("'private' and 'protected' definition objects should not be left on the 'pu
     // }
 })
 
+test("using native `super` in public methods of a root definition object won't work if there's also a 'public' definition object", () => {
+
+    const Person = Class({
+        fly() { return 'fly' },
+    })
+
+    // does not (can not) work
+    const Man = Class().extends(Person, {
+        fly() {
+            expect( super.fly ).toBe( undefined )
+            return 'failed'
+        },
+
+        public: {
+            unusedMethod() {}
+        },
+    })
+
+    const man = new Man
+    expect( man.fly() ).toBe( 'failed' )
+
+    // works
+    const SuperMan = Class().extends(Person, ({Super}) => ({
+        fly() {
+            return Super(this).fly()
+        }
+    }))
+
+    const superman = new SuperMan
+    expect( superman.fly() ).toBe( 'fly' )
+
+    // I guess SuperMan is Super fly!
+})
