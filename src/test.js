@@ -1102,7 +1102,11 @@ test('everything works', () => {
             protected: ({Super, Public}) => ({
                 test() {
                     return Super(Public(this)).foo()
-                    //return Public(Super(this)).foo() // TODO: should this work?
+
+                    // this also works because Public returns whatever you pass
+                    // in if it isn't a protected or private instance. Because,
+                    // if you passed it in, it must already be public!
+                    //return Public(Super(this)).foo()
                 }
             })
         })
