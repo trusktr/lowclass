@@ -502,6 +502,34 @@ function createClassHelper( options ) {
     }
 }
 
+// XXX PERFORMANCE: instead of doing multiple prototype traversals with
+// hasPrototype in the following access helpers, maybe we can do a single
+// traversal and check along the way?
+//
+// Worst case examples:
+//
+//   currently:
+//     If class hierarchy has 20 classes
+//     If we detect which instance we have in order of public, protected, private
+//     If the instance we're checking is the private instance of the middle class (f.e. class 10)
+//     We'll traverse 20 public prototypes with 20 conditional checks
+//     We'll traverse 20 protected prototypes with 20 conditional checks
+//     And finally we'll traverse 10 private prototypes with 10 conditional checks
+//     TOTAL: We traverse over 50 prototypes with 50 conditional checks
+//
+//   proposed:
+//     If class hierarchy has 20 classes
+//     If we detect which instance we have in order of public, protected, private
+//     If the instance we're checking is the private instance of the middle class (f.e. class 10)
+//     We'll traverse 10 public prototypes with 3 conditional checks at each prototype
+//     TOTAL: We traverse over 10 prototypes with 30 conditional checks
+//     BUT: The conditional checking will involve reading WeakMaps instead of
+//     checking just reference equality. If we can optimize how this part
+//     works, it might be worth it.
+//
+// Can the tradeoff (less traversal and conditional checks) outweigh the
+// heavier conditional checks?
+
 function getPublicMembers( scope, instance ) {
 
     // check only for the private instance of this class scope
