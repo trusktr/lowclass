@@ -2,7 +2,7 @@
 "use strict"
 
 const Class = require('./index')
-const { native } = require('./newless')
+const { native } = require('./native')
 
 test('works with custom elements', () => {
 

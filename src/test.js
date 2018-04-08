@@ -9,7 +9,7 @@ const {
     staticBlacklist,
 } = require('./index')
 
-const { native } = require('./newless')
+const { native } = require('./native')
 
 test('everything works', () => {
 
