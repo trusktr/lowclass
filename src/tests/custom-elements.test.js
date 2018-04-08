@@ -31,19 +31,16 @@ test('works with custom elements', () => {
                 },
 
                 connectedCallback() {
-                    debugger
                     this.connected = true
                     this.disconnected = false
                 },
 
                 disconnectedCallback() {
-                    debugger
                     this.connected = false
                     this.disconnected = true
                 },
 
                 attributeChangedCallback( attr, oldVal, newVal ) {
-                    debugger
                     this[attr] = newVal
                 },
 
@@ -52,7 +49,6 @@ test('works with custom elements', () => {
             customElements.define( 'my-el', MyEL )
 
             const el = document.createElement( 'my-el' )
-            debugger
 
             document.body.appendChild( el )
             expect( el.connected ).toBe( true )
