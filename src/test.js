@@ -14,10 +14,7 @@ const { native } = require('./newless')
 test('everything works', () => {
 
     // ##################################################
-    // TODO test invalid Super access, InvalidSuperAccessError
-
-    // ##################################################
-    // Example of etending Array
+    // Example of extending Array
     {
         const MyArray = Class().extends( native(Array), (Public, Protected) => ({
             constructor(...args) {
@@ -1722,6 +1719,100 @@ test('everything works', () => {
             expect( AwesomeThing2.name ).toBe('AwesomeThing2')
             expect( AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
         }
+    }
+
+    // ##################################################
+    // test invalid Super access.
+    {
+
+        const verifyDimensionCall = jest.fn()
+
+        // PhysicalObject implicitly extends from Object. ;)
+        const PhysicalObject = Class({
+            getDimensions() {
+
+                // see below
+                expect( this ).toBeInstanceOf( Piano )
+
+                verifyDimensionCall()
+
+            }
+        })
+
+        const Instrument = Class().extends(PhysicalObject, ({Super}) => ({
+            sound: '',
+
+            makeSound() {
+                return this.sound
+            },
+
+            testFromInstrumentClass() {
+                const piano = new Piano
+
+                // This Super call works because piano is instance of
+                // Instrument, but the Super will be relative to this class
+                // (Instrument). Because Instrument inherits from
+                // PhysicalObject, calling `Super(piano)` will give you access
+                // to PhysicalObject properties and methods with piano as
+                // context.
+                //
+                // Who knows, there might be some interesting use case for
+                // being able to call super on some other instance,
+                // something that we can't do with native `super`, and this
+                // doesn't break the protected or private API access
+                // contracts.
+                //
+                expect( Super(piano).makeSound ).toBe( undefined )
+                Super(piano).getDimensions()
+
+                // Do you want a super piano?
+            },
+        }))
+
+        const Piano = Class().extends(Instrument, {
+            sound: 'ping' // how do you describe piano sound?
+        })
+
+        const Oboe = Class().extends(Instrument, ({Super}) => ({
+
+            sound: 'wooo', // or an oboe sound?
+
+            testFromOboeClass() {
+
+                const piano = new Piano
+
+                expect(() => {
+
+                    // fails because piano isn't an instance of Oboe, so there
+                    // isn't any set of super props/methods for piano based on
+                    // the scope of the Oboe class.
+                    Super(piano).makeSound()
+
+                }).toThrow(InvalidSuperAccessError)
+
+                // wish I had a super piano.
+
+                let sound
+
+                expect(() => {
+
+                    sound = Super(this).makeSound()
+
+                }).not.toThrow()
+
+                // Oboes are already super though. :)
+
+                return sound
+            },
+
+        }))
+
+        const oboe = new Oboe()
+
+        oboe.testFromInstrumentClass()
+        expect( verifyDimensionCall ).toHaveBeenCalled()
+
+        expect( oboe.testFromOboeClass() ).toBe( 'wooo' )
     }
 })
 
