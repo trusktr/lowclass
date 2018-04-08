@@ -598,10 +598,25 @@ test('everything works', () => {
     const protectedAccesses = []
     const privateAccesses = []
 
+    let SomeClassPrivate
+    let someClassPublicInstance
+    let someClassProtectedInstance
+    let someClassPrivateInstance
+
+    let foundPrivate
+
     const SomeClass = Class('SomeClass', (Public, Protected, Private) => {
+
+        SomeClassPrivate = Private
 
         return {
             foo: 'foo',
+
+            constructor() {
+                someClassPublicInstance = this
+                someClassProtectedInstance = Protected(this)
+                someClassPrivateInstance = Private(this)
+            },
 
             publicMethod: function() {
                 expect( this === Public(this) ).toBeTruthy()
@@ -643,6 +658,7 @@ test('everything works', () => {
                     protectedAccesses.push( Protected(this) )
                     privateAccesses.push( Private(this) )
 
+                    // this is calling SomeClass.privateMethod in the scope of SomeClass
                     Private(this).privateMethod()
                 },
             },
@@ -651,6 +667,7 @@ test('everything works', () => {
                 baz: 'baz',
 
                 privateMethod: function() {
+                    foundPrivate = Private(this)
                     expect( this === Private(this) ).toBeTruthy()
                     expect( this.baz === Private(this).baz ).toBeTruthy()
 
@@ -697,8 +714,19 @@ test('everything works', () => {
     // ##################################################
     // check that various ways to access public/protected/private members work inside a subclass
     {
+        let subClassPublicInstance
+        let subClassProtectedInstance
+        let subClassPrivateInstance
 
-        const SubClass = SomeClass.subclass(({Super}) => ({
+        const SubClass = SomeClass.subclass(({Super, Private, Protected}) => ({
+
+            constructor() {
+                Super(this).constructor()
+
+                subClassPublicInstance = this
+                subClassProtectedInstance = Protected(this)
+                subClassPrivateInstance = Private(this)
+            },
 
             publicMethod() {
                 Super(this).publicMethod()
@@ -708,6 +736,41 @@ test('everything works', () => {
 
                 protectedMethod() {
                     Super(this).protectedMethod()
+                    Private(this).privateMethod()
+                },
+
+            },
+
+            private: {
+
+                privateMethod() {
+
+                    // Private Inheritance!
+                    //
+                    // This is calling SomeClass.privateMethod in the scope of
+                    // SubClass, so any operations on private members will be
+                    // on the private members of SubClass (members which have
+                    // been in herited from SomeClass).
+                    Super(this).privateMethod()
+
+                    // This helps explain the magic regarding Private Inheritance
+                    //
+                    // this proves that private functionality works like
+                    // `private` in C++, except that functionality can be
+                    // inherited, and the inherited functionality operates on
+                    // the private data of the class that initiated the method
+                    // call (in this case SubClass initiated the call to
+                    // SomeClass.privateMethod with Super(this).privateMethod(), so if
+                    // SomeClass.privateMethod modifies any private data, it
+                    // will modify the data associated with SubClass, not
+                    // SomeClass).
+                    expect( this ).toBe( SomeClassPrivate(this) )
+                    expect( this ).not.toBe( someClassPrivateInstance )
+
+                    // (Just in case you didn't realize yet, `this` is
+                    // equivalent to `Private(this)` in a private method)
+                    expect( this ).toBe( Private(this) )
+
                 },
 
             },
@@ -717,13 +780,27 @@ test('everything works', () => {
         const o = new SubClass
         o.publicMethod()
 
-        expect( publicAccesses.length === 3 ).toBeTruthy()
-        expect( protectedAccesses.length === 3 ).toBeTruthy()
-        expect( privateAccesses.length === 3 ).toBeTruthy()
+        expect( publicAccesses.length === 4 ).toBeTruthy()
+        expect( protectedAccesses.length === 4 ).toBeTruthy()
+        expect( privateAccesses.length === 4 ).toBeTruthy()
 
-        expect( publicAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
-        expect( protectedAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
-        expect( privateAccesses.every( ( instance, i, accesses ) => instance === accesses[0] ) ).toBeTruthy()
+        expect( publicAccesses.every( instance => instance === subClassPublicInstance ) ).toBeTruthy()
+        expect( protectedAccesses.every( instance => instance === subClassProtectedInstance ) ).toBeTruthy()
+
+        // this is where things diverge from the previous baseclass test,
+        // giving you a hint at how Private Inheritance works
+        //
+        // the first time SomeClass.privateMethod is called, it is called in
+        // the scope of SomeClass, so Private(this) in that method refers to
+        // the private members of SomeClass.
+        privateAccesses.slice(0, 3).forEach( instance => expect( instance ).toBe( someClassPrivateInstance ) )
+        //
+        // and the second time SomeClass.privateMethod is called, it is called
+        // in the scope of SubClass (as Super(this).privateMethod()) so in this
+        // case Private(this) in that method refers to the private members of
+        // SubClass, and if the method modifies any data, it will modify data
+        // associated with SubClass, not SomeClass)
+        expect( privateAccesses[3] === subClassPrivateInstance )
 
         publicAccesses.length = 0
         protectedAccesses.length = 0
@@ -813,77 +890,61 @@ test('everything works', () => {
     }
 
     // ##################################################
-    // Show how Super works with private members (private inheritance)
+    // Show how Super works with private members (Private Inheritance)
     {
         const Foo = Class(({Private, Protected, Public}) => ({
-            checkThought() {
+            fooThought() {
                 return Private(this).thought
+            },
+
+            modifyPrivateDataInFoo() {
+                Private(this).think( 'hmmmmm' )
             },
 
             private: {
                 thought: 'weeeee',
-                think() {
-                    this.thought = 'hmmmmm'
-                },
 
-                // private inheritance is (for now) only good for inheriting
-                // logic that can manipulate public members. This one will
-                // fail, don't use Protected or Private inside a private method
-                // that will be inherited, and don't inherit methods that use
-                // Protected or Private. (unless you leak the accessors outside
-                // of the class scope and wire something up manually, TODO
-                // example).
-                willFail() {
-                    let fails = 0
-
-                    try { Private(this) }
-                    catch(e) { fails++ }
-
-                    try { Protected(this) }
-                    catch(e) { fails++ }
-
-                    expect( fails ).toBe( 2 )
-
-                    Public(this).testedFail = true
-
-                    return fails
+                think( value ) {
+                    this.thought = value
                 },
             }
         }))
 
         const Bar = Class().extends(Foo, ({Private, Super}) => ({
-            test() {
-                Private(this).think()
-
-                // Foo's value is still undefined, as expected
-                expect( this.checkThought() === 'weeeee' ).toBeTruthy()
-
-                // but Bar's value is now 'hmmmmm'
-                expect( Private(this).thought === 'hmmmmm' ).toBeTruthy()
+            barThought() {
+                return Private(this).thought
             },
 
-            testFail() {
-                let result = Private(this).willFail()
-                return result
+            modifyPrivateDataInBar() {
+                Private(this).thinkAgain( 'yeaaaaah' )
             },
 
             private: {
-                think() {
-                    // code re-use
-                    Super(this).think()
+
+                // Thought you knew private members? Think again!
+                thinkAgain( value ) {
+                    // code re-use, but modifies data of Bar class, not Foo class
+                    Super(this).think( value )
                 }
+
             }
         }))
 
         const b = new Bar
-        b.test()
-        expect( b.testFail() ).toBe( 2 )
 
-        // TODO b.testedFail isn't set because the private instance passed to
-        // Private in willFail is not the instance Private expects. This can
-        // provide a hint on how we can make it work (traverse towards leaf of
-        // the private prototype chain and find the instance)
-        //expect( b.testedFail ).toBe( true )
+        // shows that the initial private value of `thought` in Bar is
+        // inherited from Foo
+        expect( b.fooThought() ).toBe( 'weeeee' )
+        expect( b.barThought() ).toBe( 'weeeee' )
+
+        b.modifyPrivateDataInFoo()
+        b.modifyPrivateDataInBar()
+
+        // the private member in Foo hasn't changed:
+        expect( b.fooThought() ).toBe( 'hmmmmm' )
+
+        // but the private member in Bar has:
+        expect( b.barThought() ).toBe( 'yeaaaaah' )
 
         // native `super` works too:
         const Baz = Class().extends(Bar, ({Super}) => ({
@@ -895,12 +956,16 @@ test('everything works', () => {
         }))
 
         const baz = new Baz
-        baz.test()
-        baz.testFail()
-        expect( baz.testFail() ).toBe( 2 )
 
-        // TODO same as previous TODO
-        //expect( baz.testedFail ).toBe(true)
+        expect( baz.fooThought() ).toBe( 'weeeee' )
+        expect( baz.barThought() ).toBe( 'weeeee' )
+
+        baz.modifyPrivateDataInFoo()
+        baz.modifyPrivateDataInBar()
+
+        // oh yes! This is great!
+        expect( baz.fooThought() ).toBe( 'hmmmmm' )
+        expect( baz.barThought() ).toBe( 'yeaaaaah' )
     }
 
     // ##################################################
