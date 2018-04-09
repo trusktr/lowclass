@@ -228,6 +228,13 @@ function createClassHelper( options ) {
 
             // no static inheritance here, just like with `class Foo {}`
 
+            setDescriptor(Ctor, 'subclass', {
+                value: Class,
+                writable: true, // TODO maybe let's make this non writable
+                enumerable: false,
+                configurable: false,
+            })
+
             return Ctor
         }
 

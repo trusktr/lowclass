@@ -2,113 +2,194 @@
 lowclass
 ========
 
-A low-complexity JavaScript class inheritance implementation with protected, public, and private members.
+JavaScript class inheritance with public, protected, and private members.
 
-Usage
+Lowclass let's you define classes with protected and private data similar to
+that of protected and private in C++:
+
+- `Public` members can be accessed from outside the class.
+- `Protected` members can be accessed in the class and its derived classes.
+- `Private` members can be only accessed within the class.
+
+But there's an interesting difference (advantage) lowclass private members have
+over C++ private members: private functionality of a class made with lowclass
+can be inherited by a derived class, but the functionality is still scoped to
+the class where it is utilized, meaning that the inherited functionality will
+operate on the private data of the class where the inherited functionality is
+used without breaking protected and public API contracts.
+
+Extending builtins like Array is supported
+([example](./src/tests/extending-builtins.test.js)) by Lowclass. Extending
+native ES6 classes and using the subclasses in native APIs like Custom Elements
+is also supported ([example](./src/tests/custom-elements.test.js)).
+
+Intro
 -----
 
-(See many more examples in the [test file](./test.js))
+You may already be using the new native `class` syntax to define your classes, for example:
 
 ```js
-const Class = require('./src/index')
+class MyClass {
 
-const Animal = Class('Animal', (Public, Protected, Private) => ({
+	constructor() {
 
-    // anything outside the public/protected/private definitions is
-    // automatically public. Note, constructors can only be public at the moment,
-    // but I'm thinking about how to allow constructors to be "private" or "protected".
-    constructor: function(name) {
-        this.blah = "blah" // public `blah` property
-        Protected(this).anything = 1234
-        Private(this).name = name
-    },
+		// you might be using some convention, like leading underscores, to
+		// describe that a member should be considered "protected" or "private":
+		this._protectedProperty = "yoohoo"
 
-    public: {
-        talk: function talk() {
-            Protected(this).lorem = 'lorem'
-            Private(this).saySecret()
-            Protected(this).animalMethod()
-        },
-    },
+	}
 
-    protected: {
-        sound: "aruuugah",
-        animalMethod: function() {
-            this.dude = "dude"
-        },
-    },
+	someMethod() {
+		console.log('Protected value is:', this._protectedProperty)
+	}
 
-    private: {
-        saySecret: function() {
-            console.log('raaaaaawr, I am ' + this.name)
-        },
-    },
-}))
+}
+
+const instance = new MyClass
+
+instance.someMethod() // logs "Protected value is: yoohoo"
+
+// but the property is still publicly accessible:
+console.log( instance._protectedProperty ) // "yoohoo"
 ```
 
-As you can see, the definer function passed into `Class()` receives three
-arguments: the Public helper, the Protected helper, and the Private helper.
+You might even be still making ES5-style classes using `function() {}` instead of `class`.
 
-Extend a class with the `.subclass` static method, into which you also pass a
-definer function that receives the three same type of args. You can also assign
-properties onto the `prototype` properties of the three args to define
-properties and methods, not just return an object definition like in the Animal
-class.
+The good news is, you can use lowclass to add Protected and Private
+functionality to your existing classes! For example, here the previous example
+with some small tweaks:
 
 ```js
-const Dog = Animal.subclass(function Dog(Public, Protected, Private) {
+import protect from 'lowclass'
+// or const protect = require('lowclass')
 
-    Public.prototype.constructor = function(name) {
-        Animal.call(this, name+'!')
-        Private(this).trained = true
-        Protected(this).foo()
+// just wrap your class with lowclass, and gain Protected or Private
+// functionality. Most of the time you probably want Protected functionality, so
+// this example only uses Protected:
 
-        this.saySecret() // error, because there is no public saySecret method
-        Private(this).saySecret() // error, because saySecret is private in the above Animal class, not in the Dog class
-    }
+const MyClass = protect( ({ Protected }) => {
 
-    Public.prototype.talk = function() {
-        Animal.prototype.talk.call(this)
+	return class MyClass {
 
-        Protected(this).animalMethod() // it works, protected methods are available in all sub classes.
-    }
+		constructor() {
+			// stop using underscore, make it truly protected:
+			Protected(this).protectedProperty = "yoohoo"
+		}
 
-    Protected.prototype.sound = "Woof!"
-    Protected.prototype.foo = function() {
-        if (Private(this).trained) console.log(Private(this).lorem + "!")
-        Private(this).downwardDog()
-    }
+		someMethod() {
+			console.log('Protected value is:', Protected(this).protectedProperty)
+		}
 
-    Private.prototype.lorem = "lorem"
-    Private.prototype.downwardDog = function() {
-        console.log('did downwardDog')
-    }
+	}
+
 })
 
-const dog = new Dog('Ranchuu')
-dog.talk() // works, talk() is public
-dog.downwardDog() // error, no public downwardDog method
-dog.animalMethod() // error, no public animalMethod method
+const instance = new MyClass
+
+instance.someMethod() // logs "Protected value is: yoohoo"
+
+// the value is not publicly accessible!
+console.log( instance.protectedProperty ) // undefined
 ```
 
-It is possible to purposefully leak the Public/Protected/Private helpers outside
-of the class definition, which recommend that you avoid. For example:
+But this is a fairly simple example. Let's show how inheritance of protected
+members works, again wrapping a native ES6+ `class`. Suppose we have a derived
+class using the old underscore convention:
 
 ```js
-let Protected = null
+class MyOtherClass extends MyClass {
+	otherMethod() {
 
-const Dog = Animal.subclass(function Dog(Public, _Protected, Private) {
-    Protected = _Protected
+		// we'll need to update this, because MyClass.protectedProperty truly protected now:
+		console.log( 'Inherited protected value: ', this._protectedProperty)
 
-    // ... same definition as the previous class ...
-})
-
-const dog = new Dog('Ranchuu')
-
-Protected(dog).animalMethod() // works, because we leaked the Protected helper outside of the class definition.
+	}
+}
 ```
 
-There might be valid use cases for leaking the access helpers, but in general
-the goal of using this lib is to expose only the public API of your class to
-the consumer, otherwise you may as well just use native JavaScript `class`
-syntax where everything is just public.
+We can wrap it with lowclass:
+
+```js
+const MyOtherClass = protect( ({ Protected }) => {
+
+	return class MyOtherClass extends MyClass {
+		otherMethod() {
+
+			// access the truly protected member now:
+			console.log( 'Inherited protected value: ', Protected(this).protectedProperty)
+
+		}
+	}
+
+})
+
+const instance = new MyOtherClass
+
+console.log( instance.protectedProperty ) // undefined
+
+instance.otherMethod() // logs "Inherited protected value: yoohoo"
+```
+
+Nice, we can keep internal implementation hidden, and prevent people from
+breaking our APIs in unexpected ways!
+
+Let's use a Private member instead of a Protected member to show that a derived
+subclass is not able to access it:
+
+```js
+const protect = require('lowclass')
+
+const MyClass = protect( ({ Private }) => {
+
+	return class MyClass {
+
+		constructor() {
+			Private(this).privateProperty = "yoohoo"
+		}
+
+		someMethod() {
+			console.log('Private value:', Private(this).privateProperty)
+		}
+
+		changeIt() {
+			Private(this).privateProperty = 'oh yeah'
+		}
+
+	}
+
+})
+
+const MyOtherClass = protect( ({ Private }) => {
+
+	return class MyOtherClass extends MyClass {
+
+		otherMethod() {
+			console.log( 'Private value: ', Private(this).privateProperty)
+		}
+
+		makeItSo() {
+			Private(this).privateProperty = 'it is so'
+		}
+
+	}
+
+})
+
+const instance = new MyOtherClass
+
+instance.someMethod() // logs "Private value: yoohoo"
+instance.otherMethod() // logs "Private value: undefined"
+
+instance.changeIt()
+instance.someMethod() // logs "Private value: oh yeah"
+instance.otherMethod() // logs "Private value: undefined"
+
+instance.makeItSo()
+instance.someMethod() // logs "Private value: oh yeah"
+instance.otherMethod() // logs "Private value: it is so"
+```
+
+What happened there? In every class hierarchy, there is a private scope for
+each class in the hierarchy. In this case, there's two private scopes: one for
+MyClass, and one for MyOtherClass.
+
