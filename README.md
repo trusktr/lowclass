@@ -4,8 +4,10 @@ lowclass
 
 JavaScript class inheritance with public, protected, and private members.
 
-Lowclass let's you define classes with protected and private data similar to
-that of protected and private in C++:
+#### `npm install lowclass --save`
+
+Lowclass let's us define classes with protected and private data similar to in
+C++ (and similar to some some extent Java):
 
 - `Public` members can be accessed from outside the class.
 - `Protected` members can be accessed in the class and its derived classes.
@@ -527,7 +529,6 @@ Class( ({ Private }) => class {
 })
 ```
 
-
 ### ES5-like assignment to prototype
 
 You might have lots of ES5-style code, so this form can be useful in porting
@@ -617,8 +618,35 @@ const MyArray = Array.subclass( ({ Super, Private }) => {
 See the full Array example in
 [`test/extending-builtins.test.js`](./test/extending-builtins.test.js).
 
+Differences between lowclass and other languages
+------------------------------------------------
+
+### C++
+
+C++ and lowclass are basically the same. Where they differ is that lowclass
+offers "Private Inheritance" as described above while C++ does not, and C++ has
+a `friend` feature that lets unrelated classes access private and protected
+members of other "friend" classes.
+
+The "friend" feature from C++ might be something we can consider adding to
+lowclass later.
+
+See [here](https://www.geeksforgeeks.org/access-modifiers-in-c/) for an explainer on C++ access modifers which is effectively the same for lowclass.
+
+### Java
+
+The differences between lowclass' and Java's access modifiers are basically the
+same as the differences between C++ and Java. Lowclass additionally has
+"Private Inheritance". Lowclass does not have the concept of "package
+protected" which would be similar to "friend" in C++.
+
+See [here](https://www.javatpoint.com/access-modifiers) for an explainer of
+Java access modifiers. We can compare this against C++, and therefore also
+against lowclass.
+
 TODO
 ----
 
 - [ ] protected and private functionality for static members
 - [ ] ability to make classes "final"
+- [ ] "friend" 
