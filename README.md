@@ -22,18 +22,18 @@ contracts.
 Lowclass supports
 
 - extending builtins like Array. (see
-  [`src/tests/extending-builtins.test.js`](./src/tests/extending-builtins.test.js)).
+  [`tests/extending-builtins.test.js`](./tests/extending-builtins.test.js)).
 - extending native ES6 classes. (see
-  [`src/tests/extending-native-classes.test.js`](./src/tests/extending-native-classes.test.js))
+  [`tests/extending-native-classes.test.js`](./tests/extending-native-classes.test.js))
 - extending builtins like `HTMLElement` and using the subclasses in native APIs
   like Custom Elements. (see
-  [`src/tests/custom-elements.test.js`](./src/tests/custom-elements.test.js)).
+  [`tests/custom-elements.test.js`](./tests/custom-elements.test.js)).
 
 Intro
 -----
 
 All of the intro examples are available as tests in
-[`src/tests/readme-examples.test.js`](./src/tests/readme-examples.test.js), and
+[`tests/readme-examples.test.js`](./tests/readme-examples.test.js), and
 the other test files contain many more examples.
 
 ### Hiding members of your existing classes
@@ -414,7 +414,7 @@ Forms of writing classes
 ------------------------
 
 Working examples of the various forms depicted here are in
-[`src/tests/syntaxes.test.js`](./src/tests/syntaxes.test.js).
+[`tests/syntaxes.test.js`](./tests/syntaxes.test.js).
 
 ### Simple object literals
 
@@ -615,7 +615,7 @@ const MyArray = Array.subclass( ({ Super, Private }) => {
 ```
 
 See the full Array example in
-[`src/test/extending-builtins.test.js`](./src/test/extending-builtins.test.js).
+[`test/extending-builtins.test.js`](./test/extending-builtins.test.js).
 
 TODO
 ----
