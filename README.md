@@ -720,22 +720,19 @@ Differences between lowclass and other languages
 
 ### C++
 
-C++ and lowclass are basically the same. Where they differ is that lowclass
-offers "Private Inheritance" as described above while C++ does not, and C++ has
-a `friend` feature that lets unrelated classes access private and protected
-members of other "friend" classes.
+C++ and lowclass are basically the same (including "friend" classes). Where
+they differ is that lowclass offers "Private Inheritance" as described above
+while C++ does not.
 
-The "friend" feature from C++ might be something we can consider adding to
-lowclass later.
-
-See [here](https://www.geeksforgeeks.org/access-modifiers-in-c/) for an explainer on C++ access modifers which is effectively the same for lowclass.
+See [here](https://www.geeksforgeeks.org/access-modifiers-in-c/) for an
+explainer on C++ access modifers which is effectively the same for lowclass.
 
 ### Java
 
 The differences between lowclass' and Java's access modifiers are basically the
 same as the differences between C++ and Java. Lowclass additionally has
-"Private Inheritance". Lowclass does not have the concept of "package
-protected" which would be similar to "friend" in C++.
+"Private Inheritance". Lowclass also has a concept similar to "package
+protected" which is similar to "friend" in C++.
 
 See [here](https://www.javatpoint.com/access-modifiers) for an explainer of
 Java access modifiers. We can compare this against C++, and therefore also
