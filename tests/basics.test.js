@@ -5,9 +5,9 @@ const {
     Class,
     InvalidAccessError,
     InvalidSuperAccessError,
-} = require('./index')
+} = require('../src/index')
 
-const { native } = require('./native')
+const { native } = require('../src/native')
 
 test('only public members can be read/written from outside code', () => {
 
