@@ -132,6 +132,40 @@ test('works with custom elements', () => {
             document.body.removeChild( el )
         }
 
+        // in most cases, using `this.constructor` in place of `new.target` can
+        // work with subclassing
+        {
+            const MyEl = Class().extends( native(HTMLElement), {
+                constructor() {
+                    return Reflect.construct(super.constructor, [], this.constructor)
+                },
+                connectedCallback() {
+                    this.connected = true
+                },
+            })
+
+            const MyEl2 = Class().extends(MyEl, {
+                constructor() {
+                    return Reflect.construct(super.constructor, [], this.constructor)
+                },
+                connectedCallback() {
+                    super.connectedCallback()
+                },
+            })
+
+            customElements.define('my-el', MyEl2)
+            const el = document.createElement( 'my-el' )
+
+            // YEAAASSSSS!
+            expect( el instanceof MyEl2 ).toBe( true )
+
+            document.body.appendChild( el )
+
+            expect( el.connected ).toBe( true )
+
+            document.body.removeChild( el )
+        }
+
         // What NOT to do:
         //
         // because of how lowclass handles `new.target`, this version doesn't
