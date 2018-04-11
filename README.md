@@ -412,6 +412,103 @@ we trigger the inherited functionality inside of the `DoubleCounter.doubleTick`
 method, so this makes the inherited functionality operate on `DoubleCounter`'s
 inherited private `count` property.
 
+### "friends" like in C++, or "package protected" like in Java
+
+Lowclass makes it possible to do something similar to "friend" in C++ or
+"package protected" in Java. We can do these sorts of things by "leaking" the
+access helpers to a scope that is outside a class definition.
+
+For example, in the following example, the `Counter` class has private data,
+and the `Incrementor` class can access the protected member of the `Counter`
+class although `Incrementor` is not derived from `Counter`. These two classes
+are exported and then imported by another file which can not access the private
+data, but can use the public API of both classes to make instances of the two
+classes interact with eachother.
+
+```js
+// Counter.js
+
+// show how to do something similar to "friend" in C++ or "package protected"
+// in Java.
+
+import Class from 'lowclass'
+
+let CounterProtected
+
+const Counter = Class( ({ Private, Protected }) => {
+
+    // leak the Counter class Protected helper to outer scope
+    CounterProtected = Protected
+
+    return {
+
+        value() {
+            return Private(this).count
+        },
+
+        private: {
+            count: 0,
+        },
+
+        protected: {
+            increment() {
+                Private(this).count ++
+            },
+        },
+
+    }
+
+})
+
+// note how Incrementor does not extend from Counter
+const Incrementor = Class( ({ Private }) => ({
+
+    constructor( counter ) {
+        Private(this).counter = counter
+    },
+
+    increment() {
+        const counter = Private(this).counter
+        CounterProtected( counter ).increment()
+    },
+
+}))
+
+export {
+    Counter,
+    Incrementor
+}
+```
+
+```js
+// shows that functionality similar to "friend" in C++ or "package
+// protected" can be done with lowclass. See `./Counter.js` to learn how it
+// works.
+
+import { Counter, Incrementor } from './Counter'
+
+// in a real-world scenario, counter might be used here locally...
+const counter = new Counter
+
+// ...while incrementor might be passed to third party code.
+const incrementor = new Incrementor( counter )
+
+// show that we can only access what is public
+expect( counter.count ).toBe( undefined )
+expect( counter.increment ).toBe( undefined )
+expect( typeof counter.value ).toBe( 'function' )
+
+expect( incrementor.counter ).toBe( undefined )
+expect( typeof incrementor.increment ).toBe( 'function' )
+
+// show that it works:
+expect( counter.value() ).toBe( 0 )
+incrementor.increment()
+expect( counter.value() ).toBe( 1 )
+incrementor.increment()
+expect( counter.value() ).toBe( 2 )
+```
+
 Forms of writing classes
 ------------------------
 
@@ -649,4 +746,3 @@ TODO
 
 - [ ] protected and private functionality for static members
 - [ ] ability to make classes "final"
-- [ ] "friend" 

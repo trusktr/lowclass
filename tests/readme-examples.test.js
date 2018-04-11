@@ -1,5 +1,5 @@
 
-const Class = require('../index')
+import Class from '../index'
 
 test('use a real protected member instead of the underscore convention, ES2015 classes', () => {
 
@@ -219,4 +219,33 @@ test('private inheritance', () => {
     expect( doubleCounter.getDoubleCountValue() ).not.toBe( counter.getCountValue() )
     expect( doubleCounter.getCountValue() ).toBe( 2 )
     expect( doubleCounter.getDoubleCountValue() ).toBe( 4 )
+})
+
+import { Counter, Incrementor } from './Counter'
+test('functionality similar to "friend" in C++', () => {
+
+    // shows that functionality similar to "friend" in C++ or "package
+    // protected" can be done with lowclass. See `./Counter.js` to learn how it
+    // works.
+
+    // in a real-world scenario, counter might be used here locally...
+    const counter = new Counter
+
+    // ...while incrementor might be passed to third party code.
+    const incrementor = new Incrementor( counter )
+
+    // show that we can only access what is public
+    expect( counter.count ).toBe( undefined )
+    expect( counter.increment ).toBe( undefined )
+    expect( typeof counter.value ).toBe( 'function' )
+
+    expect( incrementor.counter ).toBe( undefined )
+    expect( typeof incrementor.increment ).toBe( 'function' )
+
+    // show that it works:
+    expect( counter.value() ).toBe( 0 )
+    incrementor.increment()
+    expect( counter.value() ).toBe( 1 )
+    incrementor.increment()
+    expect( counter.value() ).toBe( 2 )
 })
