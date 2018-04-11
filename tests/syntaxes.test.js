@@ -1,8 +1,8 @@
 
 // various forms of writing classes ("syntaxes")
 
-const Class = require('../index')
-const { native } = require('../native')
+import Class from '../src/index'
+import { native } from '../src/native'
 
 test('object literal', () => {
     const Foo = Class({

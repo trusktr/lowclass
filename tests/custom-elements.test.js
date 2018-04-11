@@ -1,8 +1,6 @@
 
-"use strict"
-
-const Class = require('../index')
-const { native } = require('../native')
+import Class from '../src/index'
+import { native } from '../src/native'
 
 test('works with custom elements', () => {
 

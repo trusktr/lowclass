@@ -1,11 +1,9 @@
 
-"use strict"
-
-const {
+import {
     Class,
     createClassHelper,
     staticBlacklist,
-} = require('../index')
+} from '../src/index'
 
 test("ensure that class prototype and static descriptors are like ES6 classes", () => {
 

@@ -8,9 +8,7 @@
 //  [ ] protected and private static members
 //  [ ] other TODOs in the code
 
-"use strict"
-
-const {
+import {
     getFunctionBody,
     setDescriptor,
     setDescriptors,
@@ -18,7 +16,7 @@ const {
     getInheritedDescriptor,
     getInheritedPropertyNames,
     WeakTwoWayMap,
-} = require( './utils' )
+} from './utils'
 
 const staticBlacklist = [ 'subclass', 'extends',
     ...Object.getOwnPropertyNames( new Function() )

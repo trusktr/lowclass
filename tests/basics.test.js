@@ -1,13 +1,11 @@
 
-"use strict"
-
-const {
+import {
     Class,
     InvalidAccessError,
     InvalidSuperAccessError,
-} = require('../src/index')
+} from '../src/index'
 
-const { native } = require('../src/native')
+import { native } from '../src/native'
 
 test('only public members can be read/written from outside code', () => {
 

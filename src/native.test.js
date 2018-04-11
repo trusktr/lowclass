@@ -2,9 +2,7 @@
 // this shows the difference between our version of newless and the original
 // (see ./native.js)
 
-'use strict'
-
-const { native } = require('./native')
+import { native } from './native'
 
 test('explain original behavior (conditions negated to pass)', () => {
 

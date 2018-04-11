@@ -1,7 +1,5 @@
 
-"use strict"
-
-const Class = require('../index')
+import Class from '../src/index'
 
 // ##################################################
 test('protected and private members for custom-made ES5 classes', () => {

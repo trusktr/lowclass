@@ -1,4 +1,5 @@
-const Class = require('../index')
+
+import Class from '../src/index'
 
 test('anonymous empty base classes', () => {
     const Constructor = Class()

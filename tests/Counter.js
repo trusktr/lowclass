@@ -1,8 +1,8 @@
 
-import Class from 'lowclass'
-
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java.
+
+import Class from 'lowclass'
 
 let CounterProtected
 

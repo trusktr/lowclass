@@ -8,7 +8,7 @@ class WeakTwoWayMap {
     has( item ) { return this.m.has( item ) }
 }
 
-module.exports = {
+export {
     getFunctionBody,
     setDescriptor,
     setDescriptors,
