@@ -58,14 +58,15 @@ class InvalidAccessError extends Error {}
 
 const Class = createClassHelper()
 
-module.exports = Class
-Object.assign( module.exports, {
+export {
     Class,
     createClassHelper,
     InvalidSuperAccessError,
     InvalidAccessError,
     staticBlacklist,
-})
+}
+
+export default Class
 
 function createClassHelper( options ) {
     options = options ? { ...defaultOptions, ...options } : defaultOptions

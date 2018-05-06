@@ -19,9 +19,11 @@
 
 import { getFunctionBody, setDescriptor } from './utils'
 
-module.exports = {
-  native: newless,
+export {
+  newless as native,
 }
+
+export default newless
 
 var supportsSpread = isSyntaxSupported("Object(...[{}])");
 var supportsClass = isSyntaxSupported("class Test {}")
