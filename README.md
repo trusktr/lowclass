@@ -741,5 +741,5 @@ against lowclass.
 TODO
 ----
 
-- [ ] protected and private functionality for static members
+- [ ] public/protected/private/super helpers for static members
 - [ ] ability to make classes "final"
