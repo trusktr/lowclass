@@ -534,6 +534,10 @@ function createClassHelper( options ) {
 //
 // Can the tradeoff (less traversal and conditional checks) outweigh the
 // heavier conditional checks?
+//
+// XXX PERFORMANCE: We can also cache the access-helper results, which requires more memory,
+// but will make use of access helpers much faster, especially important for
+// animations.
 
 function getPublicMembers( scope, instance ) {
 
