@@ -1,251 +1,256 @@
 
-import Class from '../index'
+import Class from '../src/index'
+import { Counter, Incrementor } from './Counter'
 
-test('use a real protected member instead of the underscore convention, ES2015 classes', () => {
+const test = it
 
-    // an alias, which semantically more meaningful when wrapping a native
-    // `class` that already contains the "class" keyword.
-    const protect = Class
+describe( 'README examples', () => {
 
-    const Thing = protect( ({ Protected }) => class {
+    test('use a real protected member instead of the underscore convention, ES2015 classes', () => {
 
-        constructor() {
-            // stop using underscore and make it truly protected:
-            Protected(this).protectedProperty = "yoohoo"
-        }
+        // an alias, which semantically more meaningful when wrapping a native
+        // `class` that already contains the "class" keyword.
+        const protect = Class
 
-        someMethod() {
-            return Protected(this).protectedProperty
-        }
+        const Thing = protect( ({ Protected }) => class {
 
-    })
-
-    const t = new Thing
-
-    expect( t.someMethod() ).toBe( 'yoohoo' )
-
-    // the value is not publicly accessible!
-    expect( t.protectedProperty ).toBe( undefined )
-
-    const Something = protect( ({ Protected }) => class extends Thing {
-
-        otherMethod() {
-            // access the inherited actually-protected member
-            return Protected(this).protectedProperty
-        }
-
-    })
-
-    const s = new Something
-    expect( s.protectedProperty ).toBe( undefined )
-    expect( s.otherMethod() ).toBe( 'yoohoo' )
-})
-
-test('use a real protected member instead of the underscore convention, ES5 classes', () => {
-
-    // an alias, which semantically more meaningful when wrapping a native
-    // `class` that already contains the "class" keyword.
-    const protect = Class
-
-    const Thing = protect( ({ Protected }) => {
-
-        function Thing() {
-            Protected(this).protectedProperty = "yoohoo"
-        }
-
-        Thing.prototype = {
-            constructor: Thing,
+            constructor() {
+                // stop using underscore and make it truly protected:
+                Protected(this).protectedProperty = "yoohoo"
+            }
 
             someMethod() {
                 return Protected(this).protectedProperty
-            },
-        }
+            }
 
-        return Thing
-    })
+        })
 
-    const t = new Thing
+        const t = new Thing
 
-    expect( t.someMethod() ).toBe( 'yoohoo' )
+        expect( t.someMethod() ).toBe( 'yoohoo' )
 
-    // the value is not publicly accessible!
-    expect( t.protectedProperty ).toBe( undefined )
+        // the value is not publicly accessible!
+        expect( t.protectedProperty ).toBe( undefined )
 
-    const Something = protect( ({ Protected }) => {
-
-        function Something() {
-            Thing.call(this)
-        }
-
-        Something.prototype = {
-            __proto__: Thing.prototype,
-            constructor: Something,
+        const Something = protect( ({ Protected }) => class extends Thing {
 
             otherMethod() {
                 // access the inherited actually-protected member
                 return Protected(this).protectedProperty
             }
-        }
 
-        return Something
+        })
+
+        const s = new Something
+        expect( s.protectedProperty ).toBe( undefined )
+        expect( s.otherMethod() ).toBe( 'yoohoo' )
     })
 
-    const s = new Something
-    expect( s.protectedProperty ).toBe( undefined )
-    expect( s.otherMethod() ).toBe( 'yoohoo' )
-})
+    test('use a real protected member instead of the underscore convention, ES5 classes', () => {
 
-test('no access of parent private data in subclass', () => {
-    const Thing = Class( ({ Private }) => ({
+        // an alias, which semantically more meaningful when wrapping a native
+        // `class` that already contains the "class" keyword.
+        const protect = Class
 
-        constructor() {
-            Private(this).privateProperty = "yoohoo"
-        },
+        const Thing = protect( ({ Protected }) => {
 
-        someMethod() {
-            return Private(this).privateProperty
-        },
+            function Thing() {
+                Protected(this).protectedProperty = "yoohoo"
+            }
 
-        changeIt() {
-            Private(this).privateProperty = 'oh yeah'
-        },
+            Thing.prototype = {
+                constructor: Thing,
 
-    }))
+                someMethod() {
+                    return Protected(this).protectedProperty
+                },
+            }
 
-    const Something = Class().extends(Thing, ({ Private }) => ({
+            return Thing
+        })
 
-        otherMethod() {
-            return Private(this).privateProperty
-        },
+        const t = new Thing
 
-        makeItSo() {
-            Private(this).privateProperty = 'it is so'
-        },
+        expect( t.someMethod() ).toBe( 'yoohoo' )
 
-    }))
+        // the value is not publicly accessible!
+        expect( t.protectedProperty ).toBe( undefined )
 
-    const instance = new Something
+        const Something = protect( ({ Protected }) => {
 
-    expect( instance.someMethod() ).toBe( 'yoohoo' )
-    expect( instance.otherMethod() ).toBe( undefined )
+            function Something() {
+                Thing.call(this)
+            }
 
-    instance.changeIt()
-    expect( instance.someMethod() ).toBe( 'oh yeah' )
-    expect( instance.otherMethod() ).toBe( undefined )
+            Something.prototype = {
+                __proto__: Thing.prototype,
+                constructor: Something,
 
-    instance.makeItSo()
-    expect( instance.someMethod() ).toBe( 'oh yeah' )
-    expect( instance.otherMethod() ).toBe( 'it is so' )
-})
+                otherMethod() {
+                    // access the inherited actually-protected member
+                    return Protected(this).protectedProperty
+                }
+            }
 
-test('no access of parent private data in subclass', () => {
-    const Thing = Class( ({ Private }) => ({
+            return Something
+        })
 
-        constructor() {
-            Private(this).privateProperty = "yoohoo"
-        }
+        const s = new Something
+        expect( s.protectedProperty ).toBe( undefined )
+        expect( s.otherMethod() ).toBe( 'yoohoo' )
+    })
 
-    }))
+    test('no access of parent private data in subclass', () => {
+        const Thing = Class( ({ Private }) => ({
 
-    const Something = Thing.subclass( ({ Private }) => ({
-
-        otherMethod() {
-            return Private(this).privateProperty
-        }
-
-    }))
-
-    const something = new Something
-
-    expect( something.otherMethod() ).toBe( undefined )
-})
-
-test('private inheritance', () => {
-
-    const Counter = Class( ({ Private }) => ({
-
-        private: {
-
-            // this is a prototype prop, the initial value will be inherited by subclasses
-            count: 0,
-
-            increment() {
-                this.count++
+            constructor() {
+                Private(this).privateProperty = "yoohoo"
             },
-        },
 
-        tick() {
-            Private(this).increment()
+            someMethod() {
+                return Private(this).privateProperty
+            },
 
-            return Private(this).count
-        },
+            changeIt() {
+                Private(this).privateProperty = 'oh yeah'
+            },
 
-        getCountValue() {
-            return Private(this).count
-        },
+        }))
 
-    }))
+        const Something = Class().extends(Thing, ({ Private }) => ({
 
-    const DoubleCounter = Counter.subclass( ({ Private }) => ({
+            otherMethod() {
+                return Private(this).privateProperty
+            },
 
-        doubleTick() {
-            Private(this).increment()
-            Private(this).increment()
+            makeItSo() {
+                Private(this).privateProperty = 'it is so'
+            },
 
-            return Private(this).count
-        },
+        }))
 
-        getDoubleCountValue() {
-            return Private(this).count
-        },
+        const instance = new Something
 
-    }))
+        expect( instance.someMethod() ).toBe( 'yoohoo' )
+        expect( instance.otherMethod() ).toBe( undefined )
 
-    const counter = new Counter
+        instance.changeIt()
+        expect( instance.someMethod() ).toBe( 'oh yeah' )
+        expect( instance.otherMethod() ).toBe( undefined )
 
-    expect( counter.tick() ).toBe( 1 )
+        instance.makeItSo()
+        expect( instance.someMethod() ).toBe( 'oh yeah' )
+        expect( instance.otherMethod() ).toBe( 'it is so' )
+    })
 
-    const doubleCounter = new DoubleCounter
+    test('no access of parent private data in subclass', () => {
+        const Thing = Class( ({ Private }) => ({
 
-    expect( doubleCounter.doubleTick() ).toBe( 2 )
-    expect( doubleCounter.tick() ).toBe( 1 )
+            constructor() {
+                Private(this).privateProperty = "yoohoo"
+            }
 
-    expect( doubleCounter.doubleTick() ).toBe( 4 )
-    expect( doubleCounter.tick() ).toBe( 2 )
+        }))
 
-    // There's a private `counter` member for the Counter class, and there's a
-    // separate private `counter` member for the `DoubleCounter` class (the
-    // initial value inherited from `Counter`):
-    expect( doubleCounter.getDoubleCountValue() ).not.toBe( counter.getCountValue() )
-    expect( doubleCounter.getCountValue() ).toBe( 2 )
-    expect( doubleCounter.getDoubleCountValue() ).toBe( 4 )
-})
+        const Something = Thing.subclass( ({ Private }) => ({
 
-import { Counter, Incrementor } from './Counter'
-test('functionality similar to "friend" in C++', () => {
+            otherMethod() {
+                return Private(this).privateProperty
+            }
 
-    // shows that functionality similar to "friend" in C++ or "package
-    // protected" can be done with lowclass. See `./Counter.js` to learn how it
-    // works.
+        }))
 
-    // in a real-world scenario, counter might be used here locally...
-    const counter = new Counter
+        const something = new Something
 
-    // ...while incrementor might be passed to third party code.
-    const incrementor = new Incrementor( counter )
+        expect( something.otherMethod() ).toBe( undefined )
+    })
 
-    // show that we can only access what is public
-    expect( counter.count ).toBe( undefined )
-    expect( counter.increment ).toBe( undefined )
-    expect( typeof counter.value ).toBe( 'function' )
+    test('private inheritance', () => {
 
-    expect( incrementor.counter ).toBe( undefined )
-    expect( typeof incrementor.increment ).toBe( 'function' )
+        const Counter = Class( ({ Private }) => ({
 
-    // show that it works:
-    expect( counter.value() ).toBe( 0 )
-    incrementor.increment()
-    expect( counter.value() ).toBe( 1 )
-    incrementor.increment()
-    expect( counter.value() ).toBe( 2 )
-})
+            private: {
+
+                // this is a prototype prop, the initial value will be inherited by subclasses
+                count: 0,
+
+                increment() {
+                    this.count++
+                },
+            },
+
+            tick() {
+                Private(this).increment()
+
+                return Private(this).count
+            },
+
+            getCountValue() {
+                return Private(this).count
+            },
+
+        }))
+
+        const DoubleCounter = Counter.subclass( ({ Private }) => ({
+
+            doubleTick() {
+                Private(this).increment()
+                Private(this).increment()
+
+                return Private(this).count
+            },
+
+            getDoubleCountValue() {
+                return Private(this).count
+            },
+
+        }))
+
+        const counter = new Counter
+
+        expect( counter.tick() ).toBe( 1 )
+
+        const doubleCounter = new DoubleCounter
+
+        expect( doubleCounter.doubleTick() ).toBe( 2 )
+        expect( doubleCounter.tick() ).toBe( 1 )
+
+        expect( doubleCounter.doubleTick() ).toBe( 4 )
+        expect( doubleCounter.tick() ).toBe( 2 )
+
+        // There's a private `counter` member for the Counter class, and there's a
+        // separate private `counter` member for the `DoubleCounter` class (the
+        // initial value inherited from `Counter`):
+        expect( doubleCounter.getDoubleCountValue() ).not.toBe( counter.getCountValue() )
+        expect( doubleCounter.getCountValue() ).toBe( 2 )
+        expect( doubleCounter.getDoubleCountValue() ).toBe( 4 )
+    })
+
+    test('functionality similar to "friend" in C++', () => {
+
+        // shows that functionality similar to "friend" in C++ or "package
+        // protected" can be done with lowclass. See `./Counter.js` to learn how it
+        // works.
+
+        // in a real-world scenario, counter might be used here locally...
+        const counter = new Counter
+
+        // ...while incrementor might be passed to third party code.
+        const incrementor = new Incrementor( counter )
+
+        // show that we can only access what is public
+        expect( counter.count ).toBe( undefined )
+        expect( counter.increment ).toBe( undefined )
+        expect( typeof counter.value ).toBe( 'function' )
+
+        expect( incrementor.counter ).toBe( undefined )
+        expect( typeof incrementor.increment ).toBe( 'function' )
+
+        // show that it works:
+        expect( counter.value() ).toBe( 0 )
+        incrementor.increment()
+        expect( counter.value() ).toBe( 1 )
+        incrementor.increment()
+        expect( counter.value() ).toBe( 2 )
+    })
+} )

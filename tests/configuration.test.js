@@ -5,225 +5,234 @@ import {
     staticBlacklist,
 } from '../src/index'
 
-test("ensure that class prototype and static descriptors are like ES6 classes", () => {
+const test = it
 
-    const Duck = Class(({Protected, Private}) => ({
-        constructor() {},
-        add() {},
-        get foo() {},
+describe( 'configuration', () => {
 
-        protected: {
-            foo: 'foo',
+    test("ensure that class prototype and static descriptors are like ES6 classes", () => {
+
+        const Duck = Class(({Protected, Private}) => ({
+            constructor() {},
             add() {},
             get foo() {},
-        },
 
-        private: {
-            foo: 'foo',
-            add() {},
-            get foo() {},
-        },
+            protected: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        static: {
-            foo: 'foo',
-            add() {},
-            set foo(v) {},
-        },
+            private: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        test() {
-            checkDescriptors( Protected(this).__proto__ )
-            checkDescriptors( Private(this).__proto__ )
-        },
-    }))
+            static: {
+                foo: 'foo',
+                add() {},
+                set foo(v) {},
+            },
 
-    const protoDescriptor = Object.getOwnPropertyDescriptor( Duck, 'prototype' )
-    expect( !protoDescriptor.writable ).toBeTruthy()
-    expect( !protoDescriptor.enumerable ).toBeTruthy()
-    expect( !protoDescriptor.configurable ).toBeTruthy()
+            test() {
+                checkDescriptors( Protected(this).__proto__ )
+                checkDescriptors( Private(this).__proto__ )
+            },
+        }))
 
-    checkDescriptors( Duck )
-    checkDescriptors( Duck.prototype )
+        const protoDescriptor = Object.getOwnPropertyDescriptor( Duck, 'prototype' )
+        expect( !protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
 
-    const duck = new Duck
-    duck.test()
-})
+        checkDescriptors( Duck )
+        checkDescriptors( Duck.prototype )
 
-test("Show how to change class creation configuration", () => {
-    // for example suppose we want static and prototype props/methods to be
-    // enumerable, and the prototype to be writable.
-
-    const Class = createClassHelper({
-        prototypeWritable: true,
-        defaultClassDescriptor: {
-            enumerable: true,
-            configurable: false,
-        },
+        const duck = new Duck
+        duck.test()
     })
 
-    const AwesomeThing = Class(({Protected, Private}) => ({
-        constructor() {},
-        add() {},
-        get foo() {},
+    test("Show how to change class creation configuration", () => {
+        // for example suppose we want static and prototype props/methods to be
+        // enumerable, and the prototype to be writable.
 
-        protected: {
-            foo: 'foo',
+        const Class = createClassHelper({
+            prototypeWritable: true,
+            defaultClassDescriptor: {
+                enumerable: true,
+                configurable: false,
+            },
+        })
+
+        const AwesomeThing = Class(({Protected, Private}) => ({
+            constructor() {},
             add() {},
             get foo() {},
-        },
 
-        private: {
-            foo: 'foo',
-            add() {},
-            get foo() {},
-        },
+            protected: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        static: {
-            foo: 'foo',
-            add() {},
-            set foo(v) {},
-        },
+            private: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        test() {
-            checkDescriptors( Protected(this).__proto__, true, false )
-            checkDescriptors( Private(this).__proto__, true, false )
-        },
-    }))
+            static: {
+                foo: 'foo',
+                add() {},
+                set foo(v) {},
+            },
 
-    const protoDescriptor = Object.getOwnPropertyDescriptor( AwesomeThing, 'prototype' )
-    expect( protoDescriptor.writable ).toBeTruthy()
-    expect( !protoDescriptor.enumerable ).toBeTruthy()
-    expect( !protoDescriptor.configurable ).toBeTruthy()
+            test() {
+                checkDescriptors( Protected(this).__proto__, true, false )
+                checkDescriptors( Private(this).__proto__, true, false )
+            },
+        }))
 
-    checkDescriptors( AwesomeThing, true, false )
-    checkDescriptors( AwesomeThing.prototype, true, false )
+        const protoDescriptor = Object.getOwnPropertyDescriptor( AwesomeThing, 'prototype' )
+        expect( protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
 
-    const thing = new AwesomeThing
-    thing.test()
-})
+        checkDescriptors( AwesomeThing, true, false )
+        checkDescriptors( AwesomeThing.prototype, true, false )
 
-test("Show how to disable setting of descriptors", () => {
-    // leaving them like ES5 classes (gives better performance while defining
-    // classes too, if you don't need the stricter descriptors)
-
-    const Class = createClassHelper({
-        setClassDescriptors: false,
+        const thing = new AwesomeThing
+        thing.test()
     })
 
-    const PeanutBrittle = Class(({Protected, Private}) => ({
-        constructor() {},
-        add() {},
-        get foo() {},
+    test("Show how to disable setting of descriptors", () => {
+        // leaving them like ES5 classes (gives better performance while defining
+        // classes too, if you don't need the stricter descriptors)
 
-        protected: {
-            foo: 'foo',
-            add() {},
-            get foo() {},
-        },
-
-        private: {
-            foo: 'foo',
-            add() {},
-            get foo() {},
-        },
-
-        static: {
-            foo: 'foo',
-            add() {},
-            set foo(v) {},
-        },
-
-        test() {
-            checkDescriptors( Protected(this).__proto__, true, true )
-            checkDescriptors( Private(this).__proto__, true, true )
-        },
-    }))
-
-    const protoDescriptor = Object.getOwnPropertyDescriptor( PeanutBrittle, 'prototype' )
-    expect( protoDescriptor.writable ).toBeTruthy()
-    expect( !protoDescriptor.enumerable ).toBeTruthy()
-    expect( !protoDescriptor.configurable ).toBeTruthy()
-
-    checkDescriptors( PeanutBrittle, true, true )
-    checkDescriptors( PeanutBrittle.prototype, true, true )
-
-    const thing = new PeanutBrittle
-    thing.test()
-})
-
-function checkDescriptors( obj, enumerable = false, configurable = true ) {
-    const useBlacklist = typeof obj === 'function'
-
-    const descriptors = Object.getOwnPropertyDescriptors( obj )
-    let descriptor
-
-    expect( Object.keys( descriptors ).length ).toBeTruthy()
-
-    for ( const key in descriptors ) {
-        if ( useBlacklist && staticBlacklist.includes( key ) ) continue
-
-        descriptor = descriptors[ key ]
-
-        if ( 'writable' in descriptor )
-            expect( descriptor.writable ).toBeTruthy()
-        else
-            expect( 'get' in descriptor ).toBeTruthy()
-
-        expect( descriptor.enumerable === enumerable ).toBeTruthy()
-        expect( descriptor.configurable === configurable ).toBeTruthy()
-    }
-}
-
-test("name classes natively (default is false)", () => {
-
-    // without native naming
-    {
         const Class = createClassHelper({
-            nativeNaming: false, // default
+            setClassDescriptors: false,
         })
 
-        // anonymous:
-        const Something = Class()
-        expect( Something.name === '' ).toBeTruthy()
+        const PeanutBrittle = Class(({Protected, Private}) => ({
+            constructor() {},
+            add() {},
+            get foo() {},
 
-        // named:
-        const OtherThing = Class('OtherThing')
-        expect( OtherThing.name === 'OtherThing' ).toBeTruthy()
+            protected: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        expect( ! OtherThing.toString().includes('OtherThing') ).toBeTruthy()
+            private: {
+                foo: 'foo',
+                add() {},
+                get foo() {},
+            },
 
-        // make sure works with non-simple classes (because different code path)
-        const AwesomeThing = Class({ method() {} })
-        expect( AwesomeThing.name ).toBe('')
-        const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
-        expect( AwesomeThing2.name ).toBe('AwesomeThing2')
-        expect( ! AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
+            static: {
+                foo: 'foo',
+                add() {},
+                set foo(v) {},
+            },
+
+            test() {
+                checkDescriptors( Protected(this).__proto__, true, true )
+                checkDescriptors( Private(this).__proto__, true, true )
+            },
+        }))
+
+        const protoDescriptor = Object.getOwnPropertyDescriptor( PeanutBrittle, 'prototype' )
+        expect( protoDescriptor.writable ).toBeTruthy()
+        expect( !protoDescriptor.enumerable ).toBeTruthy()
+        expect( !protoDescriptor.configurable ).toBeTruthy()
+
+        checkDescriptors( PeanutBrittle, true, true )
+        checkDescriptors( PeanutBrittle.prototype, true, true )
+
+        const thing = new PeanutBrittle
+        thing.test()
+    })
+
+    function checkDescriptors( obj, enumerable = false, configurable = true ) {
+        const useBlacklist = typeof obj === 'function'
+
+        const descriptors = Object.getOwnPropertyDescriptors( obj )
+        let descriptor
+
+        expect( Object.keys( descriptors ).length ).toBeTruthy()
+
+        for ( const key in descriptors ) {
+            if ( useBlacklist && staticBlacklist.includes( key ) ) continue
+
+            descriptor = descriptors[ key ]
+
+            if ( 'writable' in descriptor )
+                expect( descriptor.writable ).toBeTruthy()
+            else
+                expect( 'get' in descriptor ).toBeTruthy()
+
+            expect( descriptor.enumerable === enumerable ).toBeTruthy()
+            expect( descriptor.configurable === configurable ).toBeTruthy()
+        }
     }
 
-    // with native naming
-    {
-        // this config causes functions to be created using naming that is
-        // native to the engine, by doing something like this:
-        // new Function(` return function ${ className }() { ... } `)
-        const Class = createClassHelper({
-            nativeNaming: true,
-        })
+    test("name classes natively (default is false)", () => {
 
-        // anonymous:
-        const AnotherThing = Class()
-        expect( AnotherThing.name === '' ).toBeTruthy()
+        // without native naming
+        {
+            const Class = createClassHelper({
+                nativeNaming: false, // default
+            })
 
-        // named:
-        const YetAnotherThing = Class('YetAnotherThing')
-        expect( YetAnotherThing.name === 'YetAnotherThing' ).toBeTruthy()
+            // anonymous:
+            const Something = Class()
+            console.log(' ----------------- name', Something.name)
+            const Another = Class('ANOTHER')
+            console.log(' ----------------- name', Another.name)
+            debugger
+            expect( Something.name === '' ).toBeTruthy()
 
-        // here's the difference
-        expect( YetAnotherThing.toString().includes('YetAnotherThing') ).toBeTruthy()
+            // named:
+            const OtherThing = Class('OtherThing')
+            expect( OtherThing.name === 'OtherThing' ).toBeTruthy()
 
-        // make sure works with non-simple classes (because different code path)
-        const AwesomeThing = Class({ method() {} })
-        expect( AwesomeThing.name ).toBe('')
-        const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
-        expect( AwesomeThing2.name ).toBe('AwesomeThing2')
-        expect( AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
-    }
-})
+            expect( ! OtherThing.toString().includes('OtherThing') ).toBeTruthy()
+
+            // make sure works with non-simple classes (because different code path)
+            const AwesomeThing = Class({ method() {} })
+            expect( AwesomeThing.name ).toBe('')
+            const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
+            expect( AwesomeThing2.name ).toBe('AwesomeThing2')
+            expect( ! AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
+        }
+
+        // with native naming
+        {
+            // this config causes functions to be created using naming that is
+            // native to the engine, by doing something like this:
+            // new Function(` return function ${ className }() { ... } `)
+            const Class = createClassHelper({
+                nativeNaming: true,
+            })
+
+            // anonymous:
+            const AnotherThing = Class()
+            expect( AnotherThing.name === '' ).toBeTruthy()
+
+            // named:
+            const YetAnotherThing = Class('YetAnotherThing')
+            expect( YetAnotherThing.name === 'YetAnotherThing' ).toBeTruthy()
+
+            // here's the difference
+            expect( YetAnotherThing.toString().includes('YetAnotherThing') ).toBeTruthy()
+
+            // make sure works with non-simple classes (because different code path)
+            const AwesomeThing = Class({ method() {} })
+            expect( AwesomeThing.name ).toBe('')
+            const AwesomeThing2 = Class('AwesomeThing2', { method() {} })
+            expect( AwesomeThing2.name ).toBe('AwesomeThing2')
+            expect( AwesomeThing2.toString().includes('AwesomeThing2') ).toBeTruthy()
+        }
+    })
+} )

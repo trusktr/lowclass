@@ -4,33 +4,38 @@
 
 import { native } from './native'
 
-test('explain original behavior (conditions negated to pass)', () => {
+const test = it
 
-    class Foo {}
+describe( 'native helper (newless)', () => {
 
-    const _Foo = native(Foo)
-    expect( !( _Foo.prototype === Foo.prototype ) ).toBeTruthy()
-    expect( !( _Foo.prototype.constructor === Foo ) ).toBeTruthy()
+    test('explain original behavior (conditions negated to pass)', () => {
 
-    const f = new _Foo()
-    expect(f instanceof Foo).toBeTruthy()
-    expect(f instanceof _Foo).toBeTruthy()
-    expect( !( f.constructor !== _Foo ) ).toBeTruthy()
-    expect( !( f.constructor === Foo ) ).toBeTruthy()
-})
+        class Foo {}
 
-test('new behavior of our version of newless', () => {
+        const _Foo = native(Foo)
+        expect( !( _Foo.prototype === Foo.prototype ) ).toBeTruthy()
+        expect( !( _Foo.prototype.constructor === Foo ) ).toBeTruthy()
 
-    class Foo {}
+        const f = new _Foo()
+        expect(f instanceof Foo).toBeTruthy()
+        expect(f instanceof _Foo).toBeTruthy()
+        expect( !( f.constructor !== _Foo ) ).toBeTruthy()
+        expect( !( f.constructor === Foo ) ).toBeTruthy()
+    })
 
-    const _Foo = native(Foo)
-    expect(_Foo.prototype === _Foo.prototype).toBeTruthy()
-    expect(_Foo.prototype.constructor === _Foo).toBeTruthy()
+    test('new behavior of our version of newless', () => {
 
-    const f = new _Foo()
-    expect(f instanceof Foo).toBeTruthy()
-    expect(f instanceof _Foo).toBeTruthy()
-    expect(f.constructor === _Foo).toBeTruthy()
-    expect(f.constructor !== Foo).toBeTruthy()
-})
+        class Foo {}
 
+        const _Foo = native(Foo)
+        expect(_Foo.prototype === _Foo.prototype).toBeTruthy()
+        expect(_Foo.prototype.constructor === _Foo).toBeTruthy()
+
+        const f = new _Foo()
+        expect(f instanceof Foo).toBeTruthy()
+        expect(f instanceof _Foo).toBeTruthy()
+        expect(f.constructor === _Foo).toBeTruthy()
+        expect(f.constructor !== Foo).toBeTruthy()
+    })
+
+} )

@@ -2,7 +2,7 @@
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java.
 
-import Class from 'lowclass'
+import Class from '../src/index'
 
 let CounterProtected
 
