@@ -187,10 +187,6 @@ describe( 'configuration', () => {
 
             // anonymous:
             const Something = Class()
-            console.log(' ----------------- name', Something.name)
-            const Another = Class('ANOTHER')
-            console.log(' ----------------- name', Another.name)
-            debugger
             expect( Something.name === '' ).toBeTruthy()
 
             // named:
