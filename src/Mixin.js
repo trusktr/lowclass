@@ -107,7 +107,7 @@ function ApplyDefault( classFactory ) {
     return classFactory
 }
 
-// requires ApplyDefault
+// requires Cached
 function Dedupe( classFactory ) {
     const map = new WeakMap
 
