@@ -23,7 +23,7 @@
   },
   "homepage": "http://github.com/trusktr/lowclass#readme",
   "dependencies": {
-    "@babel/runtime": "^7.0.0-beta.46",
+    "@babel/runtime": "^7.0.0-beta.46"
   },
   "devDependencies": {
     "builder": "^3.2.3",
