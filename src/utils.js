@@ -106,7 +106,12 @@ function getInheritedDescriptor( obj, key ) {
 
     while ( currentProto ) {
         descriptor = Object.getOwnPropertyDescriptor( currentProto, key )
-        if ( descriptor ) return descriptor
+
+        if ( descriptor ) {
+            descriptor.owner = currentProto
+            return descriptor
+        }
+
         currentProto = currentProto.__proto__
     }
 }
