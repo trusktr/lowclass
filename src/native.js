@@ -203,17 +203,28 @@ function newless(constructor) {
         // Do our best to only capture errors triggred by class syntax.
         // Unfortunately, there's no special error type for this and the
         // message is non-standard, so this is the best check we can do.
-        if (!(error instanceof TypeError && (
+        if (error instanceof TypeError && (
           /class constructor/i.test(error.message) ||
           /use the 'new' operator/i.test(error.message) // Custom Elements in Chrome
           // TODO: there might be other error messages we need to catch,
-          // depending on engine and use case. Need to test in all browsers
-          // TODO See if this code is even reached with Custom Elements
-        ))) {
-          throw error;
+          // depending on engine and use case. We need to test in all browsers
+        )) {
+            // mark this constructor as requiring 'new' for next time
+            requiresNew = true;
         }
-        // mark this constructor as requiring 'new' for next time
-        requiresNew = true;
+        else {
+            if (
+                /Illegal constructor/i.test(error.message) &&
+                Object.create(constructor.prototype) instanceof Node
+            ) {
+                console.error(`
+                    The following error can happen if a Custom Element is called
+                    with 'new' before being defined. The constructor was ${constructor.name}:
+                `, constructor)
+            }
+
+            throw error;
+        }
       }
     }
     // make a reasonably good replacement for 'new.target' which is a
