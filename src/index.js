@@ -780,4 +780,4 @@ function setDefaultStaticDescriptors( Ctor,
     setDescriptors( Ctor, descriptors )
 }
 
-export const version = '4.2.1'
+export const version = '4.3.0'
