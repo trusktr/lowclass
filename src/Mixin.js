@@ -21,16 +21,16 @@ export {
 }
 
 function WithDefault( classFactory, Default ) {
-    return Base => {
+    return named(classFactory.name, Base => {
         Base = Base || Default
         return classFactory( Base )
-    }
+    })
 }
 
 function Cached( classFactory ) {
     const classCache = new WeakMap
 
-    return Base => {
+    return named(classFactory.name, Base => {
         let Class = classCache.get( Base )
 
         if ( !Class ) {
@@ -38,13 +38,13 @@ function Cached( classFactory ) {
         }
 
         return Class
-    }
+    })
 }
 
 function HasInstance( classFactory ) {
     let instanceofSymbol
 
-    return Base => {
+    return named(classFactory.name, Base => {
         const Class = classFactory( Base )
 
         if ( typeof Symbol === 'undefined' || !Symbol.hasInstance )
@@ -56,11 +56,13 @@ function HasInstance( classFactory ) {
         if ( !instanceofSymbol )
             instanceofSymbol = Symbol('instanceofSymbol')
 
+        // NOTE we could also use a WeakMap instead of placing a flag on the
+        // Class directly.
         Class[instanceofSymbol] = true
 
         Object.defineProperty(Class, Symbol.hasInstance, {
 
-            value: function(obj) {
+            value: function hasInstance(obj) {
 
                 // we do this check because a subclass of `Class` may not have
                 // it's own `[Symbol.hasInstance]()` method, therefore `this`
@@ -97,7 +99,7 @@ function HasInstance( classFactory ) {
         })
 
         return Class
-    }
+    })
 }
 
 // requires WithDefault or a classFactory that can accept no args
@@ -111,7 +113,7 @@ function ApplyDefault( classFactory ) {
 function Dedupe( classFactory ) {
     const map = new WeakMap
 
-    return Base => {
+    return named(classFactory.name, Base => {
 
         if ( hasMixin( Base, classFactory, map ) )
             return Base
@@ -119,7 +121,7 @@ function Dedupe( classFactory ) {
         const Class = classFactory( Base )
         map.set( Class, classFactory )
         return Class
-    }
+    })
 }
 
 function hasMixin( Class, mixin, map ) {
@@ -129,4 +131,17 @@ function hasMixin( Class, mixin, map ) {
     }
 
     return false
+}
+
+function named(name, func) {
+    try {
+        Object.defineProperty(func, 'name', {
+            ...Object.getOwnPropertyDescriptor(func, 'name'),
+            value: name
+        })
+    } catch(e) {
+        // do nohing in case the property is non-configurable.
+    }
+    
+    return func
 }
