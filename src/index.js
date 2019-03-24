@@ -542,11 +542,11 @@ function createClassHelper( options ) {
 function getPublicMembers( scope, instance ) {
 
     // check only for the private instance of this class scope
-    if ( hasPrototype( instance, scope.privatePrototype ) )
+    if ( isPrivateInstance( scope, instance ) )
         return getSubclassScope( instance ).publicToPrivate.get( instance )
 
     // check for an instance of the class (or its subclasses) of this scope
-    else if ( hasPrototype( instance, scope.protectedPrototype ) )
+    else if ( isProtectedInstance( scope, instance ) )
         return publicToProtected.get( instance )
 
     // otherwise just return whatever was passed in, it's public already!
@@ -558,17 +558,17 @@ function getProtectedMembers( scope, instance ) {
     // check for an instance of the class (or its subclasses) of this scope
     // This allows for example an instance of an Animal base class to access
     // protected members of an instance of a Dog child class.
-    if ( hasPrototype( instance, scope.publicPrototype ) )
+    if ( isPublicInstance( scope, instance ) )
         return publicToProtected.get( instance ) || createProtectedInstance( instance )
 
     // check for a private instance inheriting from this class scope
-    else if ( hasPrototype( instance, scope.privatePrototype ) ) {
+    else if ( isPrivateInstance( scope, instance ) ) {
         const publicInstance = getSubclassScope( instance ).publicToPrivate.get( instance )
         return publicToProtected.get( publicInstance ) || createProtectedInstance( publicInstance )
     }
 
     // return the protected instance if it was passed in
-    else if ( hasPrototype( instance, scope.protectedPrototype ) )
+    else if ( isProtectedInstance( scope, instance ) )
         return instance
 
     throw new InvalidAccessError('invalid access of protected member')
@@ -605,18 +605,18 @@ function findLeafmostProtectedPrototype( publicInstance ) {
 function getPrivateMembers( scope, instance ) {
 
     // check for a public instance that is or inherits from this class
-    if ( hasPrototype( instance, scope.publicPrototype ) )
+    if ( isPublicInstance( scope, instance ) )
         return scope.publicToPrivate.get( instance ) || createPrivateInstance( scope, instance )
 
     // check for a protected instance that is or inherits from this class'
     // protectedPrototype
-    else if ( hasPrototype( instance, scope.protectedPrototype ) ) {
+    else if ( isProtectedInstance( scope, instance ) ) {
         const publicInstance = publicToProtected.get( instance )
         return scope.publicToPrivate.get( publicInstance ) || createPrivateInstance( scope, publicInstance )
     }
 
     // return the private instance if it was passed in
-    else if ( hasPrototype( instance, scope.privatePrototype ) )
+    else if ( isPrivateInstance( scope, instance ) )
         return instance
 
     throw new InvalidAccessError('invalid access of private member')
@@ -627,6 +627,18 @@ function createPrivateInstance( scope, publicInstance ) {
     scope.publicToPrivate.set( publicInstance, privateInstance )
     privateInstanceToClassScope.set( privateInstance, scope )
     return privateInstance
+}
+
+function isPublicInstance( scope, instance ) {
+    return hasPrototype(instance, scope.publicPrototype)
+}
+
+function isProtectedInstance( scope, instance ) {
+    return hasPrototype(instance, scope.protectedPrototype)
+}
+
+function isPrivateInstance( scope, instance ) {
+    return hasPrototype(instance, scope.privatePrototype)
 }
 
 // check if an object has the given prototype in its chain
