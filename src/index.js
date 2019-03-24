@@ -124,10 +124,10 @@ function createClassHelper( options ) {
      */
     return function Class( ...args ) {
 
-        let makingSubclass = false
+        let usingStaticSubclassMethod = false
 
         // if called as SomeConstructor.subclass, or bound to SomeConstructor
-        if ( typeof this === 'function' ) makingSubclass = true
+        if ( typeof this === 'function' ) usingStaticSubclassMethod = true
 
         // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or
         // `class Foo {}`
@@ -152,7 +152,7 @@ function createClassHelper( options ) {
 
             // Make a class in case we wanted to do just `Class()` or
             // `Class('Foo')`...
-            const Ctor = makingSubclass ?
+            const Ctor = usingStaticSubclassMethod ?
                 createClass.call( this, name, definer ) :
                 createClass( name, definer )
 
