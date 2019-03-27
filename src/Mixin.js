@@ -76,7 +76,7 @@ function HasInstance( classFactory ) {
                 // perform the standard check.
                 if (this !== Class)
                     // This is effectively a `super` call.
-                    return Object.getPrototypeOf(Class)[Symbol.hasInstance].call(this, obj)
+                    return Class.__proto__[Symbol.hasInstance].call(this, obj)
 
                 let currentProto = obj
 
@@ -89,7 +89,7 @@ function HasInstance( classFactory ) {
                         descriptor.value.hasOwnProperty(instanceofSymbol)
                     ) return true
 
-                    currentProto = Object.getPrototypeOf(currentProto)
+                    currentProto = currentProto.__proto__
                 }
 
                 return false
