@@ -1,35 +1,27 @@
-# common dev and OS files
-.DS_Store
-node_modules/
-dist/
-npm-debug.log
-yarn-error.log
-
-# Editor directories and files
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-# ignore everything
+### ignore everything
 /*
 
-# but not source code or tests
+# including hidden files, those have to be manually added to the repo.
+/**/.*
+
+### except for the following top-level whitelist:
+
+# folders
 !/src
 !/tests
+!/meteor-package
 
-# not global build, to be published
+# global build, to be published
 !/global.js
+!/global.js.map
 
-# not config files
+# config files
 !/.builderrc
-!/.npmrc
+!/.editorconfig
+!/.gitignore
 !/.npmignore
-!/babel.config.js
-!/buble.config.js
-!/jest.config.js
-!/webpack.config.js
+!/.npmrc
+!/package.json
 
 # the basics!
 !/README.md
