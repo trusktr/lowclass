@@ -8,7 +8,9 @@
     "build": "builder run build:prod",
     "dev": "builder run build:dev",
     "test": "builder run npm:test",
-    "preversion": "builder run npm:preversion",
+    "release:patch": "builder run release:patch",
+    "release:minor": "builder run release:minor",
+    "release:major": "builder run release:major",
     "version": "builder run npm:version",
     "postversion": "builder run npm:postversion"
   },
