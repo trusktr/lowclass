@@ -32,6 +32,11 @@ const publicToProtected = new WeakTwoWayMap
 // so we can get the class scope associated with a private instance
 const privateInstanceToClassScope = new WeakMap
 
+const brandToPublicPrototypes = new WeakMap
+const brandToProtectedPrototypes = new WeakMap
+const brandToPrivatePrototypes = new WeakMap
+const brandToPublicsPrivates = new WeakMap
+
 const defaultOptions = {
 
     // es5 class inheritance is simple, nice, easy, and robust
@@ -129,12 +134,15 @@ function createClassHelper( options ) {
         // if called as SomeConstructor.subclass, or bound to SomeConstructor
         if ( typeof this === 'function' ) usingStaticSubclassMethod = true
 
-        // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or
-        // `class Foo {}`
-        if ( args.length <= 2 ) {
+        // f.e. `Class()`, `Class('Foo')`, `Class('Foo', {...})` , `Class('Foo',
+        // {...}, Brand)`, similar to `class {}`, `class Foo {}`, class Foo
+        // {...}, and class Foo {...} with branding (see comments on classBrand
+        // below regarding positional privacy)
+        if ( args.length <= 3 ) {
 
             let name = ''
             let definer = null
+            let classBrand = null
 
             // f.e. `Class('Foo')`
             if ( typeof args[0] === 'string' ) name = args[0]
@@ -144,25 +152,29 @@ function createClassHelper( options ) {
                 typeof args[0] === 'function' || typeof args[0] === 'object'
             ) {
                 definer = args[0]
+                classBrand = args[1]
             }
 
             // f.e. `Class('Foo', (pub, prot, priv) => ({ ... }))`
-            if ( typeof args[1] === 'function' || typeof args[1] === 'object' )
+            if ( typeof args[1] === 'function' || typeof args[1] === 'object' ) {
                 definer = args[1]
+                classBrand = args[2]
+            }
 
             // Make a class in case we wanted to do just `Class()` or
             // `Class('Foo')`...
             const Ctor = usingStaticSubclassMethod ?
-                createClass.call( this, name, definer ) :
-                createClass( name, definer )
+                createClass.call( this, name, definer, classBrand ) :
+                createClass( name, definer, classBrand )
 
             // ...but add the extends helper in case we wanted to do like:
             // Class().extends(OtherClass, (Public, Protected, Private) => ({
             //   ...
             // }))
-            Ctor.extends = function( ParentClass, def ) {
+            Ctor.extends = function( ParentClass, def, brand ) {
                 def = def || definer
-                return createClass.call( ParentClass, name, def )
+                brand = brand || classBrand
+                return createClass.call( ParentClass, name, def, brand )
             }
 
             return Ctor
@@ -181,7 +193,7 @@ function createClassHelper( options ) {
      * returned from the function. If definer is an object, the object should
      * be in the same format as the one returned if definer were a function.
      */
-    function createClass( className, definer ) {
+    function createClass( className, definer, classBrand ) {
         "use strict"
 
         // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
@@ -243,11 +255,31 @@ function createClassHelper( options ) {
         // way, each instance has as many private instances as the number of
         // classes that the given instance has in its inheritance chain, one
         // private instance per class)
-        const publicToPrivate = new WeakTwoWayMap
+        const scopedPublicsToPrivates = classBrand ? void undefined : new WeakTwoWayMap
+        
+        if (classBrand) {
+            if (!brandToPublicsPrivates.get(classBrand))
+                brandToPublicsPrivates.set(classBrand, new WeakTwoWayMap)
+        }
+        
+        // if no brand provided, then we use the most fine-grained lexical
+        // privacy. Lexical privacy is described at
+        // https://github.com/tc39/proposal-class-fields/issues/60
+        //
+        // TODO make prototypes non-configurable so that the clasds-brand system
+        // can't be tricked. For now, it's good enough, most people aren't going
+        // to go out of their way to mangle with the prototypes in order to
+        // force invalid private access.
+        classBrand = classBrand || { brand: 'lexical' }
 
         // the class "scope" that we will bind to the helper functions
         const scope = {
-            publicToPrivate,
+            get publicToPrivate() {
+                return scopedPublicsToPrivates
+                    ? scopedPublicsToPrivates
+                    : brandToPublicsPrivates.get(classBrand)
+            },
+            classBrand,
         }
 
         // create the super helper for this class scope
@@ -355,6 +387,14 @@ function createClassHelper( options ) {
             privatePrototype.__proto__ = parentPrivatePrototype
         publicProtoToPrivateProto.set( publicPrototype, privatePrototype )
 
+        if (!brandToPublicPrototypes.get(classBrand)) brandToPublicPrototypes.set(classBrand, new Set) 
+        if (!brandToProtectedPrototypes.get(classBrand)) brandToProtectedPrototypes.set(classBrand, new Set) 
+        if (!brandToPrivatePrototypes.get(classBrand)) brandToPrivatePrototypes.set(classBrand, new Set) 
+            
+        brandToPublicPrototypes.get(classBrand).add(publicPrototype)
+        brandToProtectedPrototypes.get(classBrand).add(protectedPrototype)
+        brandToPrivatePrototypes.get(classBrand).add(privatePrototype)
+        
         scope.publicPrototype = publicPrototype
         scope.privatePrototype = privatePrototype
         scope.protectedPrototype = protectedPrototype
@@ -625,20 +665,41 @@ function getPrivateMembers( scope, instance ) {
 function createPrivateInstance( scope, publicInstance ) {
     const privateInstance = Object.create( scope.privatePrototype )
     scope.publicToPrivate.set( publicInstance, privateInstance )
-    privateInstanceToClassScope.set( privateInstance, scope )
+    privateInstanceToClassScope.set( privateInstance, scope ) // TODO use WeakTwoWayMap
     return privateInstance
 }
 
-function isPublicInstance( scope, instance ) {
-    return hasPrototype(instance, scope.publicPrototype)
+function isPublicInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.publicPrototype)
+    
+    for (const proto of Array.from(brandToPublicPrototypes.get(scope.classBrand))) {
+        if (hasPrototype(instance, proto)) return true
+    }
+    
+    return false
 }
 
-function isProtectedInstance( scope, instance ) {
-    return hasPrototype(instance, scope.protectedPrototype)
+function isProtectedInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.protectedPrototype)
+    
+    for (const proto of Array.from(brandToProtectedPrototypes.get(scope.classBrand))) {
+        if (hasPrototype(instance, proto)) return true
+    }
+    
+    return false
 }
 
-function isPrivateInstance( scope, instance ) {
-    return hasPrototype(instance, scope.privatePrototype)
+function isPrivateInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.privatePrototype)
+    
+    for (const proto of Array.from(brandToPrivatePrototypes.get(scope.classBrand))) {
+        if (hasPrototype(instance, proto)) return true
+    }
+    
+    return false
 }
 
 // check if an object has the given prototype in its chain
@@ -667,21 +728,18 @@ function copyDescriptors(source, destination, mod) {
 
 function superHelper( supers, scope, instance ) {
     const {
-        publicPrototype,
-        protectedPrototype,
-        privatePrototype,
         parentPublicPrototype,
         parentProtectedPrototype,
         parentPrivatePrototype
     } = scope
 
-    if ( hasPrototype( instance, publicPrototype ) )
+    if ( isPublicInstance( scope, instance, false ) )
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
 
-    if ( hasPrototype( instance, protectedPrototype ) )
+    if ( isProtectedInstance( scope, instance, false ) )
         return getSuperHelperObject(instance, parentProtectedPrototype, supers)
 
-    if ( hasPrototype( instance, privatePrototype ) )
+    if ( isPrivateInstance( scope, instance, false ) )
         return getSuperHelperObject( instance, parentPrivatePrototype, supers )
 
     throw new InvalidSuperAccessError('invalid super access')
