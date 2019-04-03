@@ -1,6 +1,6 @@
 
 // show how to do something similar to "friend" in C++ or "package protected"
-// in Java.
+// in Java, using intentionally leaked access helpers
 
 import Class from '../src/index'
 
