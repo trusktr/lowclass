@@ -133,9 +133,11 @@ function createClassHelper( options ) {
         // if called as SomeConstructor.subclass, or bound to SomeConstructor
         if ( typeof this === 'function' ) usingStaticSubclassMethod = true
 
-        // f.e. `Class()` or `Class('Foo')`, similar to `class {}` or
-        // `class Foo {}`
-        if ( args.length <= 2 ) {
+        // f.e. `Class()`, `Class('Foo')`, `Class('Foo', {...})` , `Class('Foo',
+        // {...}, Brand)`, similar to `class {}`, `class Foo {}`, class Foo
+        // {...}, and class Foo {...} with branding (see comments on classBrand
+        // below regarding positional privacy)
+        if ( args.length <= 3 ) {
 
             let name = ''
             let definer = null
