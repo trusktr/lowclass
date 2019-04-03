@@ -35,6 +35,7 @@ const privateInstanceToClassScope = new WeakMap
 const brandToPublicPrototypes = new WeakMap
 const brandToProtectedPrototypes = new WeakMap
 const brandToPrivatePrototypes = new WeakMap
+const brandToPublicsPrivates = new WeakMap
 
 const defaultOptions = {
 
@@ -254,7 +255,12 @@ function createClassHelper( options ) {
         // way, each instance has as many private instances as the number of
         // classes that the given instance has in its inheritance chain, one
         // private instance per class)
-        const publicToPrivate = new WeakTwoWayMap
+        const scopedPublicsToPrivates = classBrand ? void undefined : new WeakTwoWayMap
+        
+        if (classBrand) {
+            if (!brandToPublicsPrivates.get(classBrand))
+                brandToPublicsPrivates.set(classBrand, new WeakTwoWayMap)
+        }
         
         // if no brand provided, then we use the most fine-grained lexical
         // privacy. Lexical privacy is described at
@@ -268,7 +274,11 @@ function createClassHelper( options ) {
 
         // the class "scope" that we will bind to the helper functions
         const scope = {
-            publicToPrivate,
+            get publicToPrivate() {
+                return scopedPublicsToPrivates
+                    ? scopedPublicsToPrivates
+                    : brandToPublicsPrivates.get(classBrand)
+            },
             classBrand,
         }
 
@@ -655,12 +665,13 @@ function getPrivateMembers( scope, instance ) {
 function createPrivateInstance( scope, publicInstance ) {
     const privateInstance = Object.create( scope.privatePrototype )
     scope.publicToPrivate.set( publicInstance, privateInstance )
-    privateInstanceToClassScope.set( privateInstance, scope )
+    privateInstanceToClassScope.set( privateInstance, scope ) // TODO use WeakTwoWayMap
     return privateInstance
 }
 
-function isPublicInstance( scope, instance ) {
-    // debugger
+function isPublicInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.publicPrototype)
     
     for (const proto of Array.from(brandToPublicPrototypes.get(scope.classBrand))) {
         if (hasPrototype(instance, proto)) return true
@@ -669,8 +680,9 @@ function isPublicInstance( scope, instance ) {
     return false
 }
 
-function isProtectedInstance( scope, instance ) {
-    // debugger
+function isProtectedInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.protectedPrototype)
     
     for (const proto of Array.from(brandToProtectedPrototypes.get(scope.classBrand))) {
         if (hasPrototype(instance, proto)) return true
@@ -679,8 +691,9 @@ function isProtectedInstance( scope, instance ) {
     return false
 }
 
-function isPrivateInstance( scope, instance ) {
-    // debugger
+function isPrivateInstance( scope, instance, brandedCheck = true ) {
+    if (!brandedCheck)
+        return hasPrototype(instance, scope.privatePrototype)
     
     for (const proto of Array.from(brandToPrivatePrototypes.get(scope.classBrand))) {
         if (hasPrototype(instance, proto)) return true
@@ -715,21 +728,18 @@ function copyDescriptors(source, destination, mod) {
 
 function superHelper( supers, scope, instance ) {
     const {
-        publicPrototype,
-        protectedPrototype,
-        privatePrototype,
         parentPublicPrototype,
         parentProtectedPrototype,
         parentPrivatePrototype
     } = scope
 
-    if ( hasPrototype( instance, publicPrototype ) )
+    if ( isPublicInstance( scope, instance, false ) )
         return getSuperHelperObject( instance, parentPublicPrototype, supers )
 
-    if ( hasPrototype( instance, protectedPrototype ) )
+    if ( isProtectedInstance( scope, instance, false ) )
         return getSuperHelperObject(instance, parentProtectedPrototype, supers)
 
-    if ( hasPrototype( instance, privatePrototype ) )
+    if ( isPrivateInstance( scope, instance, false ) )
         return getSuperHelperObject( instance, parentPrivatePrototype, supers )
 
     throw new InvalidSuperAccessError('invalid super access')
