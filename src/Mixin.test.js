@@ -1,4 +1,5 @@
 import Mixin, { HasInstance } from './Mixin'
+import instanceOf from './instanceOf'
 
 describe('Mixin', () => {
 
@@ -37,11 +38,10 @@ describe('Mixin', () => {
         expect( baz instanceof Baz ).toBe( true )
         expect( baz instanceof Lorem ).toBe( true )
 
-        // TODO move these expectations to Infamous.
-        // expect( isInstanceof( baz, Foo ) ).toBe( true )
-        // expect( isInstanceof( baz, Bar ) ).toBe( true )
-        // expect( isInstanceof( baz, Baz ) ).toBe( true )
-        // expect( isInstanceof( baz, Lorem ) ).toBe( true )
+        expect( instanceOf( baz, Foo ) ).toBe( true )
+        expect( instanceOf( baz, Bar ) ).toBe( true )
+        expect( instanceOf( baz, Baz ) ).toBe( true )
+        expect( instanceOf( baz, Lorem ) ).toBe( true )
     })
 
     it('HasInstance delegates to super Symbol.hasInstance method, so regular instanceof works', () => {
