@@ -1,5 +1,6 @@
 export {default as Mixin} from './Mixin'
 export {default as instanceOf} from './instanceOf'
+export * from './native'
 export * from './Class'
 export default from './Class'
 export const version = '4.5.1'
