@@ -359,8 +359,7 @@ function createClassHelper( options ) {
             publicPrototype.__proto__ = parentPublicPrototype
 
         // extend the parent protected prototype
-        const parentProtectedPrototype =
-            publicProtoToProtectedProto.get( parentPublicPrototype ) || {}
+        const parentProtectedPrototype = getParentProtectedPrototype( parentPublicPrototype )
         const protectedPrototype = definition && definition.protected
             || Object.create( parentProtectedPrototype )
         if ( protectedPrototype.__proto__ !== parentProtectedPrototype )
@@ -369,8 +368,7 @@ function createClassHelper( options ) {
 
         // private prototype inherits from parent, but each private instance is
         // private only for the class of this scope
-        const parentPrivatePrototype =
-            publicProtoToPrivateProto.get( parentPublicPrototype ) || {}
+        const parentPrivatePrototype = getParentPrivatePrototype( parentPublicPrototype )
         const privatePrototype = definition && definition.private
             || Object.create( parentPrivatePrototype )
         if ( privatePrototype.__proto__ !== parentPrivatePrototype )
@@ -568,6 +566,42 @@ function createClassHelper( options ) {
 // XXX PERFORMANCE: We can also cache the access-helper results, which requires more memory,
 // but will make use of access helpers much faster, especially important for
 // animations.
+
+function getParentProtectedPrototype(parentPublicPrototype) {
+    // look up the prototype chain until we find a parent protected prototype, if any.
+
+    let parentProtectedProto
+    let currentPublicProto = parentPublicPrototype
+
+    while (currentPublicProto && !parentProtectedProto) {
+        parentProtectedProto = publicProtoToProtectedProto.get( currentPublicProto )
+        currentPublicProto = currentPublicProto.__proto__
+    }
+
+    // TODO, now that we're finding the nearest parent protected proto,
+    // we might not need to create an empty object for each class if we
+    // don't find one, to avoid prototype lookup depth, as we'll connect
+    // to the nearest one we find, if any.
+    return parentProtectedProto || {}
+}
+
+function getParentPrivatePrototype(parentPublicPrototype) {
+    // look up the prototype chain until we find a parent protected prototype, if any.
+
+    let parentPrivateProto
+    let currentPublicProto = parentPublicPrototype
+
+    while (currentPublicProto && !parentPrivateProto) {
+        parentPrivateProto = publicProtoToPrivateProto.get( currentPublicProto )
+        currentPublicProto = currentPublicProto.__proto__
+    }
+
+    // TODO, now that we're finding the nearest parent protected proto,
+    // we might not need to create an empty object for each class if we
+    // don't find one, to avoid prototype lookup depth, as we'll connect
+    // to the nearest one we find, if any.
+    return parentPrivateProto || {}
+}
 
 function getPublicMembers( scope, instance ) {
 
