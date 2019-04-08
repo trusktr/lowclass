@@ -459,6 +459,8 @@ function createClassHelper( options ) {
                     return ret
                 }
 
+                return this
+
             } )()
 
             newPrototype = publicPrototype
