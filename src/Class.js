@@ -453,7 +453,7 @@ function createClassHelper( options ) {
                 if ( constructor !== Object )
                     ret = constructor.apply( this, arguments )
 
-                if ( ret && typeof ret === 'object' ) {
+                if ( ret && (typeof ret === 'object' || typeof ret === 'function') ) {
                     // XXX should we set ret.__proto__ = constructor.prototype
                     // here? Or let the user deal with that?
                     return ret
