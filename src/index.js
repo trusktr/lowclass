@@ -9,4 +9,4 @@ export {default as Mixin} from './Mixin'
 export {default as instanceOf} from './instanceOf'
 export * from './native'
 
-export const version = '4.5.2'
+export const version = '4.6.0'
