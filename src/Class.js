@@ -270,6 +270,12 @@ function createClassHelper( options ) {
                     : brandToPublicsPrivates.get(classBrand)
             },
             classBrand,
+
+            // we use these to memoize the Public/Protected/Private access
+            // helper results, to make subsequent accessses faster.
+            cachedPublicAccesses: new WeakMap,
+            cachedProtectedAccesses: new WeakMap,
+            cachedPrivateAccesses: new WeakMap,
         }
 
         // create the super helper for this class scope
@@ -606,38 +612,48 @@ function getParentPrivatePrototype(parentPublicPrototype) {
 }
 
 function getPublicMembers( scope, instance ) {
+    let result = scope.cachedPublicAccesses.get(instance)
+
+    if (result) return result
 
     // check only for the private instance of this class scope
     if ( isPrivateInstance( scope, instance ) )
-        return getSubclassScope( instance ).publicToPrivate.get( instance )
+        scope.cachedPublicAccesses.set(instance, result = getSubclassScope( instance ).publicToPrivate.get( instance ))
 
     // check for an instance of the class (or its subclasses) of this scope
     else if ( isProtectedInstance( scope, instance ) )
-        return publicToProtected.get( instance )
+        scope.cachedPublicAccesses.set(instance, result = publicToProtected.get( instance ))
 
     // otherwise just return whatever was passed in, it's public already!
-    else return instance
+    else scope.cachedPublicAccesses.set(instance, result = instance)
+
+    return result
 }
 
 function getProtectedMembers( scope, instance ) {
+    let result = scope.cachedProtectedAccesses.get(instance)
+
+    if (result) return result
 
     // check for an instance of the class (or its subclasses) of this scope
     // This allows for example an instance of an Animal base class to access
     // protected members of an instance of a Dog child class.
     if ( isPublicInstance( scope, instance ) )
-        return publicToProtected.get( instance ) || createProtectedInstance( instance )
+        scope.cachedProtectedAccesses.set(instance, result = publicToProtected.get( instance ) || createProtectedInstance( instance ))
 
     // check for a private instance inheriting from this class scope
     else if ( isPrivateInstance( scope, instance ) ) {
         const publicInstance = getSubclassScope( instance ).publicToPrivate.get( instance )
-        return publicToProtected.get( publicInstance ) || createProtectedInstance( publicInstance )
+        scope.cachedProtectedAccesses.set(instance, result = publicToProtected.get( publicInstance ) || createProtectedInstance( publicInstance ))
     }
 
     // return the protected instance if it was passed in
     else if ( isProtectedInstance( scope, instance ) )
-        return instance
+        scope.cachedProtectedAccesses.set(instance, result = instance)
 
-    throw new InvalidAccessError('invalid access of protected member')
+    if (!result) throw new InvalidAccessError('invalid access of protected member')
+
+    return result
 }
 
 function getSubclassScope( privateInstance ) {
@@ -669,23 +685,28 @@ function findLeafmostProtectedPrototype( publicInstance ) {
 }
 
 function getPrivateMembers( scope, instance ) {
+    let result = scope.cachedPrivateAccesses.get(instance)
+
+    if (result) return result
 
     // check for a public instance that is or inherits from this class
     if ( isPublicInstance( scope, instance ) )
-        return scope.publicToPrivate.get( instance ) || createPrivateInstance( scope, instance )
+        scope.cachedPrivateAccesses.set(instance, result = scope.publicToPrivate.get( instance ) || createPrivateInstance( scope, instance ))
 
     // check for a protected instance that is or inherits from this class'
     // protectedPrototype
     else if ( isProtectedInstance( scope, instance ) ) {
         const publicInstance = publicToProtected.get( instance )
-        return scope.publicToPrivate.get( publicInstance ) || createPrivateInstance( scope, publicInstance )
+        scope.cachedPrivateAccesses.set(instance, result = scope.publicToPrivate.get( publicInstance ) || createPrivateInstance( scope, publicInstance ))
     }
 
     // return the private instance if it was passed in
     else if ( isPrivateInstance( scope, instance ) )
-        return instance
+        scope.cachedPrivateAccesses.set(instance, result = instance)
 
-    throw new InvalidAccessError('invalid access of private member')
+    if (!result) throw new InvalidAccessError('invalid access of private member')
+
+    return result
 }
 
 function createPrivateInstance( scope, publicInstance ) {
