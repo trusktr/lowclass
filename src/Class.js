@@ -271,11 +271,12 @@ function createClassHelper( options ) {
             },
             classBrand,
 
-            // we use these to memoize the Public/Protected/Private access
+            // we use these to memoize the Super/Public/Protected/Private access
             // helper results, to make subsequent accessses faster.
             cachedPublicAccesses: new WeakMap,
             cachedProtectedAccesses: new WeakMap,
             cachedPrivateAccesses: new WeakMap,
+            cachedSuperAccesses: new WeakMap,
         }
 
         // create the super helper for this class scope
@@ -777,19 +778,26 @@ function superHelper( supers, scope, instance ) {
     const {
         parentPublicPrototype,
         parentProtectedPrototype,
-        parentPrivatePrototype
+        parentPrivatePrototype,
+        cachedSuperAccesses,
     } = scope
 
+    const result = cachedSuperAccesses.get(instance)
+
+    if (result) return result
+
     if ( isPublicInstance( scope, instance, false ) )
-        return getSuperHelperObject( instance, parentPublicPrototype, supers )
+        cachedSuperAccesses.set(instance, result = getSuperHelperObject( instance, parentPublicPrototype, supers ))
 
-    if ( isProtectedInstance( scope, instance, false ) )
-        return getSuperHelperObject(instance, parentProtectedPrototype, supers)
+    else if ( isProtectedInstance( scope, instance, false ) )
+        cachedSuperAccesses.set(instance, result = getSuperHelperObject(instance, parentProtectedPrototype, supers))
 
-    if ( isPrivateInstance( scope, instance, false ) )
-        return getSuperHelperObject( instance, parentPrivatePrototype, supers )
+    else if ( isPrivateInstance( scope, instance, false ) )
+        cachedSuperAccesses.set(instance, result = getSuperHelperObject( instance, parentPrivatePrototype, supers ))
 
-    throw new InvalidSuperAccessError('invalid super access')
+    if (!result) throw new InvalidSuperAccessError('invalid super access')
+
+    return result
 }
 
 function getSuperHelperObject( instance, parentPrototype, supers ) {
