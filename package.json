@@ -9,6 +9,8 @@
     "build": "builder run build:prod",
     "dev": "builder run build:dev",
     "test": "builder run npm:test",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch",
     "release:patch": "builder run release:patch",
     "release:minor": "builder run release:minor",
     "release:major": "builder run release:major",
@@ -30,7 +32,8 @@
   },
   "devDependencies": {
     "builder": "^3.2.3",
-    "builder-js-package": "trusktr/builder-js-package#25d9f97376befffaaa8ba5304cc1d5244a68edc9"
+    "builder-js-package": "trusktr/builder-js-package#25d9f97376befffaaa8ba5304cc1d5244a68edc9",
+    "typescript": "^3.5.2"
   },
   "keywords": [
     "classes",

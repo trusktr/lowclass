@@ -9,5 +9,6 @@ export * from './Mixin'
 // extras
 export { default as instanceOf } from './instanceOf'
 export * from './native'
+export * from './utils'
 
 export const version = '4.6.2'

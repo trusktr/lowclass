@@ -1,3 +1,5 @@
+import { Id } from './types'
+
 type ImplementationKeys = 'static' | 'private' | 'protected'
 
 type FunctionToConstructor<T, TReturn> = T extends (...a: infer A) => void
