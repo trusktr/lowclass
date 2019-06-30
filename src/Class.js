@@ -264,11 +264,14 @@ function createClassHelper( options ) {
 
         // the class "scope" that we will bind to the helper functions
         const scope = {
+            className, // convenient for debugging
+
             get publicToPrivate() {
                 return scopedPublicsToPrivates
                     ? scopedPublicsToPrivates
                     : brandToPublicsPrivates.get(classBrand)
             },
+
             classBrand,
 
             // we use these to memoize the Public/Protected/Private access
@@ -475,7 +478,7 @@ function createClassHelper( options ) {
 
         else {
             throw new TypeError(`
-                The lowclass mode option can only be 'es5' for now.
+                The lowclass "mode" option can only be 'es5' for now.
             `)
         }
 
@@ -538,6 +541,8 @@ function createClassHelper( options ) {
             setDefaultPrototypeDescriptors( protectedPrototype, options )
             setDefaultPrototypeDescriptors( privatePrototype, options )
         }
+
+        scope.constructor = NewClass // convenient for debugging
 
         return NewClass
     }
