@@ -14,6 +14,7 @@ function Mixin( factory, Default ) {
 }
 
 export {
+    Mixin,
     WithDefault,
     Cached,
     HasInstance,
