@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "builder": "^3.2.3",
-    "builder-js-package": "trusktr/builder-js-package#25d9f97376befffaaa8ba5304cc1d5244a68edc9",
+    "builder-js-package": "trusktr/builder-js-package#f969d638b14d0dcd6fe5a506daebf96dbcea08b3",
     "typescript": "^3.5.2"
   },
   "keywords": [
