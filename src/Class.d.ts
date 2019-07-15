@@ -1,4 +1,5 @@
 import { Id } from './types'
+import { Constructor } from './utils';
 
 type ImplementationKeys = 'static' | 'private' | 'protected'
 

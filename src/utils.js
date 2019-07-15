@@ -130,3 +130,8 @@ function getInheritedPropertyNames( obj ) {
 
     return keys
 }
+
+// this is used for type casting in special cases, see the declaration file
+export function Constructor(Ctor) {
+    return Ctor
+}

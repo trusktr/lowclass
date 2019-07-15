@@ -1,5 +1,3 @@
-export type Constructor<T = object, A extends any[] = any[]> = new (...a: A) => T
-
 // `Id` is an identity type, but it is also used as a trick to expand the
 // type given to it so that tooltips show the basic type rather then all the
 // conditional/aliases used.
