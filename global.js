@@ -1,2 +1,1433 @@
-var lowclass=function(t){var e={};function r(n){if(e[n])return e[n].exports;var o=e[n]={i:n,l:!1,exports:{}};return t[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=t,r.c=e,r.d=function(t,e,n){r.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n})},r.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},r.t=function(t,e){if(1&e&&(t=r(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var o in t)r.d(n,o,function(e){return t[e]}.bind(null,o));return n},r.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return r.d(e,"a",e),e},r.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},r.p="",r(r.s=162)}([function(t,e){var r=t.exports={version:"2.6.5"};"number"==typeof __e&&(__e=r)},function(t,e,r){"use strict";r.d(e,"b",function(){return x}),r.d(e,"f",function(){return T}),r.d(e,"g",function(){return S}),r.d(e,"e",function(){return C}),r.d(e,"c",function(){return A}),r.d(e,"d",function(){return L}),r.d(e,"a",function(){return j});var n=r(26),o=r.n(n),i=r(25),u=r.n(i),c=r(17),s=r.n(c),a=r(20),f=r.n(a),_=r(91),p=r.n(_),l=r(33),v=r.n(l),y=r(10),b=r.n(y),h=r(8),d=r.n(h),g=r(2),w=r.n(g),O=r(34),m=r.n(O),P=r(92),E=r.n(P),j=function(){function t(){m()(this,t),this.m=new w.a}return E()(t,[{key:"set",value:function(t,e){this.m.set(t,e),this.m.set(e,t)}},{key:"get",value:function(t){return this.m.get(t)}},{key:"has",value:function(t){return this.m.has(t)}}]),t}();function x(t){var e=t.toString().split("\n");return e.shift(),e.pop(),e.join("\n")}var M={enumerable:!0,configurable:!0};function T(t,e,r,n){void 0===n&&(n=!1),r=D(n?A(t,e):d()(t,e),r),b()(t,e,r)}function S(t,e){var r,n,o=v()(t);for(var i in e)r=e[i],n=o[i],e[i]=D(n,r);p()(t,e)}function D(t,e){if(("get"in e||"set"in e)&&("value"in e||"writable"in e))throw new TypeError("cannot specify both accessors and a value or writable attribute");return t&&("get"in e||"set"in e?(delete t.value,delete t.writable):("value"in e||"writable"in e)&&(delete t.get,delete t.set)),f()({},M,t,e)}function C(t,e,r){void 0===r&&(r=!0);var n,o=!1;return(n=1===arguments.length?t:r?A(t,e):d()(t,e))&&(n.get||n.set)&&(o=!0),o}function A(t,e){for(var r,n=t;n;){if(r=d()(n,e))return r.owner=n,r;n=n.__proto__}}function L(t){for(var e=t,r=[];e;)r=r.concat(s()(e)),e=e.__proto__;return r=u()(new o.a(r))}},function(t,e,r){t.exports=r(150)},function(t,e,r){var n=r(5),o=r(0),i=r(19),u=r(13),c=r(15),s=function(t,e,r){var a,f,_,p=t&s.F,l=t&s.G,v=t&s.S,y=t&s.P,b=t&s.B,h=t&s.W,d=l?o:o[e]||(o[e]={}),g=d.prototype,w=l?n:v?n[e]:(n[e]||{}).prototype;for(a in l&&(r=e),r)(f=!p&&w&&void 0!==w[a])&&c(d,a)||(_=f?w[a]:r[a],d[a]=l&&"function"!=typeof w[a]?r[a]:b&&f?i(_,n):h&&w[a]==_?function(t){var e=function(e,r,n){if(this instanceof t){switch(arguments.length){case 0:return new t;case 1:return new t(e);case 2:return new t(e,r)}return new t(e,r,n)}return t.apply(this,arguments)};return e.prototype=t.prototype,e}(_):y&&"function"==typeof _?i(Function.call,_):_,y&&((d.virtual||(d.virtual={}))[a]=_,t&s.R&&g&&!g[a]&&u(g,a,_)))};s.F=1,s.G=2,s.S=4,s.P=8,s.B=16,s.W=32,s.U=64,s.R=128,t.exports=s},function(t,e){t.exports=function(t){return"object"==typeof t?null!==t:"function"==typeof t}},function(t,e){var r=t.exports="undefined"!=typeof window&&window.Math==Math?window:"undefined"!=typeof self&&self.Math==Math?self:Function("return this")();"number"==typeof __g&&(__g=r)},function(t,e,r){var n=r(56)("wks"),o=r(38),i=r(5).Symbol,u="function"==typeof i;(t.exports=function(t){return n[t]||(n[t]=u&&i[t]||(u?i:o)("Symbol."+t))}).store=n},function(t,e,r){var n=r(12),o=r(75),i=r(49),u=Object.defineProperty;e.f=r(9)?Object.defineProperty:function(t,e,r){if(n(t),e=i(e,!0),n(r),o)try{return u(t,e,r)}catch(t){}if("get"in r||"set"in r)throw TypeError("Accessors not supported!");return"value"in r&&(t[e]=r.value),t}},function(t,e,r){t.exports=r(100)},function(t,e,r){t.exports=!r(14)(function(){return 7!=Object.defineProperty({},"a",{get:function(){return 7}}).a})},function(t,e,r){t.exports=r(98)},function(t,e,r){t.exports=r(119)},function(t,e,r){var n=r(4);t.exports=function(t){if(!n(t))throw TypeError(t+" is not an object!");return t}},function(t,e,r){var n=r(7),o=r(27);t.exports=r(9)?function(t,e,r){return n.f(t,e,o(1,r))}:function(t,e,r){return t[e]=r,t}},function(t,e){t.exports=function(t){try{return!!t()}catch(t){return!0}}},function(t,e){var r={}.hasOwnProperty;t.exports=function(t,e){return r.call(t,e)}},function(t,e,r){var n=r(51),o=r(53);t.exports=function(t){return n(o(t))}},function(t,e,r){t.exports=r(156)},function(t,e,r){t.exports=r(160)},function(t,e,r){var n=r(35);t.exports=function(t,e,r){if(n(t),void 0===e)return t;switch(r){case 1:return function(r){return t.call(e,r)};case 2:return function(r,n){return t.call(e,r,n)};case 3:return function(r,n,o){return t.call(e,r,n,o)}}return function(){return t.apply(e,arguments)}}},function(t,e,r){var n=r(8),o=r(24),i=r(123),u=r(126);t.exports=function(t){for(var e=1;e<arguments.length;e++){var r=null!=arguments[e]?arguments[e]:{},c=i(r);"function"==typeof o&&(c=c.concat(o(r).filter(function(t){return n(r,t).enumerable}))),c.forEach(function(e){u(t,e,r[e])})}return t}},function(t,e,r){t.exports=r(133)},function(t,e,r){var n=r(53);t.exports=function(t){return Object(n(t))}},function(t,e,r){var n=r(4);t.exports=function(t,e){if(!n(t)||t._t!==e)throw TypeError("Incompatible receiver, "+e+" required!");return t}},function(t,e,r){t.exports=r(121)},function(t,e,r){t.exports=r(102)},function(t,e,r){t.exports=r(108)},function(t,e){t.exports=function(t,e){return{enumerable:!(1&t),configurable:!(2&t),writable:!(4&t),value:e}}},function(t,e){t.exports={}},function(t,e,r){var n=r(12),o=r(79),i=r(57),u=r(55)("IE_PROTO"),c=function(){},s=function(){var t,e=r(76)("iframe"),n=i.length;for(e.style.display="none",r(105).appendChild(e),e.src="javascript:",(t=e.contentWindow.document).open(),t.write("<script>document.F=Object<\/script>"),t.close(),s=t.F;n--;)delete s.prototype[i[n]];return s()};t.exports=Object.create||function(t,e){var r;return null!==t?(c.prototype=n(t),r=new c,c.prototype=null,r[u]=t):r=s(),void 0===e?r:o(r,e)}},function(t,e,r){var n=r(77),o=r(57);t.exports=Object.keys||function(t){return n(t,o)}},function(t,e,r){var n=r(19),o=r(80),i=r(81),u=r(12),c=r(36),s=r(82),a={},f={};(e=t.exports=function(t,e,r,_,p){var l,v,y,b,h=p?function(){return t}:s(t),d=n(r,_,e?2:1),g=0;if("function"!=typeof h)throw TypeError(t+" is not iterable!");if(i(h)){for(l=c(t.length);l>g;g++)if((b=e?d(u(v=t[g])[0],v[1]):d(t[g]))===a||b===f)return b}else for(y=h.call(t);!(v=y.next()).done;)if((b=o(y,d,v.value,e))===a||b===f)return b}).BREAK=a,e.RETURN=f},function(t,e,r){var n=r(38)("meta"),o=r(4),i=r(15),u=r(7).f,c=0,s=Object.isExtensible||function(){return!0},a=!r(14)(function(){return s(Object.preventExtensions({}))}),f=function(t){u(t,n,{value:{i:"O"+ ++c,w:{}}})},_=t.exports={KEY:n,NEED:!1,fastKey:function(t,e){if(!o(t))return"symbol"==typeof t?t:("string"==typeof t?"S":"P")+t;if(!i(t,n)){if(!s(t))return"F";if(!e)return"E";f(t)}return t[n].i},getWeak:function(t,e){if(!i(t,n)){if(!s(t))return!0;if(!e)return!1;f(t)}return t[n].w},onFreeze:function(t){return a&&_.NEED&&s(t)&&!i(t,n)&&f(t),t}}},function(t,e,r){t.exports=r(93)},function(t,e){t.exports=function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}},function(t,e){t.exports=function(t){if("function"!=typeof t)throw TypeError(t+" is not a function!");return t}},function(t,e,r){var n=r(54),o=Math.min;t.exports=function(t){return t>0?o(n(t),9007199254740991):0}},function(t,e){t.exports=!0},function(t,e){var r=0,n=Math.random();t.exports=function(t){return"Symbol(".concat(void 0===t?"":t,")_",(++r+n).toString(36))}},function(t,e){e.f=Object.getOwnPropertySymbols},function(t,e,r){var n=r(41),o=r(27),i=r(16),u=r(49),c=r(15),s=r(75),a=Object.getOwnPropertyDescriptor;e.f=r(9)?a:function(t,e){if(t=i(t),e=u(e,!0),s)try{return a(t,e)}catch(t){}if(c(t,e))return o(!n.f.call(t,e),t[e])}},function(t,e){e.f={}.propertyIsEnumerable},function(t,e,r){var n=r(3),o=r(0),i=r(14);t.exports=function(t,e){var r=(o.Object||{})[t]||Object[t],u={};u[t]=e(r),n(n.S+n.F*i(function(){r(1)}),"Object",u)}},function(t,e,r){"use strict";var n=r(103)(!0);r(58)(String,"String",function(t){this._t=String(t),this._i=0},function(){var t,e=this._t,r=this._i;return r>=e.length?{value:void 0,done:!0}:(t=n(e,r),this._i+=t.length,{value:t,done:!1})})},function(t,e,r){var n=r(7).f,o=r(15),i=r(6)("toStringTag");t.exports=function(t,e,r){t&&!o(t=r?t:t.prototype,i)&&n(t,i,{configurable:!0,value:e})}},function(t,e){},function(t,e,r){r(109);for(var n=r(5),o=r(13),i=r(28),u=r(6)("toStringTag"),c="CSSRuleList,CSSStyleDeclaration,CSSValueList,ClientRectList,DOMRectList,DOMStringList,DOMTokenList,DataTransferItemList,FileList,HTMLAllCollection,HTMLCollection,HTMLFormElement,HTMLSelectElement,MediaList,MimeTypeArray,NamedNodeMap,NodeList,PaintRequestList,Plugin,PluginArray,SVGLengthList,SVGNumberList,SVGPathSegList,SVGPointList,SVGStringList,SVGTransformList,SourceBufferList,StyleSheetList,TextTrackCueList,TextTrackList,TouchList".split(","),s=0;s<c.length;s++){var a=c[s],f=n[a],_=f&&f.prototype;_&&!_[u]&&o(_,u,a),i[a]=i.Array}},function(t,e,r){e.f=r(6)},function(t,e,r){var n=r(70);function o(e){return t.exports=o=n||function(t){return t.__proto__},o(e)}t.exports=o},function(t,e,r){var n=r(4);t.exports=function(t,e){if(!n(t))return t;var r,o;if(e&&"function"==typeof(r=t.toString)&&!n(o=r.call(t)))return o;if("function"==typeof(r=t.valueOf)&&!n(o=r.call(t)))return o;if(!e&&"function"==typeof(r=t.toString)&&!n(o=r.call(t)))return o;throw TypeError("Can't convert object to primitive value")}},function(t,e,r){var n=r(77),o=r(57).concat("length","prototype");e.f=Object.getOwnPropertyNames||function(t){return n(t,o)}},function(t,e,r){var n=r(52);t.exports=Object("z").propertyIsEnumerable(0)?Object:function(t){return"String"==n(t)?t.split(""):Object(t)}},function(t,e){var r={}.toString;t.exports=function(t){return r.call(t).slice(8,-1)}},function(t,e){t.exports=function(t){if(null==t)throw TypeError("Can't call method on  "+t);return t}},function(t,e){var r=Math.ceil,n=Math.floor;t.exports=function(t){return isNaN(t=+t)?0:(t>0?n:r)(t)}},function(t,e,r){var n=r(56)("keys"),o=r(38);t.exports=function(t){return n[t]||(n[t]=o(t))}},function(t,e,r){var n=r(0),o=r(5),i=o["__core-js_shared__"]||(o["__core-js_shared__"]={});(t.exports=function(t,e){return i[t]||(i[t]=void 0!==e?e:{})})("versions",[]).push({version:n.version,mode:r(37)?"pure":"global",copyright:"© 2019 Denis Pushkarev (zloirock.ru)"})},function(t,e){t.exports="constructor,hasOwnProperty,isPrototypeOf,propertyIsEnumerable,toLocaleString,toString,valueOf".split(",")},function(t,e,r){"use strict";var n=r(37),o=r(3),i=r(59),u=r(13),c=r(28),s=r(104),a=r(44),f=r(60),_=r(6)("iterator"),p=!([].keys&&"next"in[].keys()),l=function(){return this};t.exports=function(t,e,r,v,y,b,h){s(r,e,v);var d,g,w,O=function(t){if(!p&&t in j)return j[t];switch(t){case"keys":case"values":return function(){return new r(this,t)}}return function(){return new r(this,t)}},m=e+" Iterator",P="values"==y,E=!1,j=t.prototype,x=j[_]||j["@@iterator"]||y&&j[y],M=x||O(y),T=y?P?O("entries"):M:void 0,S="Array"==e&&j.entries||x;if(S&&(w=f(S.call(new t)))!==Object.prototype&&w.next&&(a(w,m,!0),n||"function"==typeof w[_]||u(w,_,l)),P&&x&&"values"!==x.name&&(E=!0,M=function(){return x.call(this)}),n&&!h||!p&&!E&&j[_]||u(j,_,M),c[e]=M,c[m]=l,y)if(d={values:P?M:O("values"),keys:b?M:O("keys"),entries:T},h)for(g in d)g in j||i(j,g,d[g]);else o(o.P+o.F*(p||E),e,d);return d}},function(t,e,r){t.exports=r(13)},function(t,e,r){var n=r(15),o=r(22),i=r(55)("IE_PROTO"),u=Object.prototype;t.exports=Object.getPrototypeOf||function(t){return t=o(t),n(t,i)?t[i]:"function"==typeof t.constructor&&t instanceof t.constructor?t.constructor.prototype:t instanceof Object?u:null}},function(t,e,r){var n=r(13);t.exports=function(t,e,r){for(var o in e)r&&t[o]?t[o]=e[o]:n(t,o,e[o]);return t}},function(t,e){t.exports=function(t,e,r,n){if(!(t instanceof e)||void 0!==n&&n in t)throw TypeError(r+": incorrect invocation!");return t}},function(t,e,r){"use strict";var n=r(5),o=r(3),i=r(32),u=r(14),c=r(13),s=r(61),a=r(31),f=r(62),_=r(4),p=r(44),l=r(7).f,v=r(64)(0),y=r(9);t.exports=function(t,e,r,b,h,d){var g=n[t],w=g,O=h?"set":"add",m=w&&w.prototype,P={};return y&&"function"==typeof w&&(d||m.forEach&&!u(function(){(new w).entries().next()}))?(w=e(function(e,r){f(e,w,t,"_c"),e._c=new g,null!=r&&a(r,h,e[O],e)}),v("add,clear,delete,forEach,get,has,set,keys,values,entries,toJSON".split(","),function(t){var e="add"==t||"set"==t;t in m&&(!d||"clear"!=t)&&c(w.prototype,t,function(r,n){if(f(this,w,t),!e&&d&&!_(r))return"get"==t&&void 0;var o=this._c[t](0===r?0:r,n);return e?this:o})}),d||l(w.prototype,"size",{get:function(){return this._c.size}})):(w=b.getConstructor(e,t,h,O),s(w.prototype,r),i.NEED=!0),p(w,t),P[t]=w,o(o.G+o.W+o.F,P),d||b.setStrong(w,t,h),w}},function(t,e,r){var n=r(19),o=r(51),i=r(22),u=r(36),c=r(113);t.exports=function(t,e){var r=1==t,s=2==t,a=3==t,f=4==t,_=6==t,p=5==t||_,l=e||c;return function(e,c,v){for(var y,b,h=i(e),d=o(h),g=n(c,v,3),w=u(d.length),O=0,m=r?l(e,w):s?l(e,0):void 0;w>O;O++)if((p||O in d)&&(b=g(y=d[O],O,h),t))if(r)m[O]=b;else if(b)switch(t){case 3:return!0;case 5:return y;case 6:return O;case 2:m.push(y)}else if(f)return!1;return _?-1:a||f?f:m}}},function(t,e,r){"use strict";var n=r(3);t.exports=function(t){n(n.S,t,{of:function(){for(var t=arguments.length,e=new Array(t);t--;)e[t]=arguments[t];return new this(e)}})}},function(t,e,r){"use strict";var n=r(3),o=r(35),i=r(19),u=r(31);t.exports=function(t){n(n.S,t,{from:function(t){var e,r,n,c,s=arguments[1];return o(this),(e=void 0!==s)&&o(s),null==t?new this:(r=[],e?(n=0,c=i(s,arguments[2],2),u(t,!1,function(t){r.push(c(t,n++))})):u(t,!1,r.push,r),new this(r))}})}},function(t,e,r){var n=r(5),o=r(0),i=r(37),u=r(47),c=r(7).f;t.exports=function(t){var e=o.Symbol||(o.Symbol=i?{}:n.Symbol||{});"_"==t.charAt(0)||t in e||c(e,t,{value:u.f(t)})}},function(t,e,r){var n=r(69);function o(e,r){return t.exports=o=n||function(t,e){return t.__proto__=e,t},o(e,r)}t.exports=o},function(t,e,r){t.exports=r(127)},function(t,e,r){t.exports=r(137)},function(t,e,r){t.exports=r(146)},function(t,e,r){var n=r(68);t.exports=function(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function");n(t.prototype,e&&e.prototype),e&&n(t,e)}},function(t,e,r){var n=r(130),o=r(136);t.exports=function(t,e){return!e||"object"!==n(e)&&"function"!=typeof e?o(t):e}},function(t,e,r){var n=r(11),o=r(139),i=r(48),u=r(68),c=r(145);function s(e){var r="function"==typeof o?new o:void 0;return t.exports=s=function(t){if("function"!=typeof t)throw new TypeError("Super expression must either be null or a function");if(void 0!==r){if(r.has(t))return r.get(t);r.set(t,e)}function e(){}return e.prototype=n(t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),u(e,u(function(){return c(t,arguments,i(this).constructor)},t))},s(e)}t.exports=s},function(t,e,r){t.exports=!r(9)&&!r(14)(function(){return 7!=Object.defineProperty(r(76)("div"),"a",{get:function(){return 7}}).a})},function(t,e,r){var n=r(4),o=r(5).document,i=n(o)&&n(o.createElement);t.exports=function(t){return i?o.createElement(t):{}}},function(t,e,r){var n=r(15),o=r(16),i=r(96)(!1),u=r(55)("IE_PROTO");t.exports=function(t,e){var r,c=o(t),s=0,a=[];for(r in c)r!=u&&n(c,r)&&a.push(r);for(;e.length>s;)n(c,r=e[s++])&&(~i(a,r)||a.push(r));return a}},function(t,e,r){"use strict";var n=r(7),o=r(27);t.exports=function(t,e,r){e in t?n.f(t,e,o(0,r)):t[e]=r}},function(t,e,r){var n=r(7),o=r(12),i=r(30);t.exports=r(9)?Object.defineProperties:function(t,e){o(t);for(var r,u=i(e),c=u.length,s=0;c>s;)n.f(t,r=u[s++],e[r]);return t}},function(t,e,r){var n=r(12);t.exports=function(t,e,r,o){try{return o?e(n(r)[0],r[1]):e(r)}catch(e){var i=t.return;throw void 0!==i&&n(i.call(t)),e}}},function(t,e,r){var n=r(28),o=r(6)("iterator"),i=Array.prototype;t.exports=function(t){return void 0!==t&&(n.Array===t||i[o]===t)}},function(t,e,r){var n=r(83),o=r(6)("iterator"),i=r(28);t.exports=r(0).getIteratorMethod=function(t){if(null!=t)return t[o]||t["@@iterator"]||i[n(t)]}},function(t,e,r){var n=r(52),o=r(6)("toStringTag"),i="Arguments"==n(function(){return arguments}());t.exports=function(t){var e,r,u;return void 0===t?"Undefined":null===t?"Null":"string"==typeof(r=function(t,e){try{return t[e]}catch(t){}}(e=Object(t),o))?r:i?n(e):"Object"==(u=n(e))&&"function"==typeof e.callee?"Arguments":u}},function(t,e){t.exports=function(t,e){return{value:e,done:!!t}}},function(t,e,r){"use strict";var n=r(7).f,o=r(29),i=r(61),u=r(19),c=r(62),s=r(31),a=r(58),f=r(84),_=r(112),p=r(9),l=r(32).fastKey,v=r(23),y=p?"_s":"size",b=function(t,e){var r,n=l(e);if("F"!==n)return t._i[n];for(r=t._f;r;r=r.n)if(r.k==e)return r};t.exports={getConstructor:function(t,e,r,a){var f=t(function(t,n){c(t,f,e,"_i"),t._t=e,t._i=o(null),t._f=void 0,t._l=void 0,t[y]=0,null!=n&&s(n,r,t[a],t)});return i(f.prototype,{clear:function(){for(var t=v(this,e),r=t._i,n=t._f;n;n=n.n)n.r=!0,n.p&&(n.p=n.p.n=void 0),delete r[n.i];t._f=t._l=void 0,t[y]=0},delete:function(t){var r=v(this,e),n=b(r,t);if(n){var o=n.n,i=n.p;delete r._i[n.i],n.r=!0,i&&(i.n=o),o&&(o.p=i),r._f==n&&(r._f=o),r._l==n&&(r._l=i),r[y]--}return!!n},forEach:function(t){v(this,e);for(var r,n=u(t,arguments.length>1?arguments[1]:void 0,3);r=r?r.n:this._f;)for(n(r.v,r.k,this);r&&r.r;)r=r.p},has:function(t){return!!b(v(this,e),t)}}),p&&n(f.prototype,"size",{get:function(){return v(this,e)[y]}}),f},def:function(t,e,r){var n,o,i=b(t,e);return i?i.v=r:(t._l=i={i:o=l(e,!0),k:e,v:r,p:n=t._l,n:void 0,r:!1},t._f||(t._f=i),n&&(n.n=i),t[y]++,"F"!==o&&(t._i[o]=i)),t},getEntry:b,setStrong:function(t,e,r){a(t,e,function(t,r){this._t=v(t,e),this._k=r,this._l=void 0},function(){for(var t=this._k,e=this._l;e&&e.r;)e=e.p;return this._t&&(this._l=e=e?e.n:this._t._f)?f(0,"keys"==t?e.k:"values"==t?e.v:[e.k,e.v]):(this._t=void 0,f(1))},r?"entries":"values",!r,!0),_(e)}}},function(t,e,r){var n=r(52);t.exports=Array.isArray||function(t){return"Array"==n(t)}},function(t,e,r){var n=r(83),o=r(116);t.exports=function(t){return function(){if(n(this)!=t)throw TypeError(t+"#toJSON isn't generic");return o(this)}}},function(t,e,r){"use strict";var n=r(5),o=r(15),i=r(9),u=r(3),c=r(59),s=r(32).KEY,a=r(14),f=r(56),_=r(44),p=r(38),l=r(6),v=r(47),y=r(67),b=r(122),h=r(86),d=r(12),g=r(4),w=r(16),O=r(49),m=r(27),P=r(29),E=r(89),j=r(40),x=r(7),M=r(30),T=j.f,S=x.f,D=E.f,C=n.Symbol,A=n.JSON,L=A&&A.stringify,R=l("_hidden"),k=l("toPrimitive"),I={}.propertyIsEnumerable,W=f("symbol-registry"),B=f("symbols"),K=f("op-symbols"),U=Object.prototype,N="function"==typeof C,F=n.QObject,q=!F||!F.prototype||!F.prototype.findChild,V=i&&a(function(){return 7!=P(S({},"a",{get:function(){return S(this,"a",{value:7}).a}})).a})?function(t,e,r){var n=T(U,e);n&&delete U[e],S(t,e,r),n&&t!==U&&S(U,e,n)}:S,G=function(t){var e=B[t]=P(C.prototype);return e._k=t,e},J=N&&"symbol"==typeof C.iterator?function(t){return"symbol"==typeof t}:function(t){return t instanceof C},z=function(t,e,r){return t===U&&z(K,e,r),d(t),e=O(e,!0),d(r),o(B,e)?(r.enumerable?(o(t,R)&&t[R][e]&&(t[R][e]=!1),r=P(r,{enumerable:m(0,!1)})):(o(t,R)||S(t,R,m(1,{})),t[R][e]=!0),V(t,e,r)):S(t,e,r)},H=function(t,e){d(t);for(var r,n=b(e=w(e)),o=0,i=n.length;i>o;)z(t,r=n[o++],e[r]);return t},Y=function(t){var e=I.call(this,t=O(t,!0));return!(this===U&&o(B,t)&&!o(K,t))&&(!(e||!o(this,t)||!o(B,t)||o(this,R)&&this[R][t])||e)},X=function(t,e){if(t=w(t),e=O(e,!0),t!==U||!o(B,e)||o(K,e)){var r=T(t,e);return!r||!o(B,e)||o(t,R)&&t[R][e]||(r.enumerable=!0),r}},Q=function(t){for(var e,r=D(w(t)),n=[],i=0;r.length>i;)o(B,e=r[i++])||e==R||e==s||n.push(e);return n},Z=function(t){for(var e,r=t===U,n=D(r?K:w(t)),i=[],u=0;n.length>u;)!o(B,e=n[u++])||r&&!o(U,e)||i.push(B[e]);return i};N||(c((C=function(){if(this instanceof C)throw TypeError("Symbol is not a constructor!");var t=p(arguments.length>0?arguments[0]:void 0),e=function(r){this===U&&e.call(K,r),o(this,R)&&o(this[R],t)&&(this[R][t]=!1),V(this,t,m(1,r))};return i&&q&&V(U,t,{configurable:!0,set:e}),G(t)}).prototype,"toString",function(){return this._k}),j.f=X,x.f=z,r(50).f=E.f=Q,r(41).f=Y,r(39).f=Z,i&&!r(37)&&c(U,"propertyIsEnumerable",Y,!0),v.f=function(t){return G(l(t))}),u(u.G+u.W+u.F*!N,{Symbol:C});for(var $="hasInstance,isConcatSpreadable,iterator,match,replace,search,species,split,toPrimitive,toStringTag,unscopables".split(","),tt=0;$.length>tt;)l($[tt++]);for(var et=M(l.store),rt=0;et.length>rt;)y(et[rt++]);u(u.S+u.F*!N,"Symbol",{for:function(t){return o(W,t+="")?W[t]:W[t]=C(t)},keyFor:function(t){if(!J(t))throw TypeError(t+" is not a symbol!");for(var e in W)if(W[e]===t)return e},useSetter:function(){q=!0},useSimple:function(){q=!1}}),u(u.S+u.F*!N,"Object",{create:function(t,e){return void 0===e?P(t):H(P(t),e)},defineProperty:z,defineProperties:H,getOwnPropertyDescriptor:X,getOwnPropertyNames:Q,getOwnPropertySymbols:Z}),A&&u(u.S+u.F*(!N||a(function(){var t=C();return"[null]"!=L([t])||"{}"!=L({a:t})||"{}"!=L(Object(t))})),"JSON",{stringify:function(t){for(var e,r,n=[t],o=1;arguments.length>o;)n.push(arguments[o++]);if(r=e=n[1],(g(e)||void 0!==t)&&!J(t))return h(e)||(e=function(t,e){if("function"==typeof r&&(e=r.call(this,t,e)),!J(e))return e}),n[1]=e,L.apply(A,n)}}),C.prototype[k]||r(13)(C.prototype,k,C.prototype.valueOf),_(C,"Symbol"),_(Math,"Math",!0),_(n.JSON,"JSON",!0)},function(t,e,r){var n=r(16),o=r(50).f,i={}.toString,u="object"==typeof window&&window&&Object.getOwnPropertyNames?Object.getOwnPropertyNames(window):[];t.exports.f=function(t){return u&&"[object Window]"==i.call(t)?function(t){try{return o(t)}catch(t){return u.slice()}}(t):o(n(t))}},function(module,__webpack_exports__,__webpack_require__){"use strict";__webpack_require__.d(__webpack_exports__,"a",function(){return newless});var _babel_runtime_core_js_object_create__WEBPACK_IMPORTED_MODULE_0__=__webpack_require__(11),_babel_runtime_core_js_object_create__WEBPACK_IMPORTED_MODULE_0___default=__webpack_require__.n(_babel_runtime_core_js_object_create__WEBPACK_IMPORTED_MODULE_0__),_babel_runtime_core_js_object_get_own_property_descriptor__WEBPACK_IMPORTED_MODULE_1__=__webpack_require__(8),_babel_runtime_core_js_object_get_own_property_descriptor__WEBPACK_IMPORTED_MODULE_1___default=__webpack_require__.n(_babel_runtime_core_js_object_get_own_property_descriptor__WEBPACK_IMPORTED_MODULE_1__),_babel_runtime_core_js_object_get_own_property_symbols__WEBPACK_IMPORTED_MODULE_2__=__webpack_require__(24),_babel_runtime_core_js_object_get_own_property_symbols__WEBPACK_IMPORTED_MODULE_2___default=__webpack_require__.n(_babel_runtime_core_js_object_get_own_property_symbols__WEBPACK_IMPORTED_MODULE_2__),_babel_runtime_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_3__=__webpack_require__(10),_babel_runtime_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_3___default=__webpack_require__.n(_babel_runtime_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_3__),_babel_runtime_core_js_object_get_own_property_names__WEBPACK_IMPORTED_MODULE_4__=__webpack_require__(17),_babel_runtime_core_js_object_get_own_property_names__WEBPACK_IMPORTED_MODULE_4___default=__webpack_require__.n(_babel_runtime_core_js_object_get_own_property_names__WEBPACK_IMPORTED_MODULE_4__),_babel_runtime_core_js_reflect_construct__WEBPACK_IMPORTED_MODULE_5__=__webpack_require__(71),_babel_runtime_core_js_reflect_construct__WEBPACK_IMPORTED_MODULE_5___default=__webpack_require__.n(_babel_runtime_core_js_reflect_construct__WEBPACK_IMPORTED_MODULE_5__),_babel_runtime_core_js_object_set_prototype_of__WEBPACK_IMPORTED_MODULE_6__=__webpack_require__(69),_babel_runtime_core_js_object_set_prototype_of__WEBPACK_IMPORTED_MODULE_6___default=__webpack_require__.n(_babel_runtime_core_js_object_set_prototype_of__WEBPACK_IMPORTED_MODULE_6__),_babel_runtime_core_js_object_get_prototype_of__WEBPACK_IMPORTED_MODULE_7__=__webpack_require__(70),_babel_runtime_core_js_object_get_prototype_of__WEBPACK_IMPORTED_MODULE_7___default=__webpack_require__.n(_babel_runtime_core_js_object_get_prototype_of__WEBPACK_IMPORTED_MODULE_7__),_babel_runtime_core_js_symbol__WEBPACK_IMPORTED_MODULE_8__=__webpack_require__(21),_babel_runtime_core_js_symbol__WEBPACK_IMPORTED_MODULE_8___default=__webpack_require__.n(_babel_runtime_core_js_symbol__WEBPACK_IMPORTED_MODULE_8__),_utils__WEBPACK_IMPORTED_MODULE_9__=__webpack_require__(1),_unused_webpack_default_export=newless,supportsSpread=isSyntaxSupported("Object(...[{}])"),supportsClass=isSyntaxSupported("class Test {}"),supportsNewTarget=isSyntaxSupported("new.target"),TRUE_CONSTRUCTOR=_babel_runtime_core_js_symbol__WEBPACK_IMPORTED_MODULE_8___default.a?_babel_runtime_core_js_symbol__WEBPACK_IMPORTED_MODULE_8___default()("trueConstructor"):"__newlessTrueConstructor__",getPrototype=_babel_runtime_core_js_object_get_prototype_of__WEBPACK_IMPORTED_MODULE_7___default.a||function(t){return t.__proto__||t.constructor&&t.constructor.prototype||Object.prototype},setPrototype=_babel_runtime_core_js_object_set_prototype_of__WEBPACK_IMPORTED_MODULE_6___default.a||function(t,e){t.__proto__=e},construct=Reflect&&_babel_runtime_core_js_reflect_construct__WEBPACK_IMPORTED_MODULE_5___default.a||function(){if(supportsClass)return Function("constructor, args, target","\n      'use strict';\n\n      if (arguments.length === 3 && typeof target !== 'function')\n        throw new TypeError(target + ' is not a constructor');\n\n      target = target || constructor;\n\n      // extend target so the right prototype is constructed (or nearly the\n      // right one; ideally we'd do instantiator.prototype = target.prototype,\n      // but a class's prototype property is not writable)\n      class instantiator extends target {};\n      // but ensure the *logic* is 'constructor' for ES2015-compliant engines\n      Object.setPrototypeOf(instantiator, constructor);\n      // ...and for Safari 9\n      instantiator.prototype.constructor = constructor;\n\n      // The spread operator is *dramatically faster, so use it if we can:\n      // http://jsperf.com/new-via-spread-vs-dynamic-function/4\n      "+(supportsSpread?"\n\n        var value = new instantiator(...([].slice.call(args)));\n\n      ":"\n\n        // otherwise, create a dynamic function in order to use 'new'\n        // Note using 'function.bind' would be simpler, but is much slower:\n        // http://jsperf.com/new-operator-with-dynamic-function-vs-bind\n        var argList = '';\n        for (var i = 0, len = args.length; i < len; i++) {\n          if (i > 0) argList += ',';\n          argList += 'args[' + i + ']';\n        }\n        var constructCall = Function('constructor, args',\n          'return new constructor( ' + argList + ' );'\n        );\n        var value = constructCall(constructor, args);\n\n        args = Array.prototype.slice.call(args);\n        args = [null].concat(args);\n        var value = new constructor.bind.apply(constructor, args);\n\n      ")+"\n\n      // fix up the prototype so it matches the intended one, not one who's\n      // prototype is the intended one :P\n      Object.setPrototypeOf(value, target.prototype);\n      return value;\n    ");var t=function(){};return function(e,r,n){if(3===arguments.length&&"function"!=typeof n)throw new TypeError(n+" is not a constructor");t.prototype=(n||e).prototype;var o=new t,i=e.apply(o,r);return"object"==typeof i&&i?(i.__proto__=(n||e).prototype,i):o}}(),SKIP_PROPERTIES=["arguments","caller","length","name","prototype"];function copyProperties(t,e){if(_babel_runtime_core_js_object_get_own_property_names__WEBPACK_IMPORTED_MODULE_4___default.a&&_babel_runtime_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_3___default.a){var r=_babel_runtime_core_js_object_get_own_property_names__WEBPACK_IMPORTED_MODULE_4___default()(t);_babel_runtime_core_js_object_get_own_property_symbols__WEBPACK_IMPORTED_MODULE_2___default.a&&(r=r.concat(_babel_runtime_core_js_object_get_own_property_symbols__WEBPACK_IMPORTED_MODULE_2___default()(t)));for(var n=r.length-1;n>=0;n--)-1===SKIP_PROPERTIES.indexOf(r[n])&&_babel_runtime_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_3___default()(e,r[n],_babel_runtime_core_js_object_get_own_property_descriptor__WEBPACK_IMPORTED_MODULE_1___default()(t,r[n]))}else for(var o in t)e[o]=t[o]}function newless(constructor){var name=constructor.name,usesClassSyntax="class"===constructor.toString().substr(0,5),requiresNew=!!usesClassSyntax||null,newlessConstructor=function(){return function(){if(!requiresNew&&this instanceof newlessConstructor){if(!1===requiresNew){var returnValue=constructor.apply(this,arguments);return"object"==typeof returnValue&&returnValue||this}try{requiresNew=!1;var returnValue=constructor.apply(this,arguments);return"object"==typeof returnValue&&returnValue||this}catch(t){if(!(t instanceof TypeError&&(/class constructor/i.test(t.message)||/use the 'new' operator/i.test(t.message))))throw/Illegal constructor/i.test(t.message)&&_babel_runtime_core_js_object_create__WEBPACK_IMPORTED_MODULE_0___default()(constructor.prototype)instanceof Node&&console.error("\n                    The following error can happen if a Custom Element is called\n                    with 'new' before being defined. The constructor was "+constructor.name+":\n                ",constructor),t;requiresNew=!0}}var newTarget,hasNewTarget=!1;supportsNewTarget&&(eval("newTarget = new.target"),newTarget&&(hasNewTarget=!0)),supportsNewTarget&&hasNewTarget||(newTarget=this instanceof newlessConstructor?this.constructor:constructor);var returnValue=construct(constructor,arguments,newTarget);return this instanceof newlessConstructor&&setPrototype(this,returnValue),returnValue}}();if(name){var code=Object(_utils__WEBPACK_IMPORTED_MODULE_9__.b)(newlessConstructor);newlessConstructor=Function("constructor, construct, setPrototype, requiresNew, supportsNewTarget","\n      var newlessConstructor = function "+name+"() { "+code+" };\n      return newlessConstructor\n    ")(constructor,construct,setPrototype,requiresNew,supportsNewTarget)}return constructor.length&&Object(_utils__WEBPACK_IMPORTED_MODULE_9__.f)(newlessConstructor,"length",{value:constructor.length}),newlessConstructor.prototype=_babel_runtime_core_js_object_create__WEBPACK_IMPORTED_MODULE_0___default()(constructor.prototype),newlessConstructor.prototype.constructor=newlessConstructor,constructor.prototype.constructor=constructor,newlessConstructor[TRUE_CONSTRUCTOR]=constructor,copyProperties(constructor,newlessConstructor),setPrototype(newlessConstructor,constructor),newlessConstructor}function isSyntaxSupported(t,e){void 0===e&&(e=!0);try{return!!Function("",(e?"'use strict';":"")+t)}catch(t){return!1}}},function(t,e,r){t.exports=r(158)},function(t,e,r){var n=r(10);function o(t,e){for(var r=0;r<e.length;r++){var o=e[r];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),n(t,o.key,o)}}t.exports=function(t,e,r){return e&&o(t.prototype,e),r&&o(t,r),t}},function(t,e,r){r(94),t.exports=r(0).Object.getOwnPropertyDescriptors},function(t,e,r){var n=r(3),o=r(95),i=r(16),u=r(40),c=r(78);n(n.S,"Object",{getOwnPropertyDescriptors:function(t){for(var e,r,n=i(t),s=u.f,a=o(n),f={},_=0;a.length>_;)void 0!==(r=s(n,e=a[_++]))&&c(f,e,r);return f}})},function(t,e,r){var n=r(50),o=r(39),i=r(12),u=r(5).Reflect;t.exports=u&&u.ownKeys||function(t){var e=n.f(i(t)),r=o.f;return r?e.concat(r(t)):e}},function(t,e,r){var n=r(16),o=r(36),i=r(97);t.exports=function(t){return function(e,r,u){var c,s=n(e),a=o(s.length),f=i(u,a);if(t&&r!=r){for(;a>f;)if((c=s[f++])!=c)return!0}else for(;a>f;f++)if((t||f in s)&&s[f]===r)return t||f||0;return!t&&-1}}},function(t,e,r){var n=r(54),o=Math.max,i=Math.min;t.exports=function(t,e){return(t=n(t))<0?o(t+e,0):i(t,e)}},function(t,e,r){r(99);var n=r(0).Object;t.exports=function(t,e,r){return n.defineProperty(t,e,r)}},function(t,e,r){var n=r(3);n(n.S+n.F*!r(9),"Object",{defineProperty:r(7).f})},function(t,e,r){r(101);var n=r(0).Object;t.exports=function(t,e){return n.getOwnPropertyDescriptor(t,e)}},function(t,e,r){var n=r(16),o=r(40).f;r(42)("getOwnPropertyDescriptor",function(){return function(t,e){return o(n(t),e)}})},function(t,e,r){r(43),r(106),t.exports=r(0).Array.from},function(t,e,r){var n=r(54),o=r(53);t.exports=function(t){return function(e,r){var i,u,c=String(o(e)),s=n(r),a=c.length;return s<0||s>=a?t?"":void 0:(i=c.charCodeAt(s))<55296||i>56319||s+1===a||(u=c.charCodeAt(s+1))<56320||u>57343?t?c.charAt(s):i:t?c.slice(s,s+2):u-56320+(i-55296<<10)+65536}}},function(t,e,r){"use strict";var n=r(29),o=r(27),i=r(44),u={};r(13)(u,r(6)("iterator"),function(){return this}),t.exports=function(t,e,r){t.prototype=n(u,{next:o(1,r)}),i(t,e+" Iterator")}},function(t,e,r){var n=r(5).document;t.exports=n&&n.documentElement},function(t,e,r){"use strict";var n=r(19),o=r(3),i=r(22),u=r(80),c=r(81),s=r(36),a=r(78),f=r(82);o(o.S+o.F*!r(107)(function(t){Array.from(t)}),"Array",{from:function(t){var e,r,o,_,p=i(t),l="function"==typeof this?this:Array,v=arguments.length,y=v>1?arguments[1]:void 0,b=void 0!==y,h=0,d=f(p);if(b&&(y=n(y,v>2?arguments[2]:void 0,2)),null==d||l==Array&&c(d))for(r=new l(e=s(p.length));e>h;h++)a(r,h,b?y(p[h],h):p[h]);else for(_=d.call(p),r=new l;!(o=_.next()).done;h++)a(r,h,b?u(_,y,[o.value,h],!0):o.value);return r.length=h,r}})},function(t,e,r){var n=r(6)("iterator"),o=!1;try{var i=[7][n]();i.return=function(){o=!0},Array.from(i,function(){throw 2})}catch(t){}t.exports=function(t,e){if(!e&&!o)return!1;var r=!1;try{var i=[7],u=i[n]();u.next=function(){return{done:r=!0}},i[n]=function(){return u},t(i)}catch(t){}return r}},function(t,e,r){r(45),r(43),r(46),r(111),r(115),r(117),r(118),t.exports=r(0).Set},function(t,e,r){"use strict";var n=r(110),o=r(84),i=r(28),u=r(16);t.exports=r(58)(Array,"Array",function(t,e){this._t=u(t),this._i=0,this._k=e},function(){var t=this._t,e=this._k,r=this._i++;return!t||r>=t.length?(this._t=void 0,o(1)):o(0,"keys"==e?r:"values"==e?t[r]:[r,t[r]])},"values"),i.Arguments=i.Array,n("keys"),n("values"),n("entries")},function(t,e){t.exports=function(){}},function(t,e,r){"use strict";var n=r(85),o=r(23);t.exports=r(63)("Set",function(t){return function(){return t(this,arguments.length>0?arguments[0]:void 0)}},{add:function(t){return n.def(o(this,"Set"),t=0===t?0:t,t)}},n)},function(t,e,r){"use strict";var n=r(5),o=r(0),i=r(7),u=r(9),c=r(6)("species");t.exports=function(t){var e="function"==typeof o[t]?o[t]:n[t];u&&e&&!e[c]&&i.f(e,c,{configurable:!0,get:function(){return this}})}},function(t,e,r){var n=r(114);t.exports=function(t,e){return new(n(t))(e)}},function(t,e,r){var n=r(4),o=r(86),i=r(6)("species");t.exports=function(t){var e;return o(t)&&("function"!=typeof(e=t.constructor)||e!==Array&&!o(e.prototype)||(e=void 0),n(e)&&null===(e=e[i])&&(e=void 0)),void 0===e?Array:e}},function(t,e,r){var n=r(3);n(n.P+n.R,"Set",{toJSON:r(87)("Set")})},function(t,e,r){var n=r(31);t.exports=function(t,e){var r=[];return n(t,!1,r.push,r,e),r}},function(t,e,r){r(65)("Set")},function(t,e,r){r(66)("Set")},function(t,e,r){r(120);var n=r(0).Object;t.exports=function(t,e){return n.create(t,e)}},function(t,e,r){var n=r(3);n(n.S,"Object",{create:r(29)})},function(t,e,r){r(88),t.exports=r(0).Object.getOwnPropertySymbols},function(t,e,r){var n=r(30),o=r(39),i=r(41);t.exports=function(t){var e=n(t),r=o.f;if(r)for(var u,c=r(t),s=i.f,a=0;c.length>a;)s.call(t,u=c[a++])&&e.push(u);return e}},function(t,e,r){t.exports=r(124)},function(t,e,r){r(125),t.exports=r(0).Object.keys},function(t,e,r){var n=r(22),o=r(30);r(42)("keys",function(){return function(t){return o(n(t))}})},function(t,e,r){var n=r(10);t.exports=function(t,e,r){return e in t?n(t,e,{value:r,enumerable:!0,configurable:!0,writable:!0}):t[e]=r,t}},function(t,e,r){r(128),t.exports=r(0).Object.setPrototypeOf},function(t,e,r){var n=r(3);n(n.S,"Object",{setPrototypeOf:r(129).set})},function(t,e,r){var n=r(4),o=r(12),i=function(t,e){if(o(t),!n(e)&&null!==e)throw TypeError(e+": can't set as prototype!")};t.exports={set:Object.setPrototypeOf||("__proto__"in{}?function(t,e,n){try{(n=r(19)(Function.call,r(40).f(Object.prototype,"__proto__").set,2))(t,[]),e=!(t instanceof Array)}catch(t){e=!0}return function(t,r){return i(t,r),e?t.__proto__=r:n(t,r),t}}({},!1):void 0),check:i}},function(t,e,r){var n=r(131),o=r(21);function i(t){return(i="function"==typeof o&&"symbol"==typeof n?function(t){return typeof t}:function(t){return t&&"function"==typeof o&&t.constructor===o&&t!==o.prototype?"symbol":typeof t})(t)}function u(e){return"function"==typeof o&&"symbol"===i(n)?t.exports=u=function(t){return i(t)}:t.exports=u=function(t){return t&&"function"==typeof o&&t.constructor===o&&t!==o.prototype?"symbol":i(t)},u(e)}t.exports=u},function(t,e,r){t.exports=r(132)},function(t,e,r){r(43),r(46),t.exports=r(47).f("iterator")},function(t,e,r){r(88),r(45),r(134),r(135),t.exports=r(0).Symbol},function(t,e,r){r(67)("asyncIterator")},function(t,e,r){r(67)("observable")},function(t,e){t.exports=function(t){if(void 0===t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return t}},function(t,e,r){r(138),t.exports=r(0).Object.getPrototypeOf},function(t,e,r){var n=r(22),o=r(60);r(42)("getPrototypeOf",function(){return function(t){return o(n(t))}})},function(t,e,r){t.exports=r(140)},function(t,e,r){r(45),r(43),r(46),r(141),r(142),r(143),r(144),t.exports=r(0).Map},function(t,e,r){"use strict";var n=r(85),o=r(23);t.exports=r(63)("Map",function(t){return function(){return t(this,arguments.length>0?arguments[0]:void 0)}},{get:function(t){var e=n.getEntry(o(this,"Map"),t);return e&&e.v},set:function(t,e){return n.def(o(this,"Map"),0===t?0:t,e)}},n,!0)},function(t,e,r){var n=r(3);n(n.P+n.R,"Map",{toJSON:r(87)("Map")})},function(t,e,r){r(65)("Map")},function(t,e,r){r(66)("Map")},function(t,e,r){var n=r(71),o=r(68);function i(e,r,u){return"undefined"!=typeof Reflect&&n?t.exports=i=n:t.exports=i=function(t,e,r){var n=[null];n.push.apply(n,e);var i=new(t.bind.apply(t,n));return r&&o(i,r.prototype),i},i.apply(null,arguments)}t.exports=i},function(t,e,r){r(147),t.exports=r(0).Reflect.construct},function(t,e,r){var n=r(3),o=r(29),i=r(35),u=r(12),c=r(4),s=r(14),a=r(148),f=(r(5).Reflect||{}).construct,_=s(function(){function t(){}return!(f(function(){},[],t)instanceof t)}),p=!s(function(){f(function(){})});n(n.S+n.F*(_||p),"Reflect",{construct:function(t,e){i(t),u(e);var r=arguments.length<3?t:i(arguments[2]);if(p&&!_)return f(t,e,r);if(t==r){switch(e.length){case 0:return new t;case 1:return new t(e[0]);case 2:return new t(e[0],e[1]);case 3:return new t(e[0],e[1],e[2]);case 4:return new t(e[0],e[1],e[2],e[3])}var n=[null];return n.push.apply(n,e),new(a.apply(t,n))}var s=r.prototype,l=o(c(s)?s:Object.prototype),v=Function.apply.call(t,l,e);return c(v)?v:l}})},function(t,e,r){"use strict";var n=r(35),o=r(4),i=r(149),u=[].slice,c={};t.exports=Function.bind||function(t){var e=n(this),r=u.call(arguments,1),s=function(){var n=r.concat(u.call(arguments));return this instanceof s?function(t,e,r){if(!(e in c)){for(var n=[],o=0;o<e;o++)n[o]="a["+o+"]";c[e]=Function("F,a","return new F("+n.join(",")+")")}return c[e](t,r)}(e,n.length,n):i(e,n,t)};return o(e.prototype)&&(s.prototype=e.prototype),s}},function(t,e){t.exports=function(t,e,r){var n=void 0===r;switch(e.length){case 0:return n?t():t.call(r);case 1:return n?t(e[0]):t.call(r,e[0]);case 2:return n?t(e[0],e[1]):t.call(r,e[0],e[1]);case 3:return n?t(e[0],e[1],e[2]):t.call(r,e[0],e[1],e[2]);case 4:return n?t(e[0],e[1],e[2],e[3]):t.call(r,e[0],e[1],e[2],e[3])}return t.apply(r,e)}},function(t,e,r){r(45),r(46),r(151),r(154),r(155),t.exports=r(0).WeakMap},function(t,e,r){"use strict";var n,o=r(5),i=r(64)(0),u=r(59),c=r(32),s=r(152),a=r(153),f=r(4),_=r(23),p=r(23),l=!o.ActiveXObject&&"ActiveXObject"in o,v=c.getWeak,y=Object.isExtensible,b=a.ufstore,h=function(t){return function(){return t(this,arguments.length>0?arguments[0]:void 0)}},d={get:function(t){if(f(t)){var e=v(t);return!0===e?b(_(this,"WeakMap")).get(t):e?e[this._i]:void 0}},set:function(t,e){return a.def(_(this,"WeakMap"),t,e)}},g=t.exports=r(63)("WeakMap",h,d,a,!0,!0);p&&l&&(s((n=a.getConstructor(h,"WeakMap")).prototype,d),c.NEED=!0,i(["delete","has","get","set"],function(t){var e=g.prototype,r=e[t];u(e,t,function(e,o){if(f(e)&&!y(e)){this._f||(this._f=new n);var i=this._f[t](e,o);return"set"==t?this:i}return r.call(this,e,o)})}))},function(t,e,r){"use strict";var n=r(30),o=r(39),i=r(41),u=r(22),c=r(51),s=Object.assign;t.exports=!s||r(14)(function(){var t={},e={},r=Symbol(),n="abcdefghijklmnopqrst";return t[r]=7,n.split("").forEach(function(t){e[t]=t}),7!=s({},t)[r]||Object.keys(s({},e)).join("")!=n})?function(t,e){for(var r=u(t),s=arguments.length,a=1,f=o.f,_=i.f;s>a;)for(var p,l=c(arguments[a++]),v=f?n(l).concat(f(l)):n(l),y=v.length,b=0;y>b;)_.call(l,p=v[b++])&&(r[p]=l[p]);return r}:s},function(t,e,r){"use strict";var n=r(61),o=r(32).getWeak,i=r(12),u=r(4),c=r(62),s=r(31),a=r(64),f=r(15),_=r(23),p=a(5),l=a(6),v=0,y=function(t){return t._l||(t._l=new b)},b=function(){this.a=[]},h=function(t,e){return p(t.a,function(t){return t[0]===e})};b.prototype={get:function(t){var e=h(this,t);if(e)return e[1]},has:function(t){return!!h(this,t)},set:function(t,e){var r=h(this,t);r?r[1]=e:this.a.push([t,e])},delete:function(t){var e=l(this.a,function(e){return e[0]===t});return~e&&this.a.splice(e,1),!!~e}},t.exports={getConstructor:function(t,e,r,i){var a=t(function(t,n){c(t,a,e,"_i"),t._t=e,t._i=v++,t._l=void 0,null!=n&&s(n,r,t[i],t)});return n(a.prototype,{delete:function(t){if(!u(t))return!1;var r=o(t);return!0===r?y(_(this,e)).delete(t):r&&f(r,this._i)&&delete r[this._i]},has:function(t){if(!u(t))return!1;var r=o(t);return!0===r?y(_(this,e)).has(t):r&&f(r,this._i)}}),a},def:function(t,e,r){var n=o(i(e),!0);return!0===n?y(t).set(e,r):n[t._i]=r,t},ufstore:y}},function(t,e,r){r(65)("WeakMap")},function(t,e,r){r(66)("WeakMap")},function(t,e,r){r(157);var n=r(0).Object;t.exports=function(t){return n.getOwnPropertyNames(t)}},function(t,e,r){r(42)("getOwnPropertyNames",function(){return r(89).f})},function(t,e,r){r(159);var n=r(0).Object;t.exports=function(t,e){return n.defineProperties(t,e)}},function(t,e,r){var n=r(3);n(n.S+n.F*!r(9),"Object",{defineProperties:r(79)})},function(t,e,r){r(161),t.exports=r(47).f("hasInstance")},function(t,e,r){"use strict";var n=r(4),o=r(60),i=r(6)("hasInstance"),u=Function.prototype;i in u||r(7).f(u,i,{value:function(t){if("function"!=typeof this||!n(t))return!1;if(!n(this.prototype))return t instanceof this;for(;t=o(t);)if(this.prototype===t)return!0;return!1}})},function(t,e,r){"use strict";r.r(e);var n=r(33),o=r.n(n),i=r(10),u=r.n(i),c=r(8),s=r.n(c),a=r(25),f=r.n(a),_=r(26),p=r.n(_),l=r(11),v=r.n(l),y=r(20),b=r.n(y),h=r(34),d=r.n(h),g=r(72),w=r.n(g),O=r(73),m=r.n(O),P=r(48),E=r.n(P),j=r(74),x=r.n(j),M=r(2),T=r.n(M),S=r(17),D=r.n(S),C=r(1),A=["subclass","extends"].concat(D()(new Function)),L=new T.a,R=new T.a,k=new C.a,I=new T.a,W=new T.a,B=new T.a,K=new T.a,U=new T.a,N={mode:"es5",nativeNaming:!1,prototypeWritable:!1,defaultClassDescriptor:{writable:!0,enumerable:!1,configurable:!0},setClassDescriptors:!0},F=function(t){function e(){return d()(this,e),m()(this,E()(e).apply(this,arguments))}return w()(e,t),e}(x()(Error)),q=function(t){function e(){return d()(this,e),m()(this,E()(e).apply(this,arguments))}return w()(e,t),e}(x()(Error)),V=G();function G(t){(t=t?b()({},N,t):N).defaultClassDescriptor=b()({},N.defaultClassDescriptor,t.defaultClassDescriptor);var e=t.mode,r=t.prototypeWritable,n=t.setClassDescriptors,i=t.nativeNaming;return function(){for(var t=[],e=arguments.length;e--;)t[e]=arguments[e];var r=!1;if("function"==typeof this&&(r=!0),t.length<=3){var n="",o=null,i=null;"string"==typeof t[0]?n=t[0]:"function"!=typeof t[0]&&"object"!=typeof t[0]||(o=t[0],i=t[1]),"function"!=typeof t[1]&&"object"!=typeof t[1]||(o=t[1],i=t[2]);var c=r?u.call(this,n,o,i):u(n,o,i);return c.extends=function(t,e,r){return e=e||o,r=r||i,u.call(t,n,e,r)},c}throw new TypeError("invalid args")};function u(u,c,s){var a=this;if("string"!=typeof u)throw new TypeError("\n                You must specify a string for the 'className' argument.\n            ");var f=null;if(c&&"object"==typeof c)f=c;else if(!a&&(!c||"function"!=typeof c&&"object"!=typeof c)){var _;return i&&u?_=new Function("return function "+u+"() {}")():(_=function(){},u&&Object(C.f)(_,"name",{value:u})),_.prototype={__proto__:Object.prototype,constructor:_},Object(C.f)(_,"subclass",{value:V,writable:!0,enumerable:!1,configurable:!1}),_}var l=s?void 0:new C.a;s&&(U.get(s)||U.set(s,new C.a));var y={get publicToPrivate(){return l||U.get(s)},classBrand:s=s||{brand:"lexical"},cachedPublicAccesses:new T.a,cachedProtectedAccesses:new T.a,cachedPrivateAccesses:new T.a},b=new T.a,h=function(t,e,r){var n=e.parentPublicPrototype,o=e.parentProtectedPrototype,i=e.parentPrivatePrototype;if(Y(e,r,!1))return tt(r,n,t);if(X(e,r,!1))return tt(r,o,t);if(Q(e,r,!1))return tt(r,i,t);throw new F("invalid super access")}.bind(null,b,y),d=function(t,e){var r=t.cachedPublicAccesses.get(e);if(r)return r;Q(t,e)?t.cachedPublicAccesses.set(e,r=J(e).publicToPrivate.get(e)):X(t,e)?t.cachedPublicAccesses.set(e,r=k.get(e)):t.cachedPublicAccesses.set(e,r=e);return r}.bind(null,y),g=function(t,e){var r=t.cachedProtectedAccesses.get(e);if(r)return r;if(Y(t,e))t.cachedProtectedAccesses.set(e,r=k.get(e)||z(e));else if(Q(t,e)){var n=J(e).publicToPrivate.get(e);t.cachedProtectedAccesses.set(e,r=k.get(n)||z(n))}else X(t,e)&&t.cachedProtectedAccesses.set(e,r=e);if(!r)throw new q("invalid access of protected member");return r}.bind(null,y),w=function(t,e){var r=t.cachedPrivateAccesses.get(e);if(r)return r;if(Y(t,e))t.cachedPrivateAccesses.set(e,r=t.publicToPrivate.get(e)||H(t,e));else if(X(t,e)){var n=k.get(e);t.cachedPrivateAccesses.set(e,r=t.publicToPrivate.get(n)||H(t,n))}else Q(t,e)&&t.cachedPrivateAccesses.set(e,r=e);if(!r)throw new q("invalid access of private member");return r}.bind(null,y);if(d.prototype={},g.prototype={},w.prototype={},d.Public=d,d.Protected=g,d.Private=w,d.Super=h,g.Public=d,g.Protected=g,g.Private=w,g.Super=h,(f=f||c&&c(d,g,w,h))&&"object"!=typeof f&&"function"!=typeof f)throw new TypeError("\n                The return value of a class definer function, if any, should be\n                an object, or a class constructor.\n            ");var O,m=null;"function"==typeof f&&(m=f,f=f.prototype,a=m.prototype.__proto__.constructor),f&&(O=f.static,delete f.static,"function"==typeof f.public&&(f.public=f.public(g,w)),"function"==typeof f.protected&&(f.protected=f.protected(d,w)),"function"==typeof f.private&&(f.private=f.private(d,g)));var P=(a=a||Object).prototype,E=f&&f.public||f||v()(P);E.__proto__!==P&&(E.__proto__=P);var j=function(t){var e,r=t;for(;r&&!e;)e=L.get(r),r=r.__proto__;return e||{}}(P),x=f&&f.protected||v()(j);x.__proto__!==j&&(x.__proto__=j),L.set(E,x);var M=function(t){var e,r=t;for(;r&&!e;)e=R.get(r),r=r.__proto__;return e||{}}(P),S=f&&f.private||v()(M);if(S.__proto__!==M&&(S.__proto__=M),R.set(E,S),W.get(s)||W.set(s,new p.a),B.get(s)||B.set(s,new p.a),K.get(s)||K.set(s,new p.a),W.get(s).add(E),B.get(s).add(x),K.get(s).add(S),y.publicPrototype=E,y.privatePrototype=S,y.protectedPrototype=x,y.parentPublicPrototype=P,y.parentProtectedPrototype=j,y.parentPrivatePrototype=M,$(d.prototype,E),$(g.prototype,x),$(w.prototype,S),f&&(delete f.public,delete f.protected,delete f.private,f!==E&&$(f,E)),m)return O&&$(O,m),m;var D=E.hasOwnProperty("constructor")?E.constructor:null,I=null,N=null;if("es5"!==e)throw new TypeError("\n                The lowclass mode option can only be 'es5' for now.\n            ");if(I=function(){var t=null,e=null;return(e=D||a)!==Object&&(t=e.apply(this,arguments)),!t||"object"!=typeof t&&"function"!=typeof t?this:t},N=E,u)if(i){var G=Object(C.b)(I),Z=I.prototype;(I=new Function(" userConstructor, ParentClass ","\n                    return function "+u+"() { "+G+" }\n                ")(D,a)).prototype=Z}else Object(C.f)(I,"name",{value:u});return D&&D.length&&Object(C.f)(I,"length",{value:D.length}),I.__proto__=a,O&&$(O,I),Object(C.f)(I,"subclass",{value:V,writable:!0,enumerable:!1,configurable:!1}),I.prototype=N,I.prototype.constructor=I,n&&(!function(t,e){var r,n=e.defaultClassDescriptor,i=n.writable,u=n.enumerable,c=n.configurable,s=o()(t);for(var a in s)-1===A.indexOf(a)?(("value"in(r=s[a])||"writable"in r)&&(r.writable=i),r.enumerable=u,r.configurable=c):delete s[a];Object(C.g)(t,s)}(I,t),Object(C.f)(I,"prototype",{writable:r}),et(I.prototype,t),et(x,t),et(S,t)),I}}function J(t){return I.get(t)}function z(t){var e=function(t){var e=null,r=t.__proto__;for(;r;){if(e=L.get(r))return e;r=r.__proto__}return e}(t),r=v()(e);return k.set(t,r),r}function H(t,e){var r=v()(t.privatePrototype);return t.publicToPrivate.set(e,r),I.set(r,t),r}function Y(t,e,r){if(void 0===r&&(r=!0),!r)return Z(e,t.publicPrototype);for(var n=0,o=f()(W.get(t.classBrand));n<o.length;n+=1){if(Z(e,o[n]))return!0}return!1}function X(t,e,r){if(void 0===r&&(r=!0),!r)return Z(e,t.protectedPrototype);for(var n=0,o=f()(B.get(t.classBrand));n<o.length;n+=1){if(Z(e,o[n]))return!0}return!1}function Q(t,e,r){if(void 0===r&&(r=!0),!r)return Z(e,t.privatePrototype);for(var n=0,o=f()(K.get(t.classBrand));n<o.length;n+=1){if(Z(e,o[n]))return!0}return!1}function Z(t,e){var r=t.__proto__;do{if(e===r)return!0;r=r.__proto__}while(r);return!1}function $(t,e,r){for(var n=D()(t),o=n.length;o--;){var i=n[o],c=s()(t,i);r&&r(c),u()(e,i,c)}}function tt(t,e,r){var n=r.get(t);if(!n){r.set(t,n=v()(e));for(var o=Object(C.d)(e),i=o.length,u=function(){var r=o[i];Object(C.f)(n,r,{get:function(){var n=void 0,o=Object(C.c)(e,r);if(o&&Object(C.e)(o)){var i=o.get;i&&(n=i.call(t))}else n=e[r];return n&&n.call&&"function"==typeof n&&(n=n.bind(t)),n},set:function(n){var o=Object(C.c)(e,r);if(o&&Object(C.e)(o)){var i=o.set;i&&(n=i.call(t,n))}else t[r]=n}},!0)};i--;)u()}return n}function et(t,e){var r,n=e.defaultClassDescriptor,i=n.writable,u=n.enumerable,c=n.configurable,s=o()(t);for(var a in s)("value"in(r=s[a])||"writable"in r)&&(r.writable=i),r.enumerable=u,r.configurable=c;Object(C.g)(t,s)}var rt=V,nt=r(24),ot=r.n(nt),it=r(18),ut=r.n(it),ct=r(21),st=r.n(ct);function at(t,e){var r,n;return r=t,n=new T.a,(t=function(t){return t().mixin=t,t}(t=function(t,e){return ft(t.name,function(r){return t(r=r||e)})}(t=function(t){var e=new T.a;return ft(t.name,function(r){if(function(t,e,r){for(;t;){if(r.get(t)===e)return!0;t=t.__proto__}return!1}(r,t,e))return r;var n=t(r);return e.set(n,t),n})}(t=function(t){var e;return ft(t.name,function(r){var n=t(r);return void 0!==st.a&&ut.a?-1!==ot()(n).indexOf(ut.a)?n:(e||(e=st()("instanceofSymbol")),n[e]=!0,u()(n,ut.a,{value:function(t){if(this!==n)return n.__proto__[ut.a].call(this,t);for(var r=t;r;){var o=s()(r,"constructor");if(o&&o.value&&o.value.hasOwnProperty(e))return!0;r=r.__proto__}return!1}}),n):n})}(t=ft(r.name,function(t){var e=n.get(t);return e||n.set(t,e=r(t)),e}))),e||rt())))()}function ft(t,e){try{Object.defineProperty(e,"name",b()({},s()(e,"name"),{value:t}))}catch(t){}return e}function _t(t,e){return"function"==typeof e&&e[ut.a]?e[ut.a](t):t instanceof e}var pt=r(90);r.d(e,"version",function(){return lt}),r.d(e,"Class",function(){return V}),r.d(e,"createClassHelper",function(){return G}),r.d(e,"InvalidSuperAccessError",function(){return F}),r.d(e,"InvalidAccessError",function(){return q}),r.d(e,"staticBlacklist",function(){return A}),r.d(e,"default",function(){return rt}),r.d(e,"Mixin",function(){return at}),r.d(e,"instanceOf",function(){return _t}),r.d(e,"native",function(){return pt.a});var lt="4.6.2"}]);
+var lowclass =
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return getFunctionBody; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return setDescriptor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return setDescriptors; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return propertyIsAccessor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return getInheritedDescriptor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return getInheritedPropertyNames; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return WeakTwoWayMap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Constructor; });
+
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class WeakTwoWayMap {
+  constructor() {
+    this.m = new WeakMap();
+  }
+
+  set(a, b) {
+    this.m.set(a, b);
+    this.m.set(b, a);
+  }
+
+  get(item) {
+    return this.m.get(item);
+  }
+
+  has(item) {
+    return this.m.has(item);
+  }
+
+}
+
+ // assumes the function opening, body, and closing are on separate lines
+
+function getFunctionBody(fn) {
+  const code = fn.toString().split("\n");
+  code.shift(); // remove opening line (function() {)
+
+  code.pop(); // remove closing line (})
+
+  return code.join("\n");
+}
+
+const descriptorDefaults = {
+  enumerable: true,
+  configurable: true // makes it easier and less verbose to work with descriptors
+
+};
+
+function setDescriptor(obj, key, newDescriptor, inherited = false) {
+  let currentDescriptor = inherited ? getInheritedDescriptor(obj, key) : Object.getOwnPropertyDescriptor(obj, key);
+  newDescriptor = overrideDescriptor(currentDescriptor, newDescriptor);
+  Object.defineProperty(obj, key, newDescriptor);
+}
+
+function setDescriptors(obj, newDescriptors) {
+  let newDescriptor;
+  let currentDescriptor;
+  const currentDescriptors = Object.getOwnPropertyDescriptors(obj);
+
+  for (const key in newDescriptors) {
+    newDescriptor = newDescriptors[key];
+    currentDescriptor = currentDescriptors[key];
+    newDescriptors[key] = overrideDescriptor(currentDescriptor, newDescriptor);
+  }
+
+  Object.defineProperties(obj, newDescriptors);
+}
+
+function overrideDescriptor(oldDescriptor, newDescriptor) {
+  if (('get' in newDescriptor || 'set' in newDescriptor) && ('value' in newDescriptor || 'writable' in newDescriptor)) {
+    throw new TypeError('cannot specify both accessors and a value or writable attribute');
+  }
+
+  if (oldDescriptor) {
+    if ('get' in newDescriptor || 'set' in newDescriptor) {
+      delete oldDescriptor.value;
+      delete oldDescriptor.writable;
+    } else if ('value' in newDescriptor || 'writable' in newDescriptor) {
+      delete oldDescriptor.get;
+      delete oldDescriptor.set;
+    }
+  }
+
+  return _objectSpread({}, descriptorDefaults, oldDescriptor, newDescriptor);
+}
+
+function propertyIsAccessor(obj, key, inherited = true) {
+  let result = false;
+  let descriptor;
+
+  if (arguments.length === 1) {
+    descriptor = obj;
+  } else {
+    descriptor = inherited ? getInheritedDescriptor(obj, key) : Object.getOwnPropertyDescriptor(obj, key);
+  }
+
+  if (descriptor && (descriptor.get || descriptor.set)) result = true;
+  return result;
+}
+
+function getInheritedDescriptor(obj, key) {
+  let currentProto = obj;
+  let descriptor;
+
+  while (currentProto) {
+    descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
+
+    if (descriptor) {
+      descriptor.owner = currentProto;
+      return descriptor;
+    }
+
+    currentProto = currentProto.__proto__;
+  }
+}
+
+function getInheritedPropertyNames(obj) {
+  let currentProto = obj;
+  let keys = [];
+
+  while (currentProto) {
+    keys = keys.concat(Object.getOwnPropertyNames(currentProto));
+    currentProto = currentProto.__proto__;
+  } // remove duplicates
+
+
+  keys = Array.from(new Set(keys));
+  return keys;
+} // this is used for type casting in special cases, see the declaration file
+
+
+function Constructor(Ctor) {
+  return Ctor;
+}
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return newless; });
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+// borrowed from (and slightly modified) https://github.com/Mr0grog/newless
+// The newless license is BSD 3:
+
+/*
+ * Copyright (c) 2013-2016, Rob Brackett
+ * Copyright (c) 2018, Joseph Orbegoso Pea
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+/* unused harmony default export */ var _unused_webpack_default_export = (newless);
+var supportsSpread = isSyntaxSupported("Object(...[{}])");
+var supportsClass = isSyntaxSupported("class Test {}");
+var supportsNewTarget = isSyntaxSupported("new.target"); // Used to track the original wrapped constructor on a newless instance
+
+var TRUE_CONSTRUCTOR = Symbol ? Symbol("trueConstructor") : "__newlessTrueConstructor__"; // Polyfills for get/set prototype
+
+var getPrototype = Object.getPrototypeOf || function getPrototype(object) {
+  return object.__proto__ || object.constructor && object.constructor.prototype || Object.prototype;
+};
+
+var setPrototype = Object.setPrototypeOf || function setPrototypeOf(object, newPrototype) {
+  object.__proto__ = newPrototype;
+}; // Polyfill for Reflect.construct
+
+
+var construct = Reflect && Reflect.construct || function () {
+  if (supportsClass) {
+    return Function("constructor, args, target", `
+      'use strict';
+
+      if (arguments.length === 3 && typeof target !== 'function')
+        throw new TypeError(target + ' is not a constructor');
+
+      target = target || constructor;
+
+      // extend target so the right prototype is constructed (or nearly the
+      // right one; ideally we'd do instantiator.prototype = target.prototype,
+      // but a class's prototype property is not writable)
+      class instantiator extends target {};
+      // but ensure the *logic* is 'constructor' for ES2015-compliant engines
+      Object.setPrototypeOf(instantiator, constructor);
+      // ...and for Safari 9
+      instantiator.prototype.constructor = constructor;
+
+      // The spread operator is *dramatically faster, so use it if we can:
+      // http://jsperf.com/new-via-spread-vs-dynamic-function/4
+      ${supportsSpread ? `
+
+        var value = new instantiator(...([].slice.call(args)));
+
+      ` : `
+
+        // otherwise, create a dynamic function in order to use 'new'
+        // Note using 'function.bind' would be simpler, but is much slower:
+        // http://jsperf.com/new-operator-with-dynamic-function-vs-bind
+        var argList = '';
+        for (var i = 0, len = args.length; i < len; i++) {
+          if (i > 0) argList += ',';
+          argList += 'args[' + i + ']';
+        }
+        var constructCall = Function('constructor, args',
+          'return new constructor( ' + argList + ' );'
+        );
+        var value = constructCall(constructor, args);
+
+        args = Array.prototype.slice.call(args);
+        args = [null].concat(args);
+        var value = new constructor.bind.apply(constructor, args);
+
+      `}
+
+      // fix up the prototype so it matches the intended one, not one who's
+      // prototype is the intended one :P
+      Object.setPrototypeOf(value, target.prototype);
+      return value;
+    `); //return Function("constructor, args, newTarget", `
+    //  'use strict';
+    //  if (arguments.length === 3 && typeof newTarget === undefined)
+    //    throw new TypeError('undefined is not a constructor');
+    //  newTarget = newTarget || constructor;
+    //  ${ supportsSpread ? `
+    //    var value = new constructor(...([].slice.call(args)));
+    //  `:`
+    //    args = Array.prototype.slice.call(args);
+    //    args = [null].concat(args);
+    //    var value = new constructor.bind.apply(constructor, args);
+    //  `}
+    //  Object.setPrototypeOf(value, newTarget.prototype);
+    //  return value;
+    //`);
+  } else {
+    var instantiator = function () {};
+
+    return function construct(constructor, args, target) {
+      if (arguments.length === 3 && typeof target !== 'function') throw new TypeError(target + ' is not a constructor');
+      instantiator.prototype = (target || constructor).prototype;
+      var instance = new instantiator();
+      var value = constructor.apply(instance, args);
+
+      if (typeof value === "object" && value) {
+        // we can do better if __proto__ is available (in some ES5 environments)
+        value.__proto__ = (target || constructor).prototype;
+        return value;
+      }
+
+      return instance;
+    };
+  }
+}(); // ES2015 class methods are non-enumerable; we need a helper for copying them.
+
+
+var SKIP_PROPERTIES = ["arguments", "caller", "length", "name", "prototype"];
+
+function copyProperties(source, destination) {
+  if (Object.getOwnPropertyNames && Object.defineProperty) {
+    var properties = Object.getOwnPropertyNames(source);
+
+    if (Object.getOwnPropertySymbols) {
+      properties = properties.concat(Object.getOwnPropertySymbols(source));
+    }
+
+    for (var i = properties.length - 1; i >= 0; i--) {
+      if (SKIP_PROPERTIES.indexOf(properties[i]) === -1) {
+        Object.defineProperty(destination, properties[i], Object.getOwnPropertyDescriptor(source, properties[i]));
+      }
+    }
+  } else {
+    for (var property in source) {
+      destination[property] = source[property];
+    }
+  }
+}
+
+function newless(constructor) {
+  var name = constructor.name; // V8 and newer versions of JSCore return the full class declaration from
+  // `toString()`, which lets us be a little smarter and more performant
+  // about what to do, since we know we are dealing with a "class". Note,
+  // however, not all engines do this. This could be false and the constructor
+  // might still use class syntax.
+
+  var usesClassSyntax = constructor.toString().substr(0, 5) === "class";
+  var requiresNew = usesClassSyntax ? true : null;
+
+  var newlessConstructor = (() => function () {
+    // If called with an already valid 'this', preserve that 'this' value
+    // in the super-type's constructor whenever possible. With function
+    // constructors (as opposed to class constructors), it's possible to
+    // alter the instance before calling the super constructor--so it's
+    // important to preserve that instance if at all possible.
+    if (!requiresNew && this instanceof newlessConstructor) {
+      // requiresNew = 'false' indicates we know the 'new' operator isn't
+      // necessary for this constructor, but 'null' indicates uncertainty,
+      // so the call needs to handle potential errors the first time in
+      // order to determine whether 'new' is definitely required.
+      if (requiresNew === false) {
+        var returnValue = constructor.apply(this, arguments);
+        return typeof returnValue === 'object' && returnValue || this;
+      }
+
+      try {
+        requiresNew = false;
+        var returnValue = constructor.apply(this, arguments);
+        return typeof returnValue === 'object' && returnValue || this;
+      } catch (error) {
+        // Do our best to only capture errors triggred by class syntax.
+        // Unfortunately, there's no special error type for this and the
+        // message is non-standard, so this is the best check we can do.
+        if (error instanceof TypeError && (/class constructor/i.test(error.message) || /use the 'new' operator/i.test(error.message) // Custom Elements in Chrome
+        // TODO: there might be other error messages we need to catch,
+        // depending on engine and use case. We need to test in all browsers
+        )) {
+          // mark this constructor as requiring 'new' for next time
+          requiresNew = true;
+        } else {
+          if (/Illegal constructor/i.test(error.message) && Object.create(constructor.prototype) instanceof Node) {
+            console.error(`
+                    The following error can happen if a Custom Element is called
+                    with 'new' before being defined. The constructor was ${constructor.name}:
+                `, constructor);
+          }
+
+          throw error;
+        }
+      }
+    } // make a reasonably good replacement for 'new.target' which is a
+    // syntax error in older engines
+
+
+    var newTarget;
+    var hasNewTarget = false;
+
+    if (supportsNewTarget) {
+      eval('newTarget = new.target');
+      if (newTarget) hasNewTarget = true;
+    }
+
+    if (!supportsNewTarget || !hasNewTarget) {
+      newTarget = this instanceof newlessConstructor ? this.constructor : constructor;
+    }
+
+    var returnValue = construct(constructor, arguments, newTarget); // best effort to make things easy for functions inheriting from classes
+
+    if (this instanceof newlessConstructor) {
+      setPrototype(this, returnValue);
+    }
+
+    return returnValue;
+  })();
+
+  if (name) {
+    const code = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* getFunctionBody */ "c"])(newlessConstructor);
+    newlessConstructor = Function("constructor, construct, setPrototype, requiresNew, supportsNewTarget", `
+      var newlessConstructor = function ${name}() { ${code} };
+      return newlessConstructor
+    `)(constructor, construct, setPrototype, requiresNew, supportsNewTarget);
+  } // copy the `.length` value to the newless constructor
+
+
+  if (constructor.length) {
+    // length is not writable, only configurable, therefore the value
+    // has to be set with a descriptor update
+    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* setDescriptor */ "g"])(newlessConstructor, 'length', {
+      value: constructor.length
+    });
+  }
+
+  newlessConstructor.prototype = Object.create(constructor.prototype);
+  newlessConstructor.prototype.constructor = newlessConstructor; // NOTE: *usually* the below will already be true, but we ensure it here.
+  // Safari 9 requires this for the 'super' keyword to work. Newer versions
+  // of WebKit and other engines do not. Instead, they use the constructor's
+  // prototype chain (which is correct by ES2015 spec) (see below).
+
+  constructor.prototype.constructor = constructor; // for ES2015 classes, we need to make sure the constructor's prototype
+  // is the super class's constructor. Further, optimize performance by
+  // pointing at the actual constructor implementation instead of the
+  // newless wrapper (in the case that it is wrapped by newless).
+
+  newlessConstructor[TRUE_CONSTRUCTOR] = constructor;
+  copyProperties(constructor, newlessConstructor);
+  setPrototype(newlessConstructor, constructor);
+  return newlessConstructor;
+}
+
+; // Test whether a given syntax is supported
+
+function isSyntaxSupported(example, useStrict = true) {
+  try {
+    return !!Function("", (useStrict ? "'use strict';" : "") + example);
+  } catch (error) {
+    return false;
+  }
+}
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./src/utils.js
+var utils = __webpack_require__(0);
+
+// CONCATENATED MODULE: ./src/Class.js
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// TODO
+//  [x] remove the now-unnecessary modes (leave just what was 'es5' mode)
+//  [x] link helpers to each other, making it possible to destructure the arguments to definer functions
+//  [x] let access helper prototype objects extend from Object, otherwise common tools are not available.
+//  [x] accept a function as return value of function definer, to be treated as a class to derive the definition from, so that it can have access to Protected and Private helpers
+//  [x] let the returned class define protected and private getters which return the protected and private definitions.
+//  [x] migrate to builder-js-package so tests can run in the browser, and we can test custom elements
+//  [ ] protected and private static members
+//  [ ] other TODOs in the code
+
+const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())];
+const publicProtoToProtectedProto = new WeakMap();
+const publicProtoToPrivateProto = new WeakMap(); // A two-way map to associate public instances with protected instances.
+// There is one protected instance per public instance
+
+const publicToProtected = new utils["b" /* WeakTwoWayMap */](); // so we can get the class scope associated with a private instance
+
+const privateInstanceToClassScope = new WeakMap();
+const brandToPublicPrototypes = new WeakMap();
+const brandToProtectedPrototypes = new WeakMap();
+const brandToPrivatePrototypes = new WeakMap();
+const brandToPublicsPrivates = new WeakMap();
+const defaultOptions = {
+  // es5 class inheritance is simple, nice, easy, and robust
+  // There was another mode, but it has been removed
+  mode: 'es5',
+  // false is better for performance, but true will use Function (similar to
+  // eval) to name your class functions in the most accurate way.
+  nativeNaming: false,
+  // similar to ES6 classes:
+  prototypeWritable: false,
+  defaultClassDescriptor: {
+    writable: true,
+    enumerable: false,
+    configurable: true
+  },
+  setClassDescriptors: true
+};
+
+class InvalidSuperAccessError extends Error {}
+
+class InvalidAccessError extends Error {}
+
+const Class = createClassHelper();
+
+function createClassHelper(options) {
+  options = options ? _objectSpread({}, defaultOptions, options) : defaultOptions;
+  options.defaultClassDescriptor = _objectSpread({}, defaultOptions.defaultClassDescriptor, options.defaultClassDescriptor);
+  const {
+    mode,
+    prototypeWritable,
+    setClassDescriptors,
+    nativeNaming
+  } = options;
+  /*
+   * this is just the public interface adapter for createClass(). Depending
+   * on how you call this interface, you can do various things like:
+   *
+   * - anonymous empty class
+   *
+   *    Class()
+   *
+   * - named empty class
+   *
+   *    Class('Foo')
+   *
+   * - base class named Foo
+   *
+   *    Class('Foo', (Public, Protected, Private) => {
+   *      someMethod() { ... },
+   *    })
+   *
+   * - anonymous base class
+   *
+   *    Class((Public, Protected, Private) => {
+   *      someMethod() { ... },
+   *    })
+   *
+   *    Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({
+   *      someMethod() { ... },
+   *    }))
+   *
+   *    OtherClass.subclass = Class
+   *    const Bar = OtherClass.subclass((Public, Protected, Private) => {
+   *      ...
+   *    })
+   *
+   * - any class made with lowclass has a static subclass if you prefer using
+   *   that:
+   *
+   *    Bar.subclass('Baz', (Public, Protected, Private) => {...})
+   *
+   * - but you could as well do
+   *
+   *    Class('Baz').extends(Bar, (Public, Protected, Private) => {...})
+   */
+
+  return function Class(...args) {
+    let usingStaticSubclassMethod = false; // if called as SomeConstructor.subclass, or bound to SomeConstructor
+
+    if (typeof this === 'function') usingStaticSubclassMethod = true; // f.e. `Class()`, `Class('Foo')`, `Class('Foo', {...})` , `Class('Foo',
+    // {...}, Brand)`, similar to `class {}`, `class Foo {}`, class Foo
+    // {...}, and class Foo {...} with branding (see comments on classBrand
+    // below regarding positional privacy)
+
+    if (args.length <= 3) {
+      let name = '';
+      let definer = null;
+      let classBrand = null; // f.e. `Class('Foo')`
+
+      if (typeof args[0] === 'string') name = args[0]; // f.e. `Class((pub, prot, priv) => ({ ... }))`
+      else if (typeof args[0] === 'function' || typeof args[0] === 'object') {
+          definer = args[0];
+          classBrand = args[1];
+        } // f.e. `Class('Foo', (pub, prot, priv) => ({ ... }))`
+
+      if (typeof args[1] === 'function' || typeof args[1] === 'object') {
+        definer = args[1];
+        classBrand = args[2];
+      } // Make a class in case we wanted to do just `Class()` or
+      // `Class('Foo')`...
+
+
+      const Ctor = usingStaticSubclassMethod ? createClass.call(this, name, definer, classBrand) : createClass(name, definer, classBrand); // ...but add the extends helper in case we wanted to do like:
+      // Class().extends(OtherClass, (Public, Protected, Private) => ({
+      //   ...
+      // }))
+
+      Ctor.extends = function (ParentClass, def, brand) {
+        def = def || definer;
+        brand = brand || classBrand;
+        return createClass.call(ParentClass, name, def, brand);
+      };
+
+      return Ctor;
+    }
+
+    throw new TypeError('invalid args');
+  };
+  /**
+   * @param {string} className The name that the class being defined should
+   * have.
+   * @param {Function} definer A function or object for defining the class.
+   * If definer a function, it is passed the Public, Protected, Private, and
+   * Super helpers. Methods and properties can be defined on the helpers
+   * directly.  An object containing methods and properties can also be
+   * returned from the function. If definer is an object, the object should
+   * be in the same format as the one returned if definer were a function.
+   */
+
+  function createClass(className, definer, classBrand) {
+    "use strict"; // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
+
+    let ParentClass = this;
+
+    if (typeof className !== 'string') {
+      throw new TypeError(`
+                You must specify a string for the 'className' argument.
+            `);
+    }
+
+    let definition = null; // f.e. Class('Foo', { ... })
+
+    if (definer && typeof definer === 'object') {
+      definition = definer;
+    } // Return early if there's no definition or parent class, just a simple
+    // extension of Object. f.e. when doing just `Class()` or
+    // `Class('Foo')`
+    else if (!ParentClass && (!definer || typeof definer !== 'function' && typeof definer !== 'object')) {
+        let Ctor;
+        if (nativeNaming && className) Ctor = new Function(`return function ${className}() {}`)();else {
+          // force anonymous even in ES6+
+          Ctor = (() => function () {})();
+
+          if (className) Object(utils["g" /* setDescriptor */])(Ctor, 'name', {
+            value: className
+          });
+        }
+        Ctor.prototype = {
+          __proto__: Object.prototype,
+          constructor: Ctor // no static inheritance here, just like with `class Foo {}`
+
+        };
+        Object(utils["g" /* setDescriptor */])(Ctor, 'subclass', {
+          value: Class,
+          writable: true,
+          // TODO maybe let's make this non writable
+          enumerable: false,
+          configurable: false
+        });
+        return Ctor;
+      } // A two-way map to associate public instances with private instances.
+    // Unlike publicToProtected, this is inside here because there is one
+    // private instance per class scope per instance (or to say it another
+    // way, each instance has as many private instances as the number of
+    // classes that the given instance has in its inheritance chain, one
+    // private instance per class)
+
+
+    const scopedPublicsToPrivates = classBrand ? void undefined : new utils["b" /* WeakTwoWayMap */]();
+
+    if (classBrand) {
+      if (!brandToPublicsPrivates.get(classBrand)) brandToPublicsPrivates.set(classBrand, new utils["b" /* WeakTwoWayMap */]());
+    } // if no brand provided, then we use the most fine-grained lexical
+    // privacy. Lexical privacy is described at
+    // https://github.com/tc39/proposal-class-fields/issues/60
+    //
+    // TODO make prototypes non-configurable so that the clasds-brand system
+    // can't be tricked. For now, it's good enough, most people aren't going
+    // to go out of their way to mangle with the prototypes in order to
+    // force invalid private access.
+
+
+    classBrand = classBrand || {
+      brand: 'lexical' // the class "scope" that we will bind to the helper functions
+
+    };
+    const scope = {
+      className,
+
+      // convenient for debugging
+      get publicToPrivate() {
+        return scopedPublicsToPrivates ? scopedPublicsToPrivates : brandToPublicsPrivates.get(classBrand);
+      },
+
+      classBrand,
+      // we use these to memoize the Public/Protected/Private access
+      // helper results, to make subsequent accessses faster.
+      cachedPublicAccesses: new WeakMap(),
+      cachedProtectedAccesses: new WeakMap(),
+      cachedPrivateAccesses: new WeakMap() // create the super helper for this class scope
+
+    };
+    const supers = new WeakMap();
+    const Super = superHelper.bind(null, supers, scope); // bind this class' scope to the helper functions
+
+    const Public = getPublicMembers.bind(null, scope);
+    const Protected = getProtectedMembers.bind(null, scope);
+    const Private = getPrivateMembers.bind(null, scope);
+    Public.prototype = {};
+    Protected.prototype = {};
+    Private.prototype = {}; // alows the user to destructure arguments to definer functions
+
+    Public.Public = Public;
+    Public.Protected = Protected;
+    Public.Private = Private;
+    Public.Super = Super;
+    Protected.Public = Public;
+    Protected.Protected = Protected;
+    Protected.Private = Private;
+    Protected.Super = Super; // Private and Super are never passed as first argument
+    // pass the helper functions to the user's class definition function
+
+    definition = definition || definer && definer(Public, Protected, Private, Super); // the user has the option of returning an object that defines which
+    // properties are public/protected/private.
+
+    if (definition && typeof definition !== 'object' && typeof definition !== 'function') {
+      throw new TypeError(`
+                The return value of a class definer function, if any, should be
+                an object, or a class constructor.
+            `);
+    } // if a function was returned, we assume it is a class from which we
+    // get the public definition from.
+
+
+    let customClass = null;
+
+    if (typeof definition === 'function') {
+      customClass = definition;
+      definition = definition.prototype;
+      ParentClass = customClass.prototype.__proto__.constructor;
+    }
+
+    let staticMembers; // if functions were provided for the public/protected/private
+    // properties of the definition object, execute them with their
+    // respective access helpers, and use the objects returned from them.
+
+    if (definition) {
+      staticMembers = definition.static;
+      delete definition.static;
+
+      if (typeof definition.public === 'function') {
+        definition.public = definition.public(Protected, Private);
+      }
+
+      if (typeof definition.protected === 'function') {
+        definition.protected = definition.protected(Public, Private);
+      }
+
+      if (typeof definition.private === 'function') {
+        definition.private = definition.private(Public, Protected);
+      }
+    }
+
+    ParentClass = ParentClass || Object; // extend the parent class
+
+    const parentPublicPrototype = ParentClass.prototype;
+    const publicPrototype = definition && definition.public || definition || Object.create(parentPublicPrototype);
+    if (publicPrototype.__proto__ !== parentPublicPrototype) publicPrototype.__proto__ = parentPublicPrototype; // extend the parent protected prototype
+
+    const parentProtectedPrototype = getParentProtectedPrototype(parentPublicPrototype);
+    const protectedPrototype = definition && definition.protected || Object.create(parentProtectedPrototype);
+    if (protectedPrototype.__proto__ !== parentProtectedPrototype) protectedPrototype.__proto__ = parentProtectedPrototype;
+    publicProtoToProtectedProto.set(publicPrototype, protectedPrototype); // private prototype inherits from parent, but each private instance is
+    // private only for the class of this scope
+
+    const parentPrivatePrototype = getParentPrivatePrototype(parentPublicPrototype);
+    const privatePrototype = definition && definition.private || Object.create(parentPrivatePrototype);
+    if (privatePrototype.__proto__ !== parentPrivatePrototype) privatePrototype.__proto__ = parentPrivatePrototype;
+    publicProtoToPrivateProto.set(publicPrototype, privatePrototype);
+    if (!brandToPublicPrototypes.get(classBrand)) brandToPublicPrototypes.set(classBrand, new Set());
+    if (!brandToProtectedPrototypes.get(classBrand)) brandToProtectedPrototypes.set(classBrand, new Set());
+    if (!brandToPrivatePrototypes.get(classBrand)) brandToPrivatePrototypes.set(classBrand, new Set());
+    brandToPublicPrototypes.get(classBrand).add(publicPrototype);
+    brandToProtectedPrototypes.get(classBrand).add(protectedPrototype);
+    brandToPrivatePrototypes.get(classBrand).add(privatePrototype);
+    scope.publicPrototype = publicPrototype;
+    scope.privatePrototype = privatePrototype;
+    scope.protectedPrototype = protectedPrototype;
+    scope.parentPublicPrototype = parentPublicPrototype;
+    scope.parentProtectedPrototype = parentProtectedPrototype;
+    scope.parentPrivatePrototype = parentPrivatePrototype; // the user has the option of assigning methods and properties to the
+    // helpers that we passed in, to let us know which methods and
+    // properties are public/protected/private so we can assign them onto
+    // the respective prototypes.
+
+    copyDescriptors(Public.prototype, publicPrototype);
+    copyDescriptors(Protected.prototype, protectedPrototype);
+    copyDescriptors(Private.prototype, privatePrototype);
+
+    if (definition) {
+      // delete these so we don't expose them on the class' public
+      // prototype
+      delete definition.public;
+      delete definition.protected;
+      delete definition.private; // if a `public` object was also supplied, we treat that as the public
+      // prototype instead of the base definition object, so we copy the
+      // definition's props to the `public` object
+      //
+      // TODO For now we copy from the definition object to the 'public'
+      // object (publicPrototype), but this won't work with native `super`.
+      // Maybe later, we can use a Proxy to read props from both the root
+      // object and the public object, so that `super` works from both.
+      // Another option is to not allow a `public` object, only protected
+      // and private
+
+      if (definition !== publicPrototype) {
+        // copy whatever remains
+        copyDescriptors(definition, publicPrototype);
+      }
+    }
+
+    if (customClass) {
+      if (staticMembers) copyDescriptors(staticMembers, customClass);
+      return customClass;
+    }
+
+    const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : null;
+    let NewClass = null;
+    let newPrototype = null; // ES5 version (which seems to be so much better)
+
+    if (mode === 'es5') {
+      NewClass = (() => function () {
+        let ret = null;
+        let constructor = null;
+        if (userConstructor) constructor = userConstructor;else constructor = ParentClass; // Object is a special case because otherwise
+        // `Object.apply(this)` returns a different object and we don't
+        // want to deal with return value in that case
+
+        if (constructor !== Object) ret = constructor.apply(this, arguments);
+
+        if (ret && (typeof ret === 'object' || typeof ret === 'function')) {
+          // XXX should we set ret.__proto__ = constructor.prototype
+          // here? Or let the user deal with that?
+          return ret;
+        }
+
+        return this;
+      })();
+
+      newPrototype = publicPrototype;
+    } else {
+      throw new TypeError(`
+                The lowclass "mode" option can only be 'es5' for now.
+            `);
+    }
+
+    if (className) {
+      if (nativeNaming) {
+        const code = Object(utils["c" /* getFunctionBody */])(NewClass);
+        const proto = NewClass.prototype;
+        NewClass = new Function(` userConstructor, ParentClass `, `
+                    return function ${className}() { ${code} }
+                `)(userConstructor, ParentClass);
+        NewClass.prototype = proto;
+      } else {
+        Object(utils["g" /* setDescriptor */])(NewClass, 'name', {
+          value: className
+        });
+      }
+    }
+
+    if (userConstructor && userConstructor.length) {
+      // length is not writable, only configurable, therefore the value
+      // has to be set with a descriptor update
+      Object(utils["g" /* setDescriptor */])(NewClass, 'length', {
+        value: userConstructor.length
+      });
+    } // static stuff {
+    // static inheritance
+
+
+    NewClass.__proto__ = ParentClass;
+    if (staticMembers) copyDescriptors(staticMembers, NewClass); // allow users to make subclasses. When subclass is called on a
+    // constructor, it defines `this` which is assigned to ParentClass
+    // above.
+
+    Object(utils["g" /* setDescriptor */])(NewClass, 'subclass', {
+      value: Class,
+      writable: true,
+      enumerable: false,
+      configurable: false
+    }); // }
+    // prototype stuff {
+
+    NewClass.prototype = newPrototype;
+    NewClass.prototype.constructor = NewClass; // }
+
+    if (setClassDescriptors) {
+      setDefaultStaticDescriptors(NewClass, options);
+      Object(utils["g" /* setDescriptor */])(NewClass, 'prototype', {
+        writable: prototypeWritable
+      });
+      setDefaultPrototypeDescriptors(NewClass.prototype, options);
+      setDefaultPrototypeDescriptors(protectedPrototype, options);
+      setDefaultPrototypeDescriptors(privatePrototype, options);
+    }
+
+    scope.constructor = NewClass; // convenient for debugging
+
+    return NewClass;
+  }
+} // XXX PERFORMANCE: instead of doing multiple prototype traversals with
+// hasPrototype in the following access helpers, maybe we can do a single
+// traversal and check along the way?
+//
+// Worst case examples:
+//
+//   currently:
+//     If class hierarchy has 20 classes
+//     If we detect which instance we have in order of public, protected, private
+//     If the instance we're checking is the private instance of the middle class (f.e. class 10)
+//     We'll traverse 20 public prototypes with 20 conditional checks
+//     We'll traverse 20 protected prototypes with 20 conditional checks
+//     And finally we'll traverse 10 private prototypes with 10 conditional checks
+//     TOTAL: We traverse over 50 prototypes with 50 conditional checks
+//
+//   proposed:
+//     If class hierarchy has 20 classes
+//     If we detect which instance we have in order of public, protected, private
+//     If the instance we're checking is the private instance of the middle class (f.e. class 10)
+//     We'll traverse 10 public prototypes with 3 conditional checks at each prototype
+//     TOTAL: We traverse over 10 prototypes with 30 conditional checks
+//     BUT: The conditional checking will involve reading WeakMaps instead of
+//     checking just reference equality. If we can optimize how this part
+//     works, it might be worth it.
+//
+// Can the tradeoff (less traversal and conditional checks) outweigh the
+// heavier conditional checks?
+//
+// XXX PERFORMANCE: We can also cache the access-helper results, which requires more memory,
+// but will make use of access helpers much faster, especially important for
+// animations.
+
+
+function getParentProtectedPrototype(parentPublicPrototype) {
+  // look up the prototype chain until we find a parent protected prototype, if any.
+  let parentProtectedProto;
+  let currentPublicProto = parentPublicPrototype;
+
+  while (currentPublicProto && !parentProtectedProto) {
+    parentProtectedProto = publicProtoToProtectedProto.get(currentPublicProto);
+    currentPublicProto = currentPublicProto.__proto__;
+  } // TODO, now that we're finding the nearest parent protected proto,
+  // we might not need to create an empty object for each class if we
+  // don't find one, to avoid prototype lookup depth, as we'll connect
+  // to the nearest one we find, if any.
+
+
+  return parentProtectedProto || {};
+}
+
+function getParentPrivatePrototype(parentPublicPrototype) {
+  // look up the prototype chain until we find a parent protected prototype, if any.
+  let parentPrivateProto;
+  let currentPublicProto = parentPublicPrototype;
+
+  while (currentPublicProto && !parentPrivateProto) {
+    parentPrivateProto = publicProtoToPrivateProto.get(currentPublicProto);
+    currentPublicProto = currentPublicProto.__proto__;
+  } // TODO, now that we're finding the nearest parent protected proto,
+  // we might not need to create an empty object for each class if we
+  // don't find one, to avoid prototype lookup depth, as we'll connect
+  // to the nearest one we find, if any.
+
+
+  return parentPrivateProto || {};
+}
+
+function getPublicMembers(scope, instance) {
+  let result = scope.cachedPublicAccesses.get(instance);
+  if (result) return result; // check only for the private instance of this class scope
+
+  if (isPrivateInstance(scope, instance)) scope.cachedPublicAccesses.set(instance, result = getSubclassScope(instance).publicToPrivate.get(instance)); // check for an instance of the class (or its subclasses) of this scope
+  else if (isProtectedInstance(scope, instance)) scope.cachedPublicAccesses.set(instance, result = publicToProtected.get(instance)); // otherwise just return whatever was passed in, it's public already!
+    else scope.cachedPublicAccesses.set(instance, result = instance);
+  return result;
+}
+
+function getProtectedMembers(scope, instance) {
+  let result = scope.cachedProtectedAccesses.get(instance);
+  if (result) return result; // check for an instance of the class (or its subclasses) of this scope
+  // This allows for example an instance of an Animal base class to access
+  // protected members of an instance of a Dog child class.
+
+  if (isPublicInstance(scope, instance)) scope.cachedProtectedAccesses.set(instance, result = publicToProtected.get(instance) || createProtectedInstance(instance)); // check for a private instance inheriting from this class scope
+  else if (isPrivateInstance(scope, instance)) {
+      const publicInstance = getSubclassScope(instance).publicToPrivate.get(instance);
+      scope.cachedProtectedAccesses.set(instance, result = publicToProtected.get(publicInstance) || createProtectedInstance(publicInstance));
+    } // return the protected instance if it was passed in
+    else if (isProtectedInstance(scope, instance)) scope.cachedProtectedAccesses.set(instance, result = instance);
+  if (!result) throw new InvalidAccessError('invalid access of protected member');
+  return result;
+}
+
+function getSubclassScope(privateInstance) {
+  return privateInstanceToClassScope.get(privateInstance);
+}
+
+function createProtectedInstance(publicInstance) {
+  // traverse instance proto chain, find first protected prototype
+  const protectedPrototype = findLeafmostProtectedPrototype(publicInstance); // make the protected instance from the found protected prototype
+
+  const protectedInstance = Object.create(protectedPrototype);
+  publicToProtected.set(publicInstance, protectedInstance);
+  return protectedInstance;
+}
+
+function findLeafmostProtectedPrototype(publicInstance) {
+  let result = null;
+  let currentProto = publicInstance.__proto__;
+
+  while (currentProto) {
+    result = publicProtoToProtectedProto.get(currentProto);
+    if (result) return result;
+    currentProto = currentProto.__proto__;
+  }
+
+  return result;
+}
+
+function getPrivateMembers(scope, instance) {
+  let result = scope.cachedPrivateAccesses.get(instance);
+  if (result) return result; // check for a public instance that is or inherits from this class
+
+  if (isPublicInstance(scope, instance)) scope.cachedPrivateAccesses.set(instance, result = scope.publicToPrivate.get(instance) || createPrivateInstance(scope, instance)); // check for a protected instance that is or inherits from this class'
+  // protectedPrototype
+  else if (isProtectedInstance(scope, instance)) {
+      const publicInstance = publicToProtected.get(instance);
+      scope.cachedPrivateAccesses.set(instance, result = scope.publicToPrivate.get(publicInstance) || createPrivateInstance(scope, publicInstance));
+    } // return the private instance if it was passed in
+    else if (isPrivateInstance(scope, instance)) scope.cachedPrivateAccesses.set(instance, result = instance);
+  if (!result) throw new InvalidAccessError('invalid access of private member');
+  return result;
+}
+
+function createPrivateInstance(scope, publicInstance) {
+  const privateInstance = Object.create(scope.privatePrototype);
+  scope.publicToPrivate.set(publicInstance, privateInstance);
+  privateInstanceToClassScope.set(privateInstance, scope); // TODO use WeakTwoWayMap
+
+  return privateInstance;
+}
+
+function isPublicInstance(scope, instance, brandedCheck = true) {
+  if (!brandedCheck) return hasPrototype(instance, scope.publicPrototype);
+
+  for (const proto of Array.from(brandToPublicPrototypes.get(scope.classBrand))) {
+    if (hasPrototype(instance, proto)) return true;
+  }
+
+  return false;
+}
+
+function isProtectedInstance(scope, instance, brandedCheck = true) {
+  if (!brandedCheck) return hasPrototype(instance, scope.protectedPrototype);
+
+  for (const proto of Array.from(brandToProtectedPrototypes.get(scope.classBrand))) {
+    if (hasPrototype(instance, proto)) return true;
+  }
+
+  return false;
+}
+
+function isPrivateInstance(scope, instance, brandedCheck = true) {
+  if (!brandedCheck) return hasPrototype(instance, scope.privatePrototype);
+
+  for (const proto of Array.from(brandToPrivatePrototypes.get(scope.classBrand))) {
+    if (hasPrototype(instance, proto)) return true;
+  }
+
+  return false;
+} // check if an object has the given prototype in its chain
+
+
+function hasPrototype(obj, proto) {
+  let currentProto = obj.__proto__;
+
+  do {
+    if (proto === currentProto) return true;
+    currentProto = currentProto.__proto__;
+  } while (currentProto);
+
+  return false;
+} // copy all properties (as descriptors) from source to destination
+
+
+function copyDescriptors(source, destination, mod) {
+  const props = Object.getOwnPropertyNames(source);
+  let i = props.length;
+
+  while (i--) {
+    const prop = props[i];
+    const descriptor = Object.getOwnPropertyDescriptor(source, prop);
+    if (mod) mod(descriptor);
+    Object.defineProperty(destination, prop, descriptor);
+  }
+}
+
+function superHelper(supers, scope, instance) {
+  const {
+    parentPublicPrototype,
+    parentProtectedPrototype,
+    parentPrivatePrototype
+  } = scope;
+  if (isPublicInstance(scope, instance, false)) return getSuperHelperObject(instance, parentPublicPrototype, supers);
+  if (isProtectedInstance(scope, instance, false)) return getSuperHelperObject(instance, parentProtectedPrototype, supers);
+  if (isPrivateInstance(scope, instance, false)) return getSuperHelperObject(instance, parentPrivatePrototype, supers);
+  throw new InvalidSuperAccessError('invalid super access');
+}
+
+function getSuperHelperObject(instance, parentPrototype, supers) {
+  let _super = supers.get(instance); // XXX PERFORMANCE: there's probably some ways to improve speed here using caching
+
+
+  if (!_super) {
+    supers.set(instance, _super = Object.create(parentPrototype));
+    const keys = Object(utils["e" /* getInheritedPropertyNames */])(parentPrototype);
+    let i = keys.length;
+
+    while (i--) {
+      const key = keys[i];
+      Object(utils["g" /* setDescriptor */])(_super, key, {
+        get: function () {
+          let value = void undefined;
+          const descriptor = Object(utils["d" /* getInheritedDescriptor */])(parentPrototype, key);
+
+          if (descriptor && Object(utils["f" /* propertyIsAccessor */])(descriptor)) {
+            const getter = descriptor.get;
+            if (getter) value = getter.call(instance);
+          } else {
+            value = parentPrototype[key];
+          }
+
+          if (value && value.call && typeof value === 'function') {
+            value = value.bind(instance);
+          }
+
+          return value;
+        },
+        // like native `super`, setting a super property does nothing.
+        set: function (value) {
+          const descriptor = Object(utils["d" /* getInheritedDescriptor */])(parentPrototype, key);
+
+          if (descriptor && Object(utils["f" /* propertyIsAccessor */])(descriptor)) {
+            const setter = descriptor.set;
+            if (setter) value = setter.call(instance, value);
+          } else {
+            // just like native `super`
+            instance[key] = value;
+          }
+        }
+      }, true);
+    }
+  }
+
+  return _super;
+}
+
+function setDefaultPrototypeDescriptors(prototype, {
+  defaultClassDescriptor: {
+    writable,
+    enumerable,
+    configurable
+  }
+}) {
+  const descriptors = Object.getOwnPropertyDescriptors(prototype);
+  let descriptor;
+
+  for (const key in descriptors) {
+    descriptor = descriptors[key]; // regular value
+
+    if ('value' in descriptor || 'writable' in descriptor) {
+      descriptor.writable = writable;
+    } // accessor or regular value
+
+
+    descriptor.enumerable = enumerable;
+    descriptor.configurable = configurable;
+  }
+
+  Object(utils["h" /* setDescriptors */])(prototype, descriptors);
+}
+
+function setDefaultStaticDescriptors(Ctor, {
+  defaultClassDescriptor: {
+    writable,
+    enumerable,
+    configurable
+  }
+}) {
+  const descriptors = Object.getOwnPropertyDescriptors(Ctor);
+  let descriptor;
+
+  for (const key in descriptors) {
+    if (staticBlacklist.includes(key)) {
+      delete descriptors[key];
+      continue;
+    }
+
+    descriptor = descriptors[key]; // regular value
+
+    if ('value' in descriptor || 'writable' in descriptor) {
+      descriptor.writable = writable;
+    } // accessor or regular value
+
+
+    descriptor.enumerable = enumerable;
+    descriptor.configurable = configurable;
+  }
+
+  Object(utils["h" /* setDescriptors */])(Ctor, descriptors);
+}
+
+/* harmony default export */ var src_Class = (Class);
+
+// CONCATENATED MODULE: ./src/Mixin.js
+function Mixin_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { Mixin_defineProperty(target, key, source[key]); }); } return target; }
+
+function Mixin_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+function Mixin(factory, Default) {
+  // XXX Maybe Cached should go last.
+  factory = Cached(factory);
+  factory = HasInstance(factory);
+  factory = Dedupe(factory);
+  factory = WithDefault(factory, Default || src());
+  factory = ApplyDefault(factory);
+  return factory();
+}
+
+
+function WithDefault(classFactory, Default) {
+  return named(classFactory.name, Base => {
+    Base = Base || Default;
+    return classFactory(Base);
+  });
+}
+
+function Cached(classFactory) {
+  const classCache = new WeakMap();
+  return named(classFactory.name, Base => {
+    let Class = classCache.get(Base);
+
+    if (!Class) {
+      classCache.set(Base, Class = classFactory(Base));
+    }
+
+    return Class;
+  });
+}
+
+function HasInstance(classFactory) {
+  let instanceofSymbol;
+  return named(classFactory.name, Base => {
+    const Class = classFactory(Base);
+    if (typeof Symbol === 'undefined' || !Symbol.hasInstance) return Class;
+    if (Object.getOwnPropertySymbols(Class).includes(Symbol.hasInstance)) return Class;
+    if (!instanceofSymbol) instanceofSymbol = Symbol('instanceofSymbol'); // NOTE we could also use a WeakMap instead of placing a flag on the
+    // Class directly.
+
+    Class[instanceofSymbol] = true;
+    Object.defineProperty(Class, Symbol.hasInstance, {
+      value: function hasInstance(obj) {
+        // we do this check because a subclass of `Class` may not have
+        // it's own `[Symbol.hasInstance]()` method, therefore `this`
+        // will be the subclass, not this `Class`, when the prototype
+        // lookup on the subclass finds the `[Symbol.hasInstance]()`
+        // method of this `Class`. In this case, we don't want to run
+        // our logic here, so we delegate to the super class of this
+        // `Class` to take over with the instanceof check. In many
+        // cases, the super class `[Symbol.hasInstance]()` method will
+        // be `Function.prototype[Symbol.hasInstance]` which will
+        // perform the standard check.
+        if (this !== Class) // This is effectively a `super` call.
+          return Class.__proto__[Symbol.hasInstance].call(this, obj);
+        let currentProto = obj;
+
+        while (currentProto) {
+          const descriptor = Object.getOwnPropertyDescriptor(currentProto, "constructor");
+          if (descriptor && descriptor.value && descriptor.value.hasOwnProperty(instanceofSymbol)) return true;
+          currentProto = currentProto.__proto__;
+        }
+
+        return false;
+      }
+    });
+    return Class;
+  });
+} // requires WithDefault or a classFactory that can accept no args
+
+
+function ApplyDefault(classFactory) {
+  const DefaultClass = classFactory();
+  DefaultClass.mixin = classFactory;
+  return classFactory;
+} // requires Cached
+
+
+function Dedupe(classFactory) {
+  const map = new WeakMap();
+  return named(classFactory.name, Base => {
+    if (hasMixin(Base, classFactory, map)) return Base;
+    const Class = classFactory(Base);
+    map.set(Class, classFactory);
+    return Class;
+  });
+}
+
+function hasMixin(Class, mixin, map) {
+  while (Class) {
+    if (map.get(Class) === mixin) return true;
+    Class = Class.__proto__;
+  }
+
+  return false;
+}
+
+function named(name, func) {
+  try {
+    Object.defineProperty(func, 'name', Mixin_objectSpread({}, Object.getOwnPropertyDescriptor(func, 'name'), {
+      value: name
+    }));
+  } catch (e) {// do nohing in case the property is non-configurable.
+  }
+
+  return func;
+}
+// CONCATENATED MODULE: ./src/instanceOf.js
+// helper function to use instead of instanceof for classes that implement the
+// static Symbol.hasInstance method, because the behavior of instanceof isn't
+// polyfillable.
+function instanceOf(instance, Constructor) {
+  if (typeof Constructor == 'function' && Constructor[Symbol.hasInstance]) return Constructor[Symbol.hasInstance](instance);else return instance instanceof Constructor;
+}
+// EXTERNAL MODULE: ./src/native.js
+var src_native = __webpack_require__(1);
+
+// CONCATENATED MODULE: ./src/index.js
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "version", function() { return version; });
+/* concated harmony reexport Class */__webpack_require__.d(__webpack_exports__, "Class", function() { return Class; });
+/* concated harmony reexport createClassHelper */__webpack_require__.d(__webpack_exports__, "createClassHelper", function() { return createClassHelper; });
+/* concated harmony reexport InvalidSuperAccessError */__webpack_require__.d(__webpack_exports__, "InvalidSuperAccessError", function() { return InvalidSuperAccessError; });
+/* concated harmony reexport InvalidAccessError */__webpack_require__.d(__webpack_exports__, "InvalidAccessError", function() { return InvalidAccessError; });
+/* concated harmony reexport staticBlacklist */__webpack_require__.d(__webpack_exports__, "staticBlacklist", function() { return staticBlacklist; });
+/* concated harmony reexport Mixin */__webpack_require__.d(__webpack_exports__, "Mixin", function() { return Mixin; });
+/* concated harmony reexport WithDefault */__webpack_require__.d(__webpack_exports__, "WithDefault", function() { return WithDefault; });
+/* concated harmony reexport Cached */__webpack_require__.d(__webpack_exports__, "Cached", function() { return Cached; });
+/* concated harmony reexport HasInstance */__webpack_require__.d(__webpack_exports__, "HasInstance", function() { return HasInstance; });
+/* concated harmony reexport ApplyDefault */__webpack_require__.d(__webpack_exports__, "ApplyDefault", function() { return ApplyDefault; });
+/* concated harmony reexport Dedupe */__webpack_require__.d(__webpack_exports__, "Dedupe", function() { return Dedupe; });
+/* concated harmony reexport instanceOf */__webpack_require__.d(__webpack_exports__, "instanceOf", function() { return instanceOf; });
+/* concated harmony reexport native */__webpack_require__.d(__webpack_exports__, "native", function() { return src_native["a" /* native */]; });
+/* concated harmony reexport getFunctionBody */__webpack_require__.d(__webpack_exports__, "getFunctionBody", function() { return utils["c" /* getFunctionBody */]; });
+/* concated harmony reexport setDescriptor */__webpack_require__.d(__webpack_exports__, "setDescriptor", function() { return utils["g" /* setDescriptor */]; });
+/* concated harmony reexport setDescriptors */__webpack_require__.d(__webpack_exports__, "setDescriptors", function() { return utils["h" /* setDescriptors */]; });
+/* concated harmony reexport propertyIsAccessor */__webpack_require__.d(__webpack_exports__, "propertyIsAccessor", function() { return utils["f" /* propertyIsAccessor */]; });
+/* concated harmony reexport getInheritedDescriptor */__webpack_require__.d(__webpack_exports__, "getInheritedDescriptor", function() { return utils["d" /* getInheritedDescriptor */]; });
+/* concated harmony reexport getInheritedPropertyNames */__webpack_require__.d(__webpack_exports__, "getInheritedPropertyNames", function() { return utils["e" /* getInheritedPropertyNames */]; });
+/* concated harmony reexport WeakTwoWayMap */__webpack_require__.d(__webpack_exports__, "WeakTwoWayMap", function() { return utils["b" /* WeakTwoWayMap */]; });
+/* concated harmony reexport Constructor */__webpack_require__.d(__webpack_exports__, "Constructor", function() { return utils["a" /* Constructor */]; });
+// the bread and butter
+
+
+/* harmony default export */ var src = __webpack_exports__["default"] = (src_Class); // mix and match your classes!
+
+ // extras
+
+
+
+
+const version = '4.6.2';
+
+/***/ })
+/******/ ]);
 //# sourceMappingURL=global.js.map
