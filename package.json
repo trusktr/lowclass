@@ -31,7 +31,7 @@
     "@babel/runtime": "7.0.0-beta.46"
   },
   "devDependencies": {
-    "builder": "^4.0.0",
+    "builder": "4.0.0",
     "builder-js-package": "trusktr/builder-js-package#17d73e2f28678773d7ebb731d96e7b114e49b368",
     "typescript": "^3.5.2"
   },
