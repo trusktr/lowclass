@@ -1426,7 +1426,7 @@ var src_native = __webpack_require__(1);
 
 
 
-const version = '4.6.2';
+const version = '4.7.0';
 
 /***/ })
 /******/ ]);
