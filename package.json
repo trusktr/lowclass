@@ -37,7 +37,8 @@
     "browser-sync": "^2.26.7",
     "builder": "4.0.0",
     "builder-js-package": "trusktr/builder-js-package#17d73e2f28678773d7ebb731d96e7b114e49b368",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "prettier": "^1.19.1"
   },
   "keywords": [
     "classes",
