@@ -23,6 +23,7 @@
 !/.npmrc
 !/package.json
 !/tsconfig.json
+!/index.html
 
 # the basics!
 !/README.md
