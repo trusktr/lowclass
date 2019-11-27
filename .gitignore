@@ -21,6 +21,8 @@
 !/.gitignore
 !/.npmignore
 !/.npmrc
+!/.prettierrc.js
+!/.prettierignore
 !/package.json
 !/tsconfig.json
 
