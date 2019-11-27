@@ -1270,6 +1270,203 @@ function setDefaultStaticDescriptors(Ctor, {
 
 /* harmony default export */ var src_Class = (Class);
 
+// CONCATENATED MODULE: ./src/multiple.ts
+function multiple_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { multiple_defineProperty(target, key, source[key]); }); } return target; }
+
+function multiple_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// --- TODO handle static inheritance. Nothing has been implemented with regards to
+// static inheritance yet.
+// --- TODO allow the subclass (f.e. the `Foo` in `class Foo extends multiple(One,
+// Two, Three) {}`) to call each super constructor (One, Two, and Three)
+// individually with specific arguments.
+// --- TODO Prevent duplicate classes in the "prototype tree". F.e. if someone calls
+// `multiple(One, Two, Three)`, and `Three` already includes `Two`, we can
+// discard the `Two` argument and perform the combination as if `multiple(One,
+// Three)` had been called.
+// --- TODO cache the results, so more than one call to `multiple(One, Two, Three)`
+// returns the same class reference as the first call.
+// --- TODO, allow the user to handle the diamond problem in some way other than
+// ("property or method from the first class in the list wins"). Perhaps require
+// the user to specify which method to call. For now, it simply calls the first
+// method in the order in which the classes were passed into multiple(). Look
+// here for ideas based on how different languages handle it:
+// https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem
+const __instances__ = new WeakMap();
+
+const getInstances = inst => {
+  let result = __instances__.get(inst);
+
+  if (!result) __instances__.set(inst, result = []);
+  return result;
+};
+
+let instanceKey = null;
+/**
+ * Mixes the given classes into a single class. This is useful for multiple
+ * inheritance.
+ *
+ * @example
+ * class Foo {}
+ * class Bar {}
+ * class Baz {}
+ * class MyClass extends multiple(Foo, Bar, Baz) {}
+ */
+//  ------------ method 1, define the `multiple()` signature with overrides. The
+//  upside is it is easy to understand, but the downside is that name collisions
+//  in properties cause the collided property type to be `never`. This would make
+//  it more difficult to provide solution for the diamond problem.
+//  ----------------
+// function multiple(): typeof Object
+// function multiple<T extends Constructor>(classes: T): T
+// function multiple<T extends Constructor[]>(...classes: T): Constructor<ConstructorUnionToInstanceTypeUnion<T[number]>>
+// function multiple(...classes: any): any {
+//
+//  ------------ method 2, define the signature of `multiple()` with a single
+//  signature. The upside is this picks the type of the first property
+//  encountered when property names collide amongst all the classes passed into
+//  `multiple()`, but the downside is the inner implementation may require
+//  casting, and this approach can also cause an infinite type recursion
+//  depending on the types used inside the implementation.
+//  ----------------
+
+function multiple(...classes) {
+  // avoid performance costs in special cases
+  if (classes.length === 0) return Object;
+
+  if (classes.length === 1) {
+    const result = classes[0];
+    return typeof result === 'function' ? result : Object;
+  }
+
+  const FirstClass = classes.shift(); // inherit the first class normally. This allows for required native
+  // inheritance in certain special cases (like inheriting from HTMLElement
+  // when making Custom Elements).
+
+  class MultiClass extends FirstClass {
+    constructor(...args) {
+      let isPrimaryInstance = false;
+
+      if (!instanceKey) {
+        isPrimaryInstance = true;
+        instanceKey = {
+          // `name` is useful for debugging while looking around in devtools.
+          name: MultiClass.name
+        };
+      }
+
+      super(...args); // This is so that `super` calls will work. We need to do this
+      // because MultiClass.prototype is non-configurable, so it is
+      // impossible to wrap it with a Proxy. So instead, we do surgery on
+      // the class that extends from MultiClass, and replace the prototype
+      // with our own custom Proxy-wrapped prototype.
+      //
+      // TODO traverse the chain and connect all MultiClasses (Disable the Three and Six tests and the Seven test should then fail)
+
+      const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype);
+
+      if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
+        Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype);
+      }
+
+      const instances = getInstances(instanceKey); // make instances of the other classes to get/set properties on.
+
+      for (const Ctor of classes) {
+        const instance = Reflect.construct(Ctor, args);
+        instances.push(instance);
+      }
+
+      if (isPrimaryInstance) {
+        instanceKey = null;
+        return new Proxy(this, {
+          get(target, key, self) {
+            if (Reflect.ownKeys(self).includes(key)) return Reflect.get(target, key, self);
+
+            for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self);
+
+            const proto = Object.getPrototypeOf(self);
+            if (Reflect.has(proto, key)) return Reflect.get(proto, key, self);
+            return undefined;
+          },
+
+          has(target, key) {
+            if (Reflect.ownKeys(target).includes(key)) return true;
+
+            for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true; // all instances share the same prototype, so just check it once
+
+
+            const proto = Object.getPrototypeOf(self);
+            if (Reflect.has(proto, key)) return true;
+            return false;
+          }
+
+        });
+      }
+
+      return this;
+    }
+
+  } // Give the constructor a new name, for aid in debugging (f.e. when looking
+  // at a prototype chain in devtools, this helps to understand what is what).
+
+
+  setValue(MultiClass, 'name', makeMultiClassName(FirstClass, ...classes));
+  const newMultiClassPrototype = new Proxy({
+    // --- TODO is __proto__ instead of Object.assign/create faster?
+    __proto__: MultiClass.prototype,
+    // This is useful for debugging while looking around in devtools.
+    __InjectedMultiClassPrototype__: MultiClass.name
+  }, {
+    get(target, key, self) {
+      if (Reflect.has(target, key)) return Reflect.get(target, key, self);
+
+      for (const Class of classes) if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self);
+    },
+
+    has(target, key) {
+      if (Reflect.has(target, key)) return true;
+
+      for (const Class of classes) if (Reflect.has(Class.prototype, key)) return true;
+
+      return false;
+    }
+
+  });
+  return MultiClass;
+}
+
+function findPrototypeBeforeMultiClassPrototype(obj, multiClassPrototype) {
+  let previous = obj;
+  let current = Object.getPrototypeOf(obj);
+
+  while (current) {
+    if (current === multiClassPrototype) return previous;
+    previous = current;
+    current = Object.getPrototypeOf(current);
+  }
+
+  return null;
+}
+
+function makeMultiClassName(...classes) {
+  let result = 'Multiple:' + classes.shift().name;
+
+  for (const Ctor of classes) result += '+' + (Ctor.name || 'anonymous');
+
+  return result;
+}
+/**
+ * Set the given `key`'s `value` on `obj` by editing the descriptor, instead of
+ * setting the property the normally.
+ */
+
+
+function setValue(obj, key, value) {
+  const desc = Object.getOwnPropertyDescriptor(obj, key);
+  Object.defineProperty(obj, key, multiple_objectSpread({}, desc, {
+    value
+  }));
+}
 // CONCATENATED MODULE: ./src/Mixin.js
 function Mixin_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { Mixin_defineProperty(target, key, source[key]); }); } return target; }
 
@@ -1400,6 +1597,7 @@ var src_native = __webpack_require__(1);
 /* concated harmony reexport InvalidSuperAccessError */__webpack_require__.d(__webpack_exports__, "InvalidSuperAccessError", function() { return InvalidSuperAccessError; });
 /* concated harmony reexport InvalidAccessError */__webpack_require__.d(__webpack_exports__, "InvalidAccessError", function() { return InvalidAccessError; });
 /* concated harmony reexport staticBlacklist */__webpack_require__.d(__webpack_exports__, "staticBlacklist", function() { return staticBlacklist; });
+/* concated harmony reexport multiple */__webpack_require__.d(__webpack_exports__, "multiple", function() { return multiple; });
 /* concated harmony reexport Mixin */__webpack_require__.d(__webpack_exports__, "Mixin", function() { return Mixin; });
 /* concated harmony reexport WithDefault */__webpack_require__.d(__webpack_exports__, "WithDefault", function() { return WithDefault; });
 /* concated harmony reexport Cached */__webpack_require__.d(__webpack_exports__, "Cached", function() { return Cached; });
@@ -1421,12 +1619,13 @@ var src_native = __webpack_require__(1);
 
 /* harmony default export */ var src = __webpack_exports__["default"] = (src_Class); // mix and match your classes!
 
+
  // extras
 
 
 
 
-const version = '4.7.0';
+const version = '4.8.0';
 
 /***/ })
 /******/ ]);
