@@ -4,14 +4,14 @@ import Class from './Class'
 export default Class
 
 // mix and match your classes!
+export * from './multiple'
 export * from './Mixin'
 
 // extras
-export { default as instanceOf } from './instanceOf'
+export {default as instanceOf} from './instanceOf'
 export * from './native'
 export * from './utils'
 
-// shared types only
 export * from './types'
 
-export const version: string
+export const version = '4.8.0'
