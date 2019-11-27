@@ -1,6 +1,4 @@
-
-lowclass
-========
+# lowclass
 
 JavaScript class inheritance with public, protected, and private members.
 
@@ -9,9 +7,9 @@ JavaScript class inheritance with public, protected, and private members.
 Lowclass let's us define classes with protected and private data similar to in
 C++ (and similar to some some extent Java):
 
-- `Public` members can be accessed from outside the class.
-- `Protected` members can be accessed in the class and its derived classes.
-- `Private` members can be only accessed within the class.
+-   `Public` members can be accessed from outside the class.
+-   `Protected` members can be accessed in the class and its derived classes.
+-   `Private` members can be only accessed within the class.
 
 But there's an interesting difference (advantage) that lowclass private members
 have over C++ private members: private functionality of a class made with
@@ -23,16 +21,15 @@ contracts.
 
 Lowclass supports
 
-- extending builtins like Array. (see
-  [`tests/extending-builtins.test.js`](./tests/extending-builtins.test.js)).
-- extending native ES6 classes. (see
-  [`tests/extending-native-classes.test.js`](./tests/extending-native-classes.test.js))
-- extending builtins like `HTMLElement` and using the subclasses in native APIs
-  like Custom Elements. (see
-  [`tests/custom-elements.test.js`](./tests/custom-elements.test.js)).
+-   extending builtins like Array. (see
+    [`tests/extending-builtins.test.js`](./tests/extending-builtins.test.js)).
+-   extending native ES6 classes. (see
+    [`tests/extending-native-classes.test.js`](./tests/extending-native-classes.test.js))
+-   extending builtins like `HTMLElement` and using the subclasses in native APIs
+    like Custom Elements. (see
+    [`tests/custom-elements.test.js`](./tests/custom-elements.test.js)).
 
-Intro
------
+## Intro
 
 All of the intro examples are available as tests in
 [`tests/readme-examples.test.js`](./tests/readme-examples.test.js), and
@@ -45,27 +42,23 @@ for example:
 
 ```js
 class Thing {
+	constructor() {
+		// you might be using a convention like leading underscores to
+		// tell people some property is "protected" or "private"
+		this._protectedProperty = 'yoohoo'
+	}
 
-    constructor() {
-
-        // you might be using a convention like leading underscores to
-        // tell people some property is "protected" or "private"
-        this._protectedProperty = "yoohoo"
-
-    }
-
-    someMethod() {
-        return this._protectedProperty
-    }
-
+	someMethod() {
+		return this._protectedProperty
+	}
 }
 
-const instance = new Thing
+const instance = new Thing()
 
 instance.someMethod() // returns "yoohoo"
 
 // but the property is not actually protected:
-console.log( instance._protectedProperty ) // "yoohoo"
+console.log(instance._protectedProperty) // "yoohoo"
 ```
 
 The good news is, you can use lowclass to add Protected and Private
@@ -77,88 +70,84 @@ Just wrap your class with lowclass to gain Protected or Private functionality:
 import protect from 'lowclass'
 // or const protect = require('lowclass')
 
-const Thing = protect( ({ Protected }) => {
+const Thing = protect(({Protected}) => {
+	return class Thing {
+		constructor() {
+			// make the property truly protected
+			Protected(this).protectedProperty = 'yoohoo'
+		}
 
-    return class Thing {
-
-        constructor() {
-            // make the property truly protected
-            Protected(this).protectedProperty = "yoohoo"
-        }
-
-        someMethod() {
-            console.log('Protected value is:', Protected(this).protectedProperty)
-        }
-
-    }
-
+		someMethod() {
+			console.log('Protected value is:', Protected(this).protectedProperty)
+		}
+	}
 })
 ```
 
 We can make it a little cleaner:
 
 ```js
-const Thing = protect( ({ Protected }) => class {
+const Thing = protect(
+	({Protected}) =>
+		class {
+			constructor() {
+				Protected(this).protectedProperty = 'yoohoo'
+			}
 
-    constructor() {
-        Protected(this).protectedProperty = "yoohoo"
-    }
-
-    someMethod() {
-        return Protected(this).protectedProperty
-    }
-
-})
+			someMethod() {
+				return Protected(this).protectedProperty
+			}
+		},
+)
 ```
 
 If we were exporting this from a module, we could write it like this:
 
 ```js
-export default
-protect( ({ Protected }) => class Thing {
+export default protect(
+	({Protected}) =>
+		class Thing {
+			constructor() {
+				Protected(this).protectedProperty = 'yoohoo'
+			}
 
-    constructor() {
-        Protected(this).protectedProperty = "yoohoo"
-    }
-
-    someMethod() {
-        return Protected(this).protectedProperty
-    }
-
-})
+			someMethod() {
+				return Protected(this).protectedProperty
+			}
+		},
+)
 ```
 
 You might still be making ES5-style classes using `function() {}` instead of
 `class`. In this case wrapping it would look like this:
 
 ```js
-const Thing = protect( ({ Protected }) => {
+const Thing = protect(({Protected}) => {
+	function Thing() {
+		Protected(this).protectedProperty = 'yoohoo'
+	}
 
-    function Thing() {
-        Protected(this).protectedProperty = "yoohoo"
-    }
+	Thing.prototype = {
+		constructor: Thing,
 
-    Thing.prototype = {
-        constructor: Thing,
+		someMethod() {
+			return Protected(this).protectedProperty
+		},
+	}
 
-        someMethod() {
-            return Protected(this).protectedProperty
-        },
-    }
-
-    return Thing
+	return Thing
 })
 ```
 
 And it works:
 
 ```js
-const t = new Thing
+const t = new Thing()
 
-expect( t.someMethod() ).toBe( 'yoohoo' )
+expect(t.someMethod()).toBe('yoohoo')
 
 // the value is not publicly accessible!
-expect( t.protectedProperty ).toBe( undefined )
+expect(t.protectedProperty).toBe(undefined)
 ```
 
 But this is a fairly simple example. Let's show how inheritance of protected
@@ -167,57 +156,55 @@ class that is also using the not-actually-protected underscore convention:
 
 ```js
 class Something extends Thing {
-
-    otherMethod() {
-        // we'll need to update this
-        return this._protectedProperty
-    }
-
+	otherMethod() {
+		// we'll need to update this
+		return this._protectedProperty
+	}
 }
 ```
 
 We will wrap it with lowclass too, so that it can inherit the protected member:
 
 ```js
-const Something = protect( ({ Protected }) => class extends Thing {
-
-    otherMethod() {
-        // access the inherited actually-protected member
-        return Protected(this).protectedProperty
-    }
-
-})
+const Something = protect(
+	({Protected}) =>
+		class extends Thing {
+			otherMethod() {
+				// access the inherited actually-protected member
+				return Protected(this).protectedProperty
+			}
+		},
+)
 ```
 
 If you are writing ES5-style classes, it will look something like this:
 
 ```js
-const Something = protect( ({ Protected }) => {
+const Something = protect(({Protected}) => {
+	function Something() {
+		Thing.call(this)
+	}
 
-    function Something() {
-        Thing.call(this)
-    }
+	Something.prototype = {
+		__proto__: Thing.prototype,
+		constructor: Something,
 
-    Something.prototype = {
-        __proto__: Thing.prototype,
-        constructor: Something,
+		otherMethod() {
+			// access the inherited actually-protected member
+			return Protected(this).protectedProperty
+		},
+	}
 
-        otherMethod() {
-            // access the inherited actually-protected member
-            return Protected(this).protectedProperty
-        }
-    }
-
-    return Something
+	return Something
 })
 ```
 
 And it works:
 
 ```js
-const s = new Something
-expect( s.protectedProperty ).toBe( undefined )
-expect( s.otherMethod() ).toBe( 'yoohoo' )
+const s = new Something()
+expect(s.protectedProperty).toBe(undefined)
+expect(s.otherMethod()).toBe('yoohoo')
 ```
 
 Nice, we can keep internal implementation hidden, and prevent people from using
@@ -235,26 +222,22 @@ classes directly with lowclass, instead of wrapping a class:
 ```js
 import Class from 'lowclass'
 
-const Thing = Class( ({ Private }) => ({
-
-    constructor() {
-        Private(this).privateProperty = "yoohoo"
-    }
-
+const Thing = Class(({Private}) => ({
+	constructor() {
+		Private(this).privateProperty = 'yoohoo'
+	},
 }))
 
-const Something = Thing.subclass( ({ Private }) => ({
-
-    otherMethod() {
-        return Private(this).privateProperty
-    }
-
+const Something = Thing.subclass(({Private}) => ({
+	otherMethod() {
+		return Private(this).privateProperty
+	},
 }))
 
-const something = new Something
+const something = new Something()
 
 // the private member can't be accessed by the subclass code:
-expect( something.otherMethod() ).toBe( undefined )
+expect(something.otherMethod()).toBe(undefined)
 ```
 
 As you can see, code in the child class (`otherMethod`) is unable to access the
@@ -268,8 +251,8 @@ not access parent class private members.
 But lowclass offers something that C++ and Java do not: Private Inheritance.
 Subclasses can inherit (make use of) private functionality from a parent class.
 A subclass can call an inherited private method, but the interesting thing is
-that the inherited private method *will operate on the private data of the
-subclass, not of the parent class*.
+that the inherited private method _will operate on the private data of the
+subclass, not of the parent class_.
 
 Let's illustrate this with an example, then we'll explain afterwords how it
 works:
@@ -278,46 +261,42 @@ works:
 const Class = require('lowclass')
 // or import Class from 'lowclass'
 
-const Thing = Class( ({ Private }) => ({
+const Thing = Class(({Private}) => ({
+	constructor() {
+		Private(this).privateProperty = 'yoohoo'
+	},
 
-    constructor() {
-        Private(this).privateProperty = "yoohoo"
-    },
+	someMethod() {
+		return Private(this).privateProperty
+	},
 
-    someMethod() {
-        return Private(this).privateProperty
-    },
-
-    changeIt() {
-        Private(this).privateProperty = 'oh yeah'
-    },
-
+	changeIt() {
+		Private(this).privateProperty = 'oh yeah'
+	},
 }))
 
-const Something = Class().extends(Thing, ({ Private }) => ({
+const Something = Class().extends(Thing, ({Private}) => ({
+	otherMethod() {
+		return Private(this).privateProperty
+	},
 
-    otherMethod() {
-        return Private(this).privateProperty
-    },
-
-    makeItSo() {
-        Private(this).privateProperty = 'it is so'
-    },
-
+	makeItSo() {
+		Private(this).privateProperty = 'it is so'
+	},
 }))
 
-const instance = new Something
+const instance = new Something()
 
-expect( instance.someMethod() ).toBe( 'yoohoo' )
-expect( instance.otherMethod() ).toBe( undefined )
+expect(instance.someMethod()).toBe('yoohoo')
+expect(instance.otherMethod()).toBe(undefined)
 
 instance.changeIt()
-expect( instance.someMethod() ).toBe( 'oh yeah' )
-expect( instance.otherMethod() ).toBe( undefined )
+expect(instance.someMethod()).toBe('oh yeah')
+expect(instance.otherMethod()).toBe(undefined)
 
 instance.makeItSo()
-expect( instance.someMethod() ).toBe( 'oh yeah' )
-expect( instance.otherMethod() ).toBe( 'it is so' )
+expect(instance.someMethod()).toBe('oh yeah')
+expect(instance.otherMethod()).toBe('it is so')
 ```
 
 > Huh? What?
@@ -338,67 +317,61 @@ in the code of a subclass. Let's make one more example to show what this means
 in another way:
 
 ```js
-    const Counter = Class( ({ Private }) => ({
+const Counter = Class(({Private}) => ({
+	private: {
+		// this is a prototype property, the initial private value will be
+		// inherited by subclasses
+		count: 0,
 
-        private: {
+		increment() {
+			this.count++
+		},
+	},
 
-            // this is a prototype property, the initial private value will be
-            // inherited by subclasses
-            count: 0,
+	tick() {
+		Private(this).increment()
 
-            increment() {
-                this.count++
-            },
-        },
+		return Private(this).count
+	},
 
-        tick() {
-            Private(this).increment()
+	getCountValue() {
+		return Private(this).count
+	},
+}))
 
-            return Private(this).count
-        },
+const DoubleCounter = Counter.subclass(({Private}) => ({
+	doubleTick() {
+		// to use inherited private functionality in a subclass, simply use
+		// the functionality in the code of the subclass.
+		Private(this).increment()
+		Private(this).increment()
 
-        getCountValue() {
-            return Private(this).count
-        },
+		return Private(this).count
+	},
 
-    }))
+	getDoubleCountValue() {
+		return Private(this).count
+	},
+}))
 
-    const DoubleCounter = Counter.subclass( ({ Private }) => ({
+const counter = new Counter()
 
-        doubleTick() {
+expect(counter.tick()).toBe(1)
 
-            // to use inherited private functionality in a subclass, simply use
-            // the functionality in the code of the subclass.
-            Private(this).increment()
-            Private(this).increment()
+const doubleCounter = new DoubleCounter()
 
-            return Private(this).count
-        },
+expect(doubleCounter.doubleTick()).toBe(2)
+expect(doubleCounter.tick()).toBe(1)
 
-        getDoubleCountValue() {
-            return Private(this).count
-        },
+expect(doubleCounter.doubleTick()).toBe(4)
+expect(doubleCounter.tick()).toBe(2)
 
-    }))
-
-    const counter = new Counter
-
-    expect( counter.tick() ).toBe( 1 )
-
-    const doubleCounter = new DoubleCounter
-
-    expect( doubleCounter.doubleTick() ).toBe( 2 )
-    expect( doubleCounter.tick() ).toBe( 1 )
-
-    expect( doubleCounter.doubleTick() ).toBe( 4 )
-    expect( doubleCounter.tick() ).toBe( 2 )
-
-    // There's a private `counter` member for the Counter class, and there's a
-    // separate private `counter` member for the `DoubleCounter` class (the
-    // initial value inherited from `Counter`):
-    expect( doubleCounter.getDoubleCountValue() ).not.toBe( counter.getCountValue() )
-    expect( doubleCounter.getCountValue() ).toBe( 2 )
-    expect( doubleCounter.getDoubleCountValue() ).toBe( 4 )
+// There's a private `counter` member for the Counter class, and there's a
+// separate private `counter` member for the `DoubleCounter` class (the
+// initial value inherited from `Counter`):
+expect(doubleCounter.getDoubleCountValue()).not.toBe(counter.getCountValue())
+expect(doubleCounter.getCountValue()).toBe(2)
+expect(doubleCounter.getDoubleCountValue()).toBe(4)
 ```
 
 The inherited private functionality has to be triggered directly, as triggering
@@ -435,49 +408,40 @@ import Class from 'lowclass'
 
 let CounterProtected
 
-const Counter = Class( ({ Private, Protected }) => {
+const Counter = Class(({Private, Protected}) => {
+	// leak the Counter class Protected helper to outer scope
+	CounterProtected = Protected
 
-    // leak the Counter class Protected helper to outer scope
-    CounterProtected = Protected
+	return {
+		value() {
+			return Private(this).count
+		},
 
-    return {
+		private: {
+			count: 0,
+		},
 
-        value() {
-            return Private(this).count
-        },
-
-        private: {
-            count: 0,
-        },
-
-        protected: {
-            increment() {
-                Private(this).count ++
-            },
-        },
-
-    }
-
+		protected: {
+			increment() {
+				Private(this).count++
+			},
+		},
+	}
 })
 
 // note how Incrementor does not extend from Counter
-const Incrementor = Class( ({ Private }) => ({
+const Incrementor = Class(({Private}) => ({
+	constructor(counter) {
+		Private(this).counter = counter
+	},
 
-    constructor( counter ) {
-        Private(this).counter = counter
-    },
-
-    increment() {
-        const counter = Private(this).counter
-        CounterProtected( counter ).increment()
-    },
-
+	increment() {
+		const counter = Private(this).counter
+		CounterProtected(counter).increment()
+	},
 }))
 
-export {
-    Counter,
-    Incrementor
-}
+export {Counter, Incrementor}
 ```
 
 ```js
@@ -485,32 +449,31 @@ export {
 // protected" can be done with lowclass. See `./Counter.js` to learn how it
 // works.
 
-import { Counter, Incrementor } from './Counter'
+import {Counter, Incrementor} from './Counter'
 
 // in a real-world scenario, counter might be used here locally...
-const counter = new Counter
+const counter = new Counter()
 
 // ...while incrementor might be passed to third party code.
-const incrementor = new Incrementor( counter )
+const incrementor = new Incrementor(counter)
 
 // show that we can only access what is public
-expect( counter.count ).toBe( undefined )
-expect( counter.increment ).toBe( undefined )
-expect( typeof counter.value ).toBe( 'function' )
+expect(counter.count).toBe(undefined)
+expect(counter.increment).toBe(undefined)
+expect(typeof counter.value).toBe('function')
 
-expect( incrementor.counter ).toBe( undefined )
-expect( typeof incrementor.increment ).toBe( 'function' )
+expect(incrementor.counter).toBe(undefined)
+expect(typeof incrementor.increment).toBe('function')
 
 // show that it works:
-expect( counter.value() ).toBe( 0 )
+expect(counter.value()).toBe(0)
 incrementor.increment()
-expect( counter.value() ).toBe( 1 )
+expect(counter.value()).toBe(1)
 incrementor.increment()
-expect( counter.value() ).toBe( 2 )
+expect(counter.value()).toBe(2)
 ```
 
-Forms of writing classes
-------------------------
+## Forms of writing classes
 
 Working examples of the various forms depicted here are in
 [`tests/syntaxes.test.js`](./tests/syntaxes.test.js).
@@ -568,22 +531,21 @@ custom-made class constructor.
 #### Returning an object literal
 
 ```js
-export default
-Class( 'Thing', function( Public, Protected, Private, Super ) {
-    return {
-        method() {
-            // use any of the helpers inside the class code, as needed, f.e.
+export default Class('Thing', function(Public, Protected, Private, Super) {
+	return {
+		method() {
+			// use any of the helpers inside the class code, as needed, f.e.
 
-            // access Public members
-            this.foo = 'foo'
+			// access Public members
+			this.foo = 'foo'
 
-            // access Protected members
-            Protected(this).bar = 'bar'
+			// access Protected members
+			Protected(this).bar = 'bar'
 
-            // access Private members
-            Private(this).baz = 'baz'
-        }
-    }
+			// access Private members
+			Private(this).baz = 'baz'
+		},
+	}
 })
 ```
 
@@ -591,12 +553,11 @@ To make code shorter, you can combine arrow functions with destructuring of
 arguments. In this exampe, we only need the Private helper:
 
 ```js
-export default
-Class( 'Thing', ({ Private }) => ({
-    method() {
-        // access Private members
-        Private(this).baz = 'baz'
-    }
+export default Class('Thing', ({Private}) => ({
+	method() {
+		// access Private members
+		Private(this).baz = 'baz'
+	},
 }))
 ```
 
@@ -607,23 +568,24 @@ definer function, which is useful for wrapping existing classes in order to
 give them protected and private functionality:
 
 ```js
-export default
-Class( ({ Private }) => {
-    return class {
-        method() {
-            Private(this).baz = 'baz'
-        }
-    }
+export default Class(({Private}) => {
+	return class {
+		method() {
+			Private(this).baz = 'baz'
+		}
+	}
 })
 
 // or
 
-export default
-Class( ({ Private }) => class {
-    method() {
-        Private(this).baz = 'baz'
-    }
-})
+export default Class(
+	({Private}) =>
+		class {
+			method() {
+				Private(this).baz = 'baz'
+			}
+		},
+)
 ```
 
 ### ES5-like assignment to prototype
@@ -632,11 +594,10 @@ You might have lots of ES5-style code, so this form can be useful in porting
 over to lowclass more quickly, or maybe you just like this form more.
 
 ```js
-export default
-Class('Thing', ({ Public, Private }) => {
-    Public.prototype.method = function() {
-        Private(this).baz = 'baz'
-    }
+export default Class('Thing', ({Public, Private}) => {
+	Public.prototype.method = function() {
+		Private(this).baz = 'baz'
+	}
 })
 ```
 
@@ -651,21 +612,20 @@ super methods.
 This way is more similar to native classes:
 
 ```js
-const Something = Class().extends( Thing, ({ Super }) => ({
-    method() {
-        Super(this).method()
-    }
+const Something = Class().extends(Thing, ({Super}) => ({
+	method() {
+		Super(this).method()
+	},
 }))
 ```
 
 And as before, naming the class can be useful:
 
 ```js
-export default
-Class( 'Something' ).extends( Thing, ({ Private }) => ({
-    method() {
-        Super(this).method()
-    }
+export default Class('Something').extends(Thing, ({Private}) => ({
+	method() {
+		Super(this).method()
+	},
 }))
 ```
 
@@ -674,21 +634,20 @@ Class( 'Something' ).extends( Thing, ({ Private }) => ({
 Here's same subclass example using `.subclass`:
 
 ```js
-const Something = Thing.subclass( ({ Super }) => ({
-    method() {
-        Super(this).method()
-    }
+const Something = Thing.subclass(({Super}) => ({
+	method() {
+		Super(this).method()
+	},
 }))
 ```
 
 And as before, naming the class can be useful:
 
 ```js
-export default
-Thing.subclass( 'Something', ({ Super }) => ({
-    method() {
-        Super(this).method()
-    }
+export default Thing.subclass('Something', ({Super}) => ({
+	method() {
+		Super(this).method()
+	},
 }))
 ```
 
@@ -715,8 +674,7 @@ const MyArray = Array.subclass( ({ Super, Private }) => {
 See the full Array example in
 [`test/extending-builtins.test.js`](./test/extending-builtins.test.js).
 
-Differences between lowclass and other languages
-------------------------------------------------
+## Differences between lowclass and other languages
 
 ### C++
 
@@ -738,8 +696,7 @@ See [here](https://www.javatpoint.com/access-modifiers) for an explainer of
 Java access modifiers. We can compare this against C++, and therefore also
 against lowclass.
 
-TODO
-----
+## TODO
 
-- [ ] public/protected/private/super helpers for static members
-- [ ] ability to make classes "final"
+-   [ ] public/protected/private/super helpers for static members
+-   [ ] ability to make classes "final"
