@@ -1,3 +1,10 @@
 <body>
-    <script type="module" src="./dist/multiple.test.js"></script>
+	<script type="importmap">
+		{
+			"imports": {
+				"./dist/multiple": "./dist/multiple.js"
+			}
+		}
+	</script>
+	<script type="module" src="./dist/multiple.test.js"></script>
 </body>

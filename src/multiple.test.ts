@@ -1,4 +1,4 @@
-import {multiple} from './multiple.js'
+import {multiple} from './multiple'
 
 const log = console.log.bind(console)
 const assert = console.assert.bind(console)
