@@ -1,6 +1,203 @@
 # lowclass
 
-JavaScript class inheritance with public, protected, and private members.
+JavaScript/TypeScript class inheritance tools.
+
+Lowclass is a lib that includes the following inheritance tools:
+
+-   A `multiple()` function for composing ES2015 `class`es together in a simple
+    ergonomic way. For example:
+
+    ```js
+    // define a few classes with unique features:
+    class Walker {
+    	walk() {
+    		/* feet move */
+    	}
+    }
+    class Talker {
+    	talk() {
+    		/* hello */
+    	}
+    }
+    class Barker {
+    	bark() {
+    		/* woof */
+    	}
+    }
+    class Attacker {
+    	attack() {
+    		/* boom */
+    	}
+    }
+
+    // Now use them like regular classes by extending from them normally:
+
+    class StarWarsATATWalker extends Walker {
+    	fireLaser() {
+    		/* ... */
+    	}
+    }
+    const atat = new StarWarsATATWalker()
+    atat.walk()
+    atat.fireLaser()
+
+    // Or compose them together:
+
+    class Dog extends multiple(Walker, Barker, Attacker) {
+    	lick() {
+    		/* ... */
+    	}
+    }
+    const dog = new Dog()
+    dog.lick()
+    dog.walk()
+    dog.bark()
+    dog.attack()
+
+    class Human extends multiple(Talker, Attacker, Walker) {
+    	yell() {
+    		/* Hey! */
+    	}
+    }
+    const person = new Human()
+    person.yell()
+    person.walk()
+    person.talk()
+    person.attack()
+    ```
+
+-   A `Mixin()` helper for making mixable ES2015 `class`es. Mixins are less
+    ergonomic than composing classes with the `multiple()` helper, but if you're
+    after performance, then mixins (made with or without the `Mixin()` helper) will have
+    faster instantiation and property lookup than classes composed with
+    `multiple()`. For example:
+
+    ```js
+    import {Mixin} from 'lowclass'
+
+    // define a few "class-factory mixins":
+    const Walker = Mixin(
+    	Base =>
+    		class Walker extends Base {
+    			walk() {
+    				/* feet move */
+    			}
+    		},
+    )
+    const Talker = Mixin(
+    	Base =>
+    		class Talker extends Base {
+    			talk() {
+    				/* hello */
+    			}
+    		},
+    )
+    const Barker = Mixin(
+    	Base =>
+    		class extends Base {
+    			bark() {
+    				/* woof */
+    			}
+    		},
+    )
+    const Attacker = Mixin(
+    	Base =>
+    		class extends Base {
+    			attack() {
+    				/* boom */
+    			}
+    		},
+    )
+
+    // At this point Walker, Talker, and Barker are references to ES2015 `class`es.
+
+    // Now use them like regular classes by extending from them normally:
+
+    class StarWarsATATWalker extends Walker {
+    	fireLaser() {
+    		/* ... */
+    	}
+    }
+    const atat = new StarWarsATATWalker()
+    atat.walk()
+    atat.fireLaser()
+
+    // Or mix them together to compose feature together:
+
+    class Dog extends Walker.mixin(Barker.mixin(Attacker)) {
+    	lick() {
+    		/* ... */
+    	}
+    }
+    const dog = new Dog()
+    dog.lick()
+    dog.walk()
+    dog.bark()
+    dog.attack()
+
+    class Human extends Talker.mixin(Attacker.mixin(Walker)) {
+    	yell() {
+    		/* Hey! */
+    	}
+    }
+    const person = new Human()
+    person.yell()
+    person.walk()
+    person.talk()
+    person.attack()
+    ```
+
+-   A `Class()` tool for creating classes with public, protected, and private members. For example:
+
+    ```js
+    import Class from 'lowclass'
+    import Something from 'somewhere'
+
+    export default Class('Thing').extends(Something, ({Protected, Private}) => ({
+        doSomething() {
+            // this method is public
+            Protected(this).makeStuff()
+        }
+
+        protected: {
+            makeStuff() {
+                // this method is protected
+                Private(this).stuffImpl()
+            }
+        },
+
+        private: {
+            stuffImpl() {
+                // this method is private
+            }
+        }
+    }))
+    ```
+
+    ```js
+    import Thing from './Thing'
+
+    const Blob = Class('Blob').extends(Thing, ({Super, Protected, Private}) => ({
+    	doSomething() {
+    		Super(this).doSomething() // works fine, makeStuff is public.
+    		Protected(this).makeStuff() // works fine, makeStuff is protected and inherited
+
+    		// logs "undefined", private methods are not inherited
+    		console.log(this.stuffImpl)
+
+    		// try to access it with the Private helper:
+    		Private(this).stuffImpl() // error, can not read property "stuffImpl" of undefined.
+    	},
+    }))
+
+    const blob = new Blob()
+    // access public members:
+    blob.doSomething() // it works
+
+    // can not acecss protected or private members:
+    blob.makeStuff() // error, can not read property "makeStuff" of undefined.
+    blob.stuffImpl() // error, can not read property "stuffImpl" of undefined.
+    ```
 
 #### `npm install lowclass --save`
 
