@@ -22,9 +22,9 @@
 
 const __instances__ = new WeakMap<Object, Object[]>()
 const getInstances = (inst: Object): Object[] => {
-    let result = __instances__.get(inst)
-    if (!result) __instances__.set(inst, (result = []))
-    return result
+	let result = __instances__.get(inst)
+	if (!result) __instances__.set(inst, (result = []))
+	return result
 }
 
 let instanceKey: Object | null = null
@@ -57,133 +57,133 @@ let instanceKey: Object | null = null
 //  depending on the types used inside the implementation.
 //  ----------------
 export function multiple<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
-    // avoid performance costs in special cases
-    if (classes.length === 0) return (Object as unknown) as CombinedClasses<T>
-    if (classes.length === 1) {
-        const result = classes[0]
-        return ((typeof result === 'function' ? result : Object) as unknown) as CombinedClasses<T>
-    }
+	// avoid performance costs in special cases
+	if (classes.length === 0) return (Object as unknown) as CombinedClasses<T>
+	if (classes.length === 1) {
+		const result = classes[0]
+		return ((typeof result === 'function' ? result : Object) as unknown) as CombinedClasses<T>
+	}
 
-    const FirstClass = classes.shift()!
+	const FirstClass = classes.shift()!
 
-    // inherit the first class normally. This allows for required native
-    // inheritance in certain special cases (like inheriting from HTMLElement
-    // when making Custom Elements).
-    class MultiClass extends FirstClass {
-        constructor(...args: any[]) {
-            let isPrimaryInstance = false
+	// inherit the first class normally. This allows for required native
+	// inheritance in certain special cases (like inheriting from HTMLElement
+	// when making Custom Elements).
+	class MultiClass extends FirstClass {
+		constructor(...args: any[]) {
+			let isPrimaryInstance = false
 
-            if (!instanceKey) {
-                isPrimaryInstance = true
-                instanceKey = {
-                    // `name` is useful for debugging while looking around in devtools.
-                    name: MultiClass.name,
-                }
-            }
+			if (!instanceKey) {
+				isPrimaryInstance = true
+				instanceKey = {
+					// `name` is useful for debugging while looking around in devtools.
+					name: MultiClass.name,
+				}
+			}
 
-            super(...args)
+			super(...args)
 
-            // This is so that `super` calls will work. We need to do this
-            // because MultiClass.prototype is non-configurable, so it is
-            // impossible to wrap it with a Proxy. So instead, we do surgery on
-            // the class that extends from MultiClass, and replace the prototype
-            // with our own custom Proxy-wrapped prototype.
-            //
-            // TODO traverse the chain and connect all MultiClasses (Disable the Three and Six tests and the Seven test should then fail)
-            const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
-            if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
-                Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
-            }
+			// This is so that `super` calls will work. We need to do this
+			// because MultiClass.prototype is non-configurable, so it is
+			// impossible to wrap it with a Proxy. So instead, we do surgery on
+			// the class that extends from MultiClass, and replace the prototype
+			// with our own custom Proxy-wrapped prototype.
+			//
+			// TODO traverse the chain and connect all MultiClasses (Disable the Three and Six tests and the Seven test should then fail)
+			const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
+			if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
+				Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
+			}
 
-            const instances = getInstances(instanceKey)
+			const instances = getInstances(instanceKey)
 
-            // make instances of the other classes to get/set properties on.
-            for (const Ctor of classes) {
-                const instance = Reflect.construct(Ctor, args)
-                instances.push(instance)
-            }
+			// make instances of the other classes to get/set properties on.
+			for (const Ctor of classes) {
+				const instance = Reflect.construct(Ctor, args)
+				instances.push(instance)
+			}
 
-            if (isPrimaryInstance) {
-                instanceKey = null
+			if (isPrimaryInstance) {
+				instanceKey = null
 
-                return new Proxy(this, {
-                    get(target, key: string | symbol, self: MultiClass): any {
-                        if (Reflect.ownKeys(self).includes(key)) return Reflect.get(target, key, self)
+				return new Proxy(this, {
+					get(target, key: string | symbol, self: MultiClass): any {
+						if (Reflect.ownKeys(self).includes(key)) return Reflect.get(target, key, self)
 
-                        for (const instance of instances)
-                            if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
+						for (const instance of instances)
+							if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
 
-                        const proto = Object.getPrototypeOf(self)
-                        if (Reflect.has(proto, key)) return Reflect.get(proto, key, self)
+						const proto = Object.getPrototypeOf(self)
+						if (Reflect.has(proto, key)) return Reflect.get(proto, key, self)
 
-                        return undefined
-                    },
+						return undefined
+					},
 
-                    has(target, key: string | symbol): boolean {
-                        if (Reflect.ownKeys(target).includes(key)) return true
+					has(target, key: string | symbol): boolean {
+						if (Reflect.ownKeys(target).includes(key)) return true
 
-                        for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true
+						for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true
 
-                        // all instances share the same prototype, so just check it once
-                        const proto = Object.getPrototypeOf(self)
-                        if (Reflect.has(proto, key)) return true
+						// all instances share the same prototype, so just check it once
+						const proto = Object.getPrototypeOf(self)
+						if (Reflect.has(proto, key)) return true
 
-                        return false
-                    },
-                })
-            }
+						return false
+					},
+				})
+			}
 
-            return this
-        }
-    }
+			return this
+		}
+	}
 
-    // Give the constructor a new name, for aid in debugging (f.e. when looking
-    // at a prototype chain in devtools, this helps to understand what is what).
-    setValue(MultiClass, 'name', makeMultiClassName(FirstClass, ...classes))
+	// Give the constructor a new name, for aid in debugging (f.e. when looking
+	// at a prototype chain in devtools, this helps to understand what is what).
+	setValue(MultiClass, 'name', makeMultiClassName(FirstClass, ...classes))
 
-    const newMultiClassPrototype = new Proxy(
-        {
-            // --- TODO is __proto__ instead of Object.assign/create faster?
-            __proto__: MultiClass.prototype,
+	const newMultiClassPrototype = new Proxy(
+		{
+			// --- TODO is __proto__ instead of Object.assign/create faster?
+			__proto__: MultiClass.prototype,
 
-            // This is useful for debugging while looking around in devtools.
-            __InjectedMultiClassPrototype__: MultiClass.name,
-        },
-        {
-            get(target, key: string | symbol, self: MultiClass): any {
-                if (Reflect.has(target, key)) return Reflect.get(target, key, self)
-                for (const Class of classes)
-                    if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
-            },
+			// This is useful for debugging while looking around in devtools.
+			__InjectedMultiClassPrototype__: MultiClass.name,
+		},
+		{
+			get(target, key: string | symbol, self: MultiClass): any {
+				if (Reflect.has(target, key)) return Reflect.get(target, key, self)
+				for (const Class of classes)
+					if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
+			},
 
-            has(target, key): boolean {
-                if (Reflect.has(target, key)) return true
-                for (const Class of classes) if (Reflect.has(Class.prototype, key)) return true
-                return false
-            },
-        },
-    )
+			has(target, key): boolean {
+				if (Reflect.has(target, key)) return true
+				for (const Class of classes) if (Reflect.has(Class.prototype, key)) return true
+				return false
+			},
+		},
+	)
 
-    return (MultiClass as unknown) as CombinedClasses<T>
+	return (MultiClass as unknown) as CombinedClasses<T>
 }
 
 function findPrototypeBeforeMultiClassPrototype(obj: Object, multiClassPrototype: Object): Object | null {
-    let previous = obj
-    let current = Object.getPrototypeOf(obj)
+	let previous = obj
+	let current = Object.getPrototypeOf(obj)
 
-    while (current) {
-        if (current === multiClassPrototype) return previous
-        previous = current
-        current = Object.getPrototypeOf(current)
-    }
+	while (current) {
+		if (current === multiClassPrototype) return previous
+		previous = current
+		current = Object.getPrototypeOf(current)
+	}
 
-    return null
+	return null
 }
 
 function makeMultiClassName(...classes: Constructor[]): string {
-    let result = 'Multiple:' + classes.shift()!.name
-    for (const Ctor of classes) result += '+' + (Ctor.name || 'anonymous')
-    return result
+	let result = 'Multiple:' + classes.shift()!.name
+	for (const Ctor of classes) result += '+' + (Ctor.name || 'anonymous')
+	return result
 }
 
 /**
@@ -191,14 +191,14 @@ function makeMultiClassName(...classes: Constructor[]): string {
  * setting the property the normally.
  */
 function setValue(obj: Record<string, any>, key: string, value: any): void {
-    const desc = Object.getOwnPropertyDescriptor(obj, key)
+	const desc = Object.getOwnPropertyDescriptor(obj, key)
 
-    Object.defineProperty(obj, key, {...desc, value})
+	Object.defineProperty(obj, key, {...desc, value})
 }
 
 interface Constructor<T extends any = {}> {
-    new (...args: any[]): T
-    name: string
+	new (...args: any[]): T
+	name: string
 }
 
 // type ConstructorUnionToInstanceTypeUnion<U> = (U extends Constructor
@@ -210,17 +210,17 @@ interface Constructor<T extends any = {}> {
 type Shift<T extends any[]> = ((...args: T) => any) extends (_: any, ...args: infer R) => any ? R : never
 type MixedArray<T extends Constructor<any>[]> = _MixedArray<T, {}>
 type _MixedArray<T extends Constructor<any>[], U> = {
-    0: new () => U
-    1: _MixedArray<
-        Shift<T>,
-        {
-            [K in keyof InstanceType<T[0]> | keyof U]: K extends keyof U ? U[K] : InstanceType<T[0]>[K]
-        }
-    >
+	0: new () => U
+	1: _MixedArray<
+		Shift<T>,
+		{
+			[K in keyof InstanceType<T[0]> | keyof U]: K extends keyof U ? U[K] : InstanceType<T[0]>[K]
+		}
+	>
 }[T['length'] extends 0 ? 0 : 1]
 
 type CombinedClasses<T> = T extends [] | [undefined]
-    ? typeof Object
-    : T extends Constructor[]
-    ? MixedArray<T>
-    : typeof Object
+	? typeof Object
+	: T extends Constructor[]
+	? MixedArray<T>
+	: typeof Object
