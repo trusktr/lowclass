@@ -22,6 +22,57 @@ import {Constructor} from './utils'
 // here for ideas based on how different languages handle it:
 // https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem
 
+enum ImplementationMethod {
+	PROXIES_ON_INSTANCE_AND_PROTOTYPE = 'PROXIES_ON_INSTANCE_AND_PROTOTYPE',
+	PROXIES_ON_PROTOTYPE = 'PROXIES_ON_PROTOTYPE',
+}
+
+type MultipleOptions = {
+	method: ImplementationMethod
+}
+
+export function makeMultipleHelper(options?: MultipleOptions) {
+	/**
+	 * Mixes the given classes into a single class. This is useful for multiple
+	 * inheritance.
+	 *
+	 * @example
+	 * class Foo {}
+	 * class Bar {}
+	 * class Baz {}
+	 * class MyClass extends multiple(Foo, Bar, Baz) {}
+	 */
+	//  ------------ method 1, define the `multiple()` signature with overrides. The
+	//  upside is it is easy to understand, but the downside is that name collisions
+	//  in properties cause the collided property type to be `never`. This would make
+	//  it more difficult to provide solution for the diamond problem.
+	//  ----------------
+	// function multiple(): typeof Object
+	// function multiple<T extends Constructor>(classes: T): T
+	// function multiple<T extends Constructor[]>(...classes: T): Constructor<ConstructorUnionToInstanceTypeUnion<T[number]>>
+	// function multiple(...classes: any): any {
+	//
+	//  ------------ method 2, define the signature of `multiple()` with a single
+	//  signature. The upside is this picks the type of the first property
+	//  encountered when property names collide amongst all the classes passed into
+	//  `multiple()`, but the downside is the inner implementation may require
+	//  casting, and this approach can also cause an infinite type recursion
+	//  depending on the types used inside the implementation.
+	//  ----------------
+	return function multiple<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
+		const mode = (options && options.method) || ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE
+
+		switch (mode) {
+			case ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE: {
+				return (withProxiesOnThisAndPrototype as any)(...classes)
+			}
+			case ImplementationMethod.PROXIES_ON_PROTOTYPE: {
+				return (withProxiesOnPrototype as any)(...classes)
+			}
+		}
+	}
+}
+
 /**
  * Mixes the given classes into a single class. This is useful for multiple
  * inheritance.
@@ -32,24 +83,9 @@ import {Constructor} from './utils'
  * class Baz {}
  * class MyClass extends multiple(Foo, Bar, Baz) {}
  */
-//  ------------ method 1, define the `multiple()` signature with overrides. The
-//  upside is it is easy to understand, but the downside is that name collisions
-//  in properties cause the collided property type to be `never`. This would make
-//  it more difficult to provide solution for the diamond problem.
-//  ----------------
-// function multiple(): typeof Object
-// function multiple<T extends Constructor>(classes: T): T
-// function multiple<T extends Constructor[]>(...classes: T): Constructor<ConstructorUnionToInstanceTypeUnion<T[number]>>
-// function multiple(...classes: any): any {
-//
-//  ------------ method 2, define the signature of `multiple()` with a single
-//  signature. The upside is this picks the type of the first property
-//  encountered when property names collide amongst all the classes passed into
-//  `multiple()`, but the downside is the inner implementation may require
-//  casting, and this approach can also cause an infinite type recursion
-//  depending on the types used inside the implementation.
-//  ----------------
-export function multiple<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
+export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE})
+
+function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
 	// avoid performance costs in special cases
 	if (classes.length === 0) return Object as any
 	if (classes.length === 1) return classes[0] as any
@@ -167,6 +203,139 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 				for (let i = 0, l = classes.length; i < l; i += 1) {
 					Class = classes[i]
 					if (Reflect.has(Class.prototype, key)) return true
+				}
+
+				return false
+			},
+		},
+	)
+
+	return (MultiClass as unknown) as CombinedClasses<T>
+}
+
+let currentSelf: Object[] = []
+
+function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
+	// avoid performance costs in special cases
+	if (classes.length === 0) return Object as any
+	if (classes.length === 1) return classes[0] as any
+
+	const FirstClass = classes.shift()!
+
+	// inherit the first class normally. This allows for required native
+	// inheritance in certain special cases (like inheriting from HTMLElement
+	// when making Custom Elements).
+	class MultiClass extends FirstClass {
+		constructor(...args: any[]) {
+			super(...args)
+
+			// This is so that `super` calls will work. We need to do this
+			// because MultiClass.prototype is non-configurable, so it is
+			// impossible to wrap it with a Proxy. So instead, we do surgery on
+			// the class that extends from MultiClass, and replace the prototype
+			// with our own custom Proxy-wrapped prototype.
+			const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
+			if (protoBeforeMultiClassProto !== newMultiClassPrototype) {
+				Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
+			}
+
+			const instances = getInstances(this)
+
+			// make instances of the other classes to get/set properties on.
+			for (const Ctor of classes) {
+				const instance = new Ctor(...args)
+				// const instance = Reflect.construct(Ctor, args, new.target)
+				instances.push(instance)
+			}
+		}
+	}
+
+	const __instances__ = new WeakMap<MultiClass, Object[]>()
+	const getInstances = (inst: MultiClass): Object[] => {
+		let result = __instances__.get(inst)
+		if (!result) __instances__.set(inst, (result = []))
+		return result
+	}
+
+	const newMultiClassPrototype = new Proxy(
+		{
+			// --- TODO is __proto__ instead of Object.assign/create faster?
+			__proto__: MultiClass.prototype,
+
+			// This is useful for debugging while looking around in devtools.
+			__InjectedMultiClassPrototype__: MultiClass.name,
+		},
+		{
+			get(target, key: string | symbol, self: MultiClass): any {
+				currentSelf.push(self)
+
+				// If the key is in the current prototype chain, continue like normal...
+				if (Reflect.has(target, key)) {
+					currentSelf.pop()
+					return Reflect.get(target, key, self)
+				}
+
+				currentSelf.pop()
+
+				// ...Otherwise if the key isn't, look it up on the instances of each class.
+				// This is something like a "prototype tree".
+				for (const instance of getInstances(self)) {
+					currentSelf.push(instance)
+
+					if (Reflect.has(instance, key)) {
+						currentSelf.pop()
+						return Reflect.get(instance, key, instance)
+					}
+
+					currentSelf.pop()
+				}
+
+				// If the key is not found, return undefined like normal.
+				return undefined
+			},
+
+			set(target, key: string | symbol, value: any, self): boolean {
+				currentSelf.push(self)
+
+				// If the key is in the current prototype chain, continue like normal...
+				if (Reflect.has(target, key)) {
+					currentSelf.pop()
+					return Reflect.set(target, key, value, self)
+				}
+
+				currentSelf.pop()
+
+				// ...Otherwise if the key isn't, set it on one of the instances of the classes.
+				for (const instance of getInstances(self)) {
+					currentSelf.push(instance)
+
+					if (Reflect.has(instance, key)) {
+						currentSelf.pop()
+						return Reflect.set(instance, key, value, instance)
+						// return Reflect.set(instance, key, value, self)
+					}
+
+					currentSelf.pop()
+				}
+
+				// If the key is not found, set it like normal.
+				return Reflect.set(target, key, value, self)
+			},
+
+			has(target, key): boolean {
+				if (currentSelf.length) {
+					let current = currentSelf[currentSelf.length - 1]
+
+					while (current) {
+						if (Reflect.ownKeys(current).includes(key)) return true
+						current = Reflect.getPrototypeOf(current) as MultiClass
+					}
+
+					for (const instance of getInstances(currentSelf[currentSelf.length - 1] as MultiClass))
+						if (Reflect.has(instance, key)) return true
+				} else {
+					if (Reflect.has(target, key)) return true
+					for (const Ctor of classes) if (Reflect.has(Ctor.prototype, key)) return true
 				}
 
 				return false
