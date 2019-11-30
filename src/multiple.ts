@@ -1,3 +1,5 @@
+import {Constructor} from './utils'
+
 // --- TODO handle static inheritance. Nothing has been implemented with regards to
 // static inheritance yet.
 
@@ -186,11 +188,6 @@ function findPrototypeBeforeMultiClassPrototype(obj: Object, multiClassPrototype
 	}
 
 	return null
-}
-
-interface Constructor<T extends any = {}> {
-	new (...args: any[]): T
-	name: string
 }
 
 // type ConstructorUnionToInstanceTypeUnion<U> = (U extends Constructor
