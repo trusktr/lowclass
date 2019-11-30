@@ -49,11 +49,8 @@
 //  ----------------
 export function multiple<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
 	// avoid performance costs in special cases
-	if (classes.length === 0) return (Object as unknown) as CombinedClasses<T>
-	if (classes.length === 1) {
-		const result = classes[0]
-		return ((typeof result === 'function' ? result : Object) as unknown) as CombinedClasses<T>
-	}
+	if (classes.length === 0) return Object as any
+	if (classes.length === 1) return classes[0] as any
 
 	const FirstClass = classes.shift()!
 
@@ -77,7 +74,9 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 			const instances: Object[] = []
 
 			// make instances of the other classes to get/set properties on.
-			for (const Ctor of classes) {
+			let Ctor: Constructor
+			for (let i = 0, l = classes.length; i < l; i += 1) {
+				Ctor = classes[i]
 				const instance = Reflect.construct(Ctor, args)
 				instances.push(instance)
 			}
@@ -92,9 +91,12 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 				get(target, key: string | symbol, self: MultiClass): any {
 					if (Reflect.ownKeys(target).includes(key)) return Reflect.get(target, key, self)
 
-					// `instance` might a Proxy from an underlying MultiClass
-					for (const instance of instances)
+					let instance: Object
+
+					for (let i = 0, l = instances.length; i < l; i += 1) {
+						instance = instances[i]
 						if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
+					}
 
 					const proto = Object.getPrototypeOf(self)
 					if (Reflect.has(proto, key)) return Reflect.get(proto, key, self)
@@ -105,7 +107,14 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 				ownKeys(target) {
 					let keys = Reflect.ownKeys(target)
 
-					for (const instance of instances) keys = keys.concat(Reflect.ownKeys(instance))
+					let instance: Object
+					let instanceKeys: (string | symbol | number)[]
+
+					for (let i = 0, l = instances.length; i < l; i += 1) {
+						instance = instances[i]
+						instanceKeys = Reflect.ownKeys(instance)
+						for (let j = 0, l = instanceKeys.length; j < l; j += 1) keys.push(instanceKeys[j])
+					}
 
 					return keys
 				},
@@ -114,7 +123,11 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 				has(target, key: string | symbol): boolean {
 					if (Reflect.ownKeys(target).includes(key)) return true
 
-					for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true
+					let instance: Object
+					for (let i = 0, l = instances.length; i < l; i += 1) {
+						instance = instances[i]
+						if (Reflect.ownKeys(instance).includes(key)) return true
+					}
 
 					// all instances share the same prototype, so just check it once
 					const proto = Object.getPrototypeOf(self)
@@ -125,10 +138,6 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 			})
 		}
 	}
-
-	// Give the constructor a new name, for aid in debugging (f.e. when looking
-	// at a prototype chain in devtools, this helps to understand what is what).
-	setValue(MultiClass, 'name', makeMultiClassName(FirstClass, ...classes))
 
 	const newMultiClassPrototype = new Proxy(
 		{
@@ -141,13 +150,23 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 		{
 			get(target, key: string | symbol, self: MultiClass): any {
 				if (Reflect.has(target, key)) return Reflect.get(target, key, self)
-				for (const Class of classes)
+
+				let Class: Constructor
+				for (let i = 0, l = classes.length; i < l; i += 1) {
+					Class = classes[i]
 					if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
+				}
 			},
 
 			has(target, key): boolean {
 				if (Reflect.has(target, key)) return true
-				for (const Class of classes) if (Reflect.has(Class.prototype, key)) return true
+
+				let Class: Constructor
+				for (let i = 0, l = classes.length; i < l; i += 1) {
+					Class = classes[i]
+					if (Reflect.has(Class.prototype, key)) return true
+				}
+
 				return false
 			},
 		},
@@ -167,22 +186,6 @@ function findPrototypeBeforeMultiClassPrototype(obj: Object, multiClassPrototype
 	}
 
 	return null
-}
-
-function makeMultiClassName(...classes: Constructor[]): string {
-	let result = 'Multiple:' + classes.shift()!.name
-	for (const Ctor of classes) result += '+' + (Ctor.name || 'anonymous')
-	return result
-}
-
-/**
- * Set the given `key`'s `value` on `obj` by editing the descriptor, instead of
- * setting the property the normally.
- */
-function setValue(obj: Record<string, any>, key: string, value: any): void {
-	const desc = Object.getOwnPropertyDescriptor(obj, key)
-
-	Object.defineProperty(obj, key, {...desc, value})
 }
 
 interface Constructor<T extends any = {}> {
