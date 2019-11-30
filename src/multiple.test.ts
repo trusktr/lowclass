@@ -13,6 +13,8 @@ function runTests() {
 	test3()
 	test4()
 	test5()
+	test6()
+	test7()
 
 	// time the Proxy-based version
 	log('testing speed of Proxy version...')
@@ -46,6 +48,7 @@ function hasProto(obj: Object, proto: Object): boolean {
 function test0() {
 	const R1 = multiple()
 	const r1 = new R1()
+	console.log('length')
 	assert(Object.keys(r1).length === 0)
 	assert(r1.hasOwnProperty === Object.prototype.hasOwnProperty)
 	assert(Object.getPrototypeOf(r1) === Object.prototype)
@@ -285,6 +288,7 @@ function test3() {
 
 		const i = new Ipsum()
 
+		debugger
 		i.foo()
 		i.bar()
 		i.baz()
@@ -476,6 +480,124 @@ function test5() {
 	assert('five' in seven2)
 	assert('six' in seven2)
 	assert('seven' in seven2)
+}
+
+function test6() {
+	let count = 0
+
+	class One {}
+	class Two {
+		two = 2
+		method2() {
+			count++
+			assert(this.two === 2, 'two should be 2')
+		}
+	}
+
+	class Three extends multiple(One, Two) {
+		method3() {
+			this.method2()
+		}
+	}
+
+	const three = new Three()
+	three.method3()
+
+	class Four {}
+	class Five extends multiple(Four, Three) {
+		method5() {
+			this.method3()
+		}
+	}
+
+	const five = new Five()
+	five.method5()
+
+	class Six {}
+	class Seven extends multiple(Six, Five) {
+		method7() {
+			this.method5()
+		}
+	}
+
+	const s = new Seven()
+	s.method7()
+
+	class Eight {}
+	class Nine extends multiple(Eight, Seven) {
+		method8() {
+			this.method7()
+		}
+	}
+
+	const n = new Nine()
+	n.method8()
+
+	assert(count === 4, 'method2 should be called 4 times')
+}
+
+function test7() {
+	let count = 0
+
+	class One {}
+
+	class Two {
+		two = 2
+		method2() {
+			++count
+			assert(this.two === 2, 'two should be 2')
+		}
+	}
+
+	class Three extends multiple(One, Two) {
+		method3() {
+			this.method2()
+		}
+	}
+
+	// this worked before, there were no problems with the assertion in method2
+	const three = new Three()
+	three.method3()
+
+	class Four {}
+
+	class Five extends multiple(Four, Three) {
+		// The problem started here, because Three was instantiated inside of Five's
+		// constructor during instantiation of Seven, so the `new Three` and
+		// it's underlying `new Two` were treated as if they were sub-instances of
+		// Seven instead of Five, which wasn't what we wanted, so property lookups didn't work right.
+		t = new Three()
+
+		constructor() {
+			super()
+			this.t.method3()
+		}
+
+		method5() {
+			this.method3()
+			this.t.method3()
+		}
+	}
+
+	// This worked before, the assertion in method2 was fine at this point
+	const five = new Five()
+	five.method5()
+
+	// we needed to make one more layer of multiple inheritance for the problem to become apparent.
+	class Six {}
+	class Seven extends multiple(Six, Five) {
+		method7() {
+			this.method5()
+		}
+	}
+
+	// this was breaking, the assertion in the inherited method2 was failing,
+	// because the `Two` instance got inserted into the `instances` array for
+	// the Seven instance, instead of for the Three instance.
+	const s = new Seven()
+	s.method7()
+
+	assert(count === 7, 'method2 should be called 7 times')
 }
 
 function testProxySpeed() {

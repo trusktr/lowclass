@@ -20,15 +20,6 @@
 // here for ideas based on how different languages handle it:
 // https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem
 
-const __instances__ = new WeakMap<Object, Object[]>()
-const getInstances = (inst: Object): Object[] => {
-	let result = __instances__.get(inst)
-	if (!result) __instances__.set(inst, (result = []))
-	return result
-}
-
-let instanceKey: Object | null = null
-
 /**
  * Mixes the given classes into a single class. This is useful for multiple
  * inheritance.
@@ -71,16 +62,6 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 	// when making Custom Elements).
 	class MultiClass extends FirstClass {
 		constructor(...args: any[]) {
-			let isPrimaryInstance = false
-
-			if (!instanceKey) {
-				isPrimaryInstance = true
-				instanceKey = {
-					// `name` is useful for debugging while looking around in devtools.
-					name: MultiClass.name,
-				}
-			}
-
 			super(...args)
 
 			// This is so that `super` calls will work. We need to do this
@@ -88,14 +69,12 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 			// impossible to wrap it with a Proxy. So instead, we do surgery on
 			// the class that extends from MultiClass, and replace the prototype
 			// with our own custom Proxy-wrapped prototype.
-			//
-			// TODO traverse the chain and connect all MultiClasses (Disable the Three and Six tests and the Seven test should then fail)
 			const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
 			if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
 				Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
 			}
 
-			const instances = getInstances(instanceKey)
+			const instances: Object[] = []
 
 			// make instances of the other classes to get/set properties on.
 			for (const Ctor of classes) {
@@ -103,37 +82,47 @@ export function multiple<T extends Constructor[]>(...classes: T): CombinedClasse
 				instances.push(instance)
 			}
 
-			if (isPrimaryInstance) {
-				instanceKey = null
+			return new Proxy(this, {
+				// No `set()` trap is needed in this Proxy handler, at least for
+				// the tests so far. Methods automatically have the correct
+				// receiver when the are gotten with the `get()` trap, so if any
+				// methods set a property, the set happens on the expected
+				// instance, just like regular [[Set]].
 
-				return new Proxy(this, {
-					get(target, key: string | symbol, self: MultiClass): any {
-						if (Reflect.ownKeys(self).includes(key)) return Reflect.get(target, key, self)
+				get(target, key: string | symbol, self: MultiClass): any {
+					if (Reflect.ownKeys(target).includes(key)) return Reflect.get(target, key, self)
 
-						for (const instance of instances)
-							if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
+					// `instance` might a Proxy from an underlying MultiClass
+					for (const instance of instances)
+						if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
 
-						const proto = Object.getPrototypeOf(self)
-						if (Reflect.has(proto, key)) return Reflect.get(proto, key, self)
+					const proto = Object.getPrototypeOf(self)
+					if (Reflect.has(proto, key)) return Reflect.get(proto, key, self)
 
-						return undefined
-					},
+					return undefined
+				},
 
-					has(target, key: string | symbol): boolean {
-						if (Reflect.ownKeys(target).includes(key)) return true
+				ownKeys(target) {
+					let keys = Reflect.ownKeys(target)
 
-						for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true
+					for (const instance of instances) keys = keys.concat(Reflect.ownKeys(instance))
 
-						// all instances share the same prototype, so just check it once
-						const proto = Object.getPrototypeOf(self)
-						if (Reflect.has(proto, key)) return true
+					return keys
+				},
 
-						return false
-					},
-				})
-			}
+				// This makes the `in` operator work, for example.
+				has(target, key: string | symbol): boolean {
+					if (Reflect.ownKeys(target).includes(key)) return true
 
-			return this
+					for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true
+
+					// all instances share the same prototype, so just check it once
+					const proto = Object.getPrototypeOf(self)
+					if (Reflect.has(proto, key)) return true
+
+					return false
+				},
+			})
 		}
 	}
 
