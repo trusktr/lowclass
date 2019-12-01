@@ -83,7 +83,8 @@ export function makeMultipleHelper(options?: MultipleOptions) {
  * class Baz {}
  * class MyClass extends multiple(Foo, Bar, Baz) {}
  */
-export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE})
+// export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE})
+export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_PROTOTYPE})
 
 function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
 	// avoid performance costs in special cases
@@ -217,16 +218,6 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 		constructor(...args: any[]) {
 			super(...args)
 
-			// This is so that `super` calls will work. We need to do this
-			// because MultiClass.prototype is non-configurable, so it is
-			// impossible to wrap it with a Proxy. So instead, we do surgery on
-			// the class that extends from MultiClass, and replace the prototype
-			// with our own custom Proxy-wrapped prototype.
-			const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
-			if (protoBeforeMultiClassProto !== newMultiClassPrototype) {
-				Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
-			}
-
 			const instances = getInstances(this)
 
 			// make instances of the other classes to get/set properties on.
@@ -245,106 +236,91 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 		return result
 	}
 
-	const newMultiClassPrototype = new Proxy(
-		{
-			// --- TODO is __proto__ instead of Object.assign/create faster?
-			__proto__: MultiClass.prototype,
+	const newMultiClassPrototype = new Proxy(Object.create(FirstClass.prototype), {
+		get(target, key: string | symbol, self: MultiClass): any {
+			currentSelf.push(self)
 
-			// This is useful for debugging while looking around in devtools.
-			__InjectedMultiClassPrototype__: MultiClass.name,
+			// If the key is in the current prototype chain, continue like normal...
+			if (Reflect.has(target, key)) {
+				currentSelf.pop()
+				return Reflect.get(target, key, self)
+			}
+
+			currentSelf.pop()
+
+			// ...Otherwise if the key isn't, look it up on the instances of each class.
+			// This is something like a "prototype tree".
+			for (const instance of getInstances(self)) {
+				currentSelf.push(instance)
+
+				if (Reflect.has(instance, key)) {
+					currentSelf.pop()
+					return Reflect.get(instance, key, instance)
+				}
+
+				currentSelf.pop()
+			}
+
+			// If the key is not found, return undefined like normal.
+			return undefined
 		},
-		{
-			get(target, key: string | symbol, self: MultiClass): any {
-				currentSelf.push(self)
 
-				// If the key is in the current prototype chain, continue like normal...
-				if (Reflect.has(target, key)) {
-					currentSelf.pop()
-					return Reflect.get(target, key, self)
-				}
+		set(target, key: string | symbol, value: any, self): boolean {
+			currentSelf.push(self)
 
+			// If the key is in the current prototype chain, continue like normal...
+			if (Reflect.has(target, key)) {
 				currentSelf.pop()
-
-				// ...Otherwise if the key isn't, look it up on the instances of each class.
-				// This is something like a "prototype tree".
-				for (const instance of getInstances(self)) {
-					currentSelf.push(instance)
-
-					if (Reflect.has(instance, key)) {
-						currentSelf.pop()
-						return Reflect.get(instance, key, instance)
-					}
-
-					currentSelf.pop()
-				}
-
-				// If the key is not found, return undefined like normal.
-				return undefined
-			},
-
-			set(target, key: string | symbol, value: any, self): boolean {
-				currentSelf.push(self)
-
-				// If the key is in the current prototype chain, continue like normal...
-				if (Reflect.has(target, key)) {
-					currentSelf.pop()
-					return Reflect.set(target, key, value, self)
-				}
-
-				currentSelf.pop()
-
-				// ...Otherwise if the key isn't, set it on one of the instances of the classes.
-				for (const instance of getInstances(self)) {
-					currentSelf.push(instance)
-
-					if (Reflect.has(instance, key)) {
-						currentSelf.pop()
-						return Reflect.set(instance, key, value, instance)
-						// return Reflect.set(instance, key, value, self)
-					}
-
-					currentSelf.pop()
-				}
-
-				// If the key is not found, set it like normal.
 				return Reflect.set(target, key, value, self)
-			},
+			}
 
-			has(target, key): boolean {
-				if (currentSelf.length) {
-					let current = currentSelf[currentSelf.length - 1]
+			currentSelf.pop()
 
-					while (current) {
-						if (Reflect.ownKeys(current).includes(key)) return true
-						current = Reflect.getPrototypeOf(current) as MultiClass
-					}
+			// ...Otherwise if the key isn't, set it on one of the instances of the classes.
+			for (const instance of getInstances(self)) {
+				currentSelf.push(instance)
 
-					for (const instance of getInstances(currentSelf[currentSelf.length - 1] as MultiClass))
-						if (Reflect.has(instance, key)) return true
-				} else {
-					if (Reflect.has(target, key)) return true
-					for (const Ctor of classes) if (Reflect.has(Ctor.prototype, key)) return true
+				if (Reflect.has(instance, key)) {
+					currentSelf.pop()
+					return Reflect.set(instance, key, value, instance)
+					// return Reflect.set(instance, key, value, self)
 				}
 
-				return false
-			},
+				currentSelf.pop()
+			}
+
+			// If the key is not found, set it like normal.
+			return Reflect.set(target, key, value, self)
 		},
-	)
+
+		has(target, key): boolean {
+			if (currentSelf.length) {
+				let current = currentSelf[currentSelf.length - 1]
+
+				while (current) {
+					if (Reflect.ownKeys(current).includes(key)) return true
+					current = Reflect.getPrototypeOf(current) as MultiClass
+				}
+
+				for (const instance of getInstances(currentSelf[currentSelf.length - 1] as MultiClass))
+					if (Reflect.has(instance, key)) return true
+			} else {
+				if (Reflect.has(target, key)) return true
+				for (const Ctor of classes) if (Reflect.has(Ctor.prototype, key)) return true
+			}
+
+			return false
+		},
+	})
+
+	// This is so that `super` calls will work. We can't replace
+	// MultiClass.prototype with a Proxy because MultiClass.prototype is
+	// non-configurable, so it is impossible to wrap it with a Proxy. Instead,
+	// we stick our own custom Proxy-wrapped prototype object between
+	// MultiClass.prototype and FirstClass.prototype.
+	Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype)
 
 	return (MultiClass as unknown) as CombinedClasses<T>
-}
-
-function findPrototypeBeforeMultiClassPrototype(obj: Object, multiClassPrototype: Object): Object | null {
-	let previous = obj
-	let current = Object.getPrototypeOf(obj)
-
-	while (current) {
-		if (current === multiClassPrototype) return previous
-		previous = current
-		current = Object.getPrototypeOf(current)
-	}
-
-	return null
 }
 
 // type ConstructorUnionToInstanceTypeUnion<U> = (U extends Constructor
