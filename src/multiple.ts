@@ -99,16 +99,6 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 		constructor(...args: any[]) {
 			super(...args)
 
-			// This is so that `super` calls will work. We need to do this
-			// because MultiClass.prototype is non-configurable, so it is
-			// impossible to wrap it with a Proxy. So instead, we do surgery on
-			// the class that extends from MultiClass, and replace the prototype
-			// with our own custom Proxy-wrapped prototype.
-			const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype)
-			if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
-				Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype)
-			}
-
 			const instances: Object[] = []
 
 			// make instances of the other classes to get/set properties on.
@@ -177,38 +167,36 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 		}
 	}
 
-	const newMultiClassPrototype = new Proxy(
-		{
-			// --- TODO is __proto__ instead of Object.assign/create faster?
-			__proto__: MultiClass.prototype,
+	const newMultiClassPrototype = new Proxy(Object.create(FirstClass.prototype), {
+		get(target, key: string | symbol, self: MultiClass): any {
+			if (Reflect.has(target, key)) return Reflect.get(target, key, self)
 
-			// This is useful for debugging while looking around in devtools.
-			__InjectedMultiClassPrototype__: MultiClass.name,
+			let Class: Constructor
+			for (let i = 0, l = classes.length; i < l; i += 1) {
+				Class = classes[i]
+				if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
+			}
 		},
-		{
-			get(target, key: string | symbol, self: MultiClass): any {
-				if (Reflect.has(target, key)) return Reflect.get(target, key, self)
 
-				let Class: Constructor
-				for (let i = 0, l = classes.length; i < l; i += 1) {
-					Class = classes[i]
-					if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
-				}
-			},
+		has(target, key): boolean {
+			if (Reflect.has(target, key)) return true
 
-			has(target, key): boolean {
-				if (Reflect.has(target, key)) return true
+			let Class: Constructor
+			for (let i = 0, l = classes.length; i < l; i += 1) {
+				Class = classes[i]
+				if (Reflect.has(Class.prototype, key)) return true
+			}
 
-				let Class: Constructor
-				for (let i = 0, l = classes.length; i < l; i += 1) {
-					Class = classes[i]
-					if (Reflect.has(Class.prototype, key)) return true
-				}
-
-				return false
-			},
+			return false
 		},
-	)
+	})
+
+	// This is so that `super` calls will work. We can't replace
+	// MultiClass.prototype with a Proxy because MultiClass.prototype is
+	// non-configurable, so it is impossible to wrap it with a Proxy. Instead,
+	// we stick our own custom Proxy-wrapped prototype object between
+	// MultiClass.prototype and FirstClass.prototype.
+	Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype)
 
 	return (MultiClass as unknown) as CombinedClasses<T>
 }

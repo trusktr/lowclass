@@ -288,7 +288,6 @@ function test3() {
 
 		const i = new Ipsum()
 
-		debugger
 		i.foo()
 		i.bar()
 		i.baz()
