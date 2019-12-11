@@ -3,7 +3,7 @@
   "version": "4.8.0",
   "description": "Low-complexity class inheritance with protected/public/private members.",
   "main": "index.js",
-  "types": "src/index.js",
+  "types": "src/index.ts",
   "scripts": {
     "clean": "builder run build:clean",
     "build": "builder run build:prod",
