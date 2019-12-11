@@ -83,8 +83,8 @@ export function makeMultipleHelper(options?: MultipleOptions) {
  * class Baz {}
  * class MyClass extends multiple(Foo, Bar, Baz) {}
  */
-// export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE})
-export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_PROTOTYPE})
+export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE})
+// export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_PROTOTYPE})
 
 function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
 	// avoid performance costs in special cases
