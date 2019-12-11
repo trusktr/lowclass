@@ -90,20 +90,23 @@ var lowclass =
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return getFunctionBody; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return setDescriptor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return setDescriptors; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return propertyIsAccessor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return getInheritedDescriptor; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return getInheritedPropertyNames; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return WeakTwoWayMap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return getFunctionBody; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "k", function() { return setDescriptor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "l", function() { return setDescriptors; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "h", function() { return propertyIsAccessor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return getInheritedDescriptor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return getInheritedPropertyNames; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Constructor; });
-
-
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return hasPrototype; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return copyDescriptors; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "i", function() { return setDefaultPrototypeDescriptors; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "j", function() { return setDefaultStaticDescriptors; });
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+// TODO no any
 class WeakTwoWayMap {
   constructor() {
     this.m = new WeakMap();
@@ -122,31 +125,26 @@ class WeakTwoWayMap {
     return this.m.has(item);
   }
 
-}
-
- // assumes the function opening, body, and closing are on separate lines
+} // assumes the function opening, body, and closing are on separate lines
 
 function getFunctionBody(fn) {
-  const code = fn.toString().split("\n");
+  const code = fn.toString().split('\n');
   code.shift(); // remove opening line (function() {)
 
   code.pop(); // remove closing line (})
 
-  return code.join("\n");
+  return code.join('\n');
 }
-
 const descriptorDefaults = {
   enumerable: true,
-  configurable: true // makes it easier and less verbose to work with descriptors
-
-};
+  configurable: true
+}; // makes it easier and less verbose to work with descriptors
 
 function setDescriptor(obj, key, newDescriptor, inherited = false) {
   let currentDescriptor = inherited ? getInheritedDescriptor(obj, key) : Object.getOwnPropertyDescriptor(obj, key);
   newDescriptor = overrideDescriptor(currentDescriptor, newDescriptor);
   Object.defineProperty(obj, key, newDescriptor);
 }
-
 function setDescriptors(obj, newDescriptors) {
   let newDescriptor;
   let currentDescriptor;
@@ -177,7 +175,8 @@ function overrideDescriptor(oldDescriptor, newDescriptor) {
   }
 
   return _objectSpread({}, descriptorDefaults, oldDescriptor, newDescriptor);
-}
+} // TODO use signature override
+
 
 function propertyIsAccessor(obj, key, inherited = true) {
   let result = false;
@@ -192,7 +191,6 @@ function propertyIsAccessor(obj, key, inherited = true) {
   if (descriptor && (descriptor.get || descriptor.set)) result = true;
   return result;
 }
-
 function getInheritedDescriptor(obj, key) {
   let currentProto = obj;
   let descriptor;
@@ -201,14 +199,16 @@ function getInheritedDescriptor(obj, key) {
     descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
 
     if (descriptor) {
+      ;
       descriptor.owner = currentProto;
       return descriptor;
     }
 
     currentProto = currentProto.__proto__;
   }
-}
 
+  return void 0;
+}
 function getInheritedPropertyNames(obj) {
   let currentProto = obj;
   let keys = [];
@@ -223,9 +223,84 @@ function getInheritedPropertyNames(obj) {
   return keys;
 } // this is used for type casting in special cases, see the declaration file
 
-
 function Constructor(Ctor) {
   return Ctor;
+} // check if an object has the given prototype in its chain
+
+function hasPrototype(obj, proto) {
+  let currentProto = obj.__proto__;
+
+  do {
+    if (proto === currentProto) return true;
+    currentProto = currentProto.__proto__;
+  } while (currentProto);
+
+  return false;
+} // copy all properties (as descriptors) from source to destination
+
+function copyDescriptors(source, destination, mod) {
+  const props = Object.getOwnPropertyNames(source);
+  let i = props.length;
+
+  while (i--) {
+    const prop = props[i];
+    const descriptor = Object.getOwnPropertyDescriptor(source, prop);
+    if (mod) mod(descriptor);
+    Object.defineProperty(destination, prop, descriptor);
+  }
+}
+function setDefaultPrototypeDescriptors(prototype, {
+  defaultClassDescriptor: {
+    writable,
+    enumerable,
+    configurable
+  }
+}) {
+  const descriptors = Object.getOwnPropertyDescriptors(prototype);
+  let descriptor;
+
+  for (const key in descriptors) {
+    descriptor = descriptors[key]; // regular value
+
+    if ('value' in descriptor || 'writable' in descriptor) {
+      descriptor.writable = writable;
+    } // accessor or regular value
+
+
+    descriptor.enumerable = enumerable;
+    descriptor.configurable = configurable;
+  }
+
+  setDescriptors(prototype, descriptors);
+}
+function setDefaultStaticDescriptors(Ctor, {
+  defaultClassDescriptor: {
+    writable,
+    enumerable,
+    configurable
+  }
+}, staticBlacklist) {
+  const descriptors = Object.getOwnPropertyDescriptors(Ctor);
+  let descriptor;
+
+  for (const key in descriptors) {
+    if (staticBlacklist && staticBlacklist.includes(key)) {
+      delete descriptors[key];
+      continue;
+    }
+
+    descriptor = descriptors[key]; // regular value
+
+    if ('value' in descriptor || 'writable' in descriptor) {
+      descriptor.writable = writable;
+    } // accessor or regular value
+
+
+    descriptor.enumerable = enumerable;
+    descriptor.configurable = configurable;
+  }
+
+  setDescriptors(Ctor, descriptors);
 }
 
 /***/ }),
@@ -237,6 +312,7 @@ function Constructor(Ctor) {
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
 // borrowed from (and slightly modified) https://github.com/Mr0grog/newless
 // The newless license is BSD 3:
+// TODO no any types
 
 /*
  * Copyright (c) 2013-2016, Rob Brackett
@@ -256,15 +332,11 @@ function Constructor(Ctor) {
 
 
 /* unused harmony default export */ var _unused_webpack_default_export = (newless);
-var supportsSpread = isSyntaxSupported("Object(...[{}])");
-var supportsClass = isSyntaxSupported("class Test {}");
-var supportsNewTarget = isSyntaxSupported("new.target"); // Used to track the original wrapped constructor on a newless instance
+var supportsSpread = isSyntaxSupported('Object(...[{}])');
+var supportsClass = isSyntaxSupported('class Test {}');
+var supportsNewTarget = isSyntaxSupported('new.target'); // Used to track the original wrapped constructor on a newless instance
 
-var TRUE_CONSTRUCTOR = Symbol ? Symbol("trueConstructor") : "__newlessTrueConstructor__"; // Polyfills for get/set prototype
-
-var getPrototype = Object.getPrototypeOf || function getPrototype(object) {
-  return object.__proto__ || object.constructor && object.constructor.prototype || Object.prototype;
-};
+var TRUE_CONSTRUCTOR = Symbol ? Symbol('trueConstructor') : '__newlessTrueConstructor__';
 
 var setPrototype = Object.setPrototypeOf || function setPrototypeOf(object, newPrototype) {
   object.__proto__ = newPrototype;
@@ -273,55 +345,55 @@ var setPrototype = Object.setPrototypeOf || function setPrototypeOf(object, newP
 
 var construct = Reflect && Reflect.construct || function () {
   if (supportsClass) {
-    return Function("constructor, args, target", `
-      'use strict';
+    return Function('constructor, args, target', `
+                'use strict';
 
-      if (arguments.length === 3 && typeof target !== 'function')
-        throw new TypeError(target + ' is not a constructor');
+                if (arguments.length === 3 && typeof target !== 'function')
+                    throw new TypeError(target + ' is not a constructor');
 
-      target = target || constructor;
+                target = target || constructor;
 
-      // extend target so the right prototype is constructed (or nearly the
-      // right one; ideally we'd do instantiator.prototype = target.prototype,
-      // but a class's prototype property is not writable)
-      class instantiator extends target {};
-      // but ensure the *logic* is 'constructor' for ES2015-compliant engines
-      Object.setPrototypeOf(instantiator, constructor);
-      // ...and for Safari 9
-      instantiator.prototype.constructor = constructor;
+                // extend target so the right prototype is constructed (or nearly the
+                // right one; ideally we'd do instantiator.prototype = target.prototype,
+                // but a class's prototype property is not writable)
+                class instantiator extends target {};
+                // but ensure the *logic* is 'constructor' for ES2015-compliant engines
+                Object.setPrototypeOf(instantiator, constructor);
+                // ...and for Safari 9
+                instantiator.prototype.constructor = constructor;
 
-      // The spread operator is *dramatically faster, so use it if we can:
-      // http://jsperf.com/new-via-spread-vs-dynamic-function/4
-      ${supportsSpread ? `
+                // The spread operator is *dramatically faster, so use it if we can:
+                // http://jsperf.com/new-via-spread-vs-dynamic-function/4
+                ${supportsSpread ? `
 
-        var value = new instantiator(...([].slice.call(args)));
+                    var value = new instantiator(...([].slice.call(args)));
 
-      ` : `
+                ` : `
 
-        // otherwise, create a dynamic function in order to use 'new'
-        // Note using 'function.bind' would be simpler, but is much slower:
-        // http://jsperf.com/new-operator-with-dynamic-function-vs-bind
-        var argList = '';
-        for (var i = 0, len = args.length; i < len; i++) {
-          if (i > 0) argList += ',';
-          argList += 'args[' + i + ']';
-        }
-        var constructCall = Function('constructor, args',
-          'return new constructor( ' + argList + ' );'
-        );
-        var value = constructCall(constructor, args);
+                    // otherwise, create a dynamic function in order to use 'new'
+                    // Note using 'function.bind' would be simpler, but is much slower:
+                    // http://jsperf.com/new-operator-with-dynamic-function-vs-bind
+                    var argList = '';
+                    for (var i = 0, len = args.length; i < len; i++) {
+                    if (i > 0) argList += ',';
+                    argList += 'args[' + i + ']';
+                    }
+                    var constructCall = Function('constructor, args',
+                    'return new constructor( ' + argList + ' );'
+                    );
+                    var value = constructCall(constructor, args);
 
-        args = Array.prototype.slice.call(args);
-        args = [null].concat(args);
-        var value = new constructor.bind.apply(constructor, args);
+                    args = Array.prototype.slice.call(args);
+                    args = [null].concat(args);
+                    var value = new constructor.bind.apply(constructor, args);
 
-      `}
+                `}
 
-      // fix up the prototype so it matches the intended one, not one who's
-      // prototype is the intended one :P
-      Object.setPrototypeOf(value, target.prototype);
-      return value;
-    `); //return Function("constructor, args, newTarget", `
+                // fix up the prototype so it matches the intended one, not one who's
+                // prototype is the intended one :P
+                Object.setPrototypeOf(value, target.prototype);
+                return value;
+            `); //return Function("constructor, args, newTarget", `
     //  'use strict';
     //  if (arguments.length === 3 && typeof newTarget === undefined)
     //    throw new TypeError('undefined is not a constructor');
@@ -345,7 +417,7 @@ var construct = Reflect && Reflect.construct || function () {
       var instance = new instantiator();
       var value = constructor.apply(instance, args);
 
-      if (typeof value === "object" && value) {
+      if (typeof value === 'object' && value) {
         // we can do better if __proto__ is available (in some ES5 environments)
         value.__proto__ = (target || constructor).prototype;
         return value;
@@ -357,7 +429,7 @@ var construct = Reflect && Reflect.construct || function () {
 }(); // ES2015 class methods are non-enumerable; we need a helper for copying them.
 
 
-var SKIP_PROPERTIES = ["arguments", "caller", "length", "name", "prototype"];
+var SKIP_PROPERTIES = ['arguments', 'caller', 'length', 'name', 'prototype'];
 
 function copyProperties(source, destination) {
   if (Object.getOwnPropertyNames && Object.defineProperty) {
@@ -386,7 +458,7 @@ function newless(constructor) {
   // however, not all engines do this. This could be false and the constructor
   // might still use class syntax.
 
-  var usesClassSyntax = constructor.toString().substr(0, 5) === "class";
+  var usesClassSyntax = constructor.toString().substr(0, 5) === 'class';
   var requiresNew = usesClassSyntax ? true : null;
 
   var newlessConstructor = (() => function () {
@@ -401,30 +473,28 @@ function newless(constructor) {
       // so the call needs to handle potential errors the first time in
       // order to determine whether 'new' is definitely required.
       if (requiresNew === false) {
-        var returnValue = constructor.apply(this, arguments);
+        const returnValue = constructor.apply(this, arguments);
         return typeof returnValue === 'object' && returnValue || this;
       }
 
       try {
         requiresNew = false;
-        var returnValue = constructor.apply(this, arguments);
+        const returnValue = constructor.apply(this, arguments);
         return typeof returnValue === 'object' && returnValue || this;
       } catch (error) {
         // Do our best to only capture errors triggred by class syntax.
         // Unfortunately, there's no special error type for this and the
         // message is non-standard, so this is the best check we can do.
-        if (error instanceof TypeError && (/class constructor/i.test(error.message) || /use the 'new' operator/i.test(error.message) // Custom Elements in Chrome
+        if (error instanceof TypeError && (/class constructor/i.test(error.message) || /use the 'new' operator/i.test(error.message)) // Custom Elements in Chrome
         // TODO: there might be other error messages we need to catch,
         // depending on engine and use case. We need to test in all browsers
-        )) {
-          // mark this constructor as requiring 'new' for next time
-          requiresNew = true;
-        } else {
+        ) {
+            // mark this constructor as requiring 'new' for next time
+            requiresNew = true;
+          } else {
           if (/Illegal constructor/i.test(error.message) && Object.create(constructor.prototype) instanceof Node) {
-            console.error(`
-                    The following error can happen if a Custom Element is called
-                    with 'new' before being defined. The constructor was ${constructor.name}:
-                `, constructor);
+            console.error(`The following error can happen if a Custom Element is called
+with 'new' before being defined. The constructor was ${constructor.name}: `, constructor);
           }
 
           throw error;
@@ -446,7 +516,7 @@ function newless(constructor) {
       newTarget = this instanceof newlessConstructor ? this.constructor : constructor;
     }
 
-    var returnValue = construct(constructor, arguments, newTarget); // best effort to make things easy for functions inheriting from classes
+    const returnValue = construct(constructor, arguments, newTarget); // best effort to make things easy for functions inheriting from classes
 
     if (this instanceof newlessConstructor) {
       setPrototype(this, returnValue);
@@ -456,8 +526,8 @@ function newless(constructor) {
   })();
 
   if (name) {
-    const code = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* getFunctionBody */ "c"])(newlessConstructor);
-    newlessConstructor = Function("constructor, construct, setPrototype, requiresNew, supportsNewTarget", `
+    const code = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* getFunctionBody */ "d"])(newlessConstructor);
+    newlessConstructor = Function('constructor, construct, setPrototype, requiresNew, supportsNewTarget', `
       var newlessConstructor = function ${name}() { ${code} };
       return newlessConstructor
     `)(constructor, construct, setPrototype, requiresNew, supportsNewTarget);
@@ -467,7 +537,7 @@ function newless(constructor) {
   if (constructor.length) {
     // length is not writable, only configurable, therefore the value
     // has to be set with a descriptor update
-    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* setDescriptor */ "g"])(newlessConstructor, 'length', {
+    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[/* setDescriptor */ "k"])(newlessConstructor, 'length', {
       value: constructor.length
     });
   }
@@ -478,22 +548,17 @@ function newless(constructor) {
   // of WebKit and other engines do not. Instead, they use the constructor's
   // prototype chain (which is correct by ES2015 spec) (see below).
 
-  constructor.prototype.constructor = constructor; // for ES2015 classes, we need to make sure the constructor's prototype
-  // is the super class's constructor. Further, optimize performance by
-  // pointing at the actual constructor implementation instead of the
-  // newless wrapper (in the case that it is wrapped by newless).
-
+  constructor.prototype.constructor = constructor;
   newlessConstructor[TRUE_CONSTRUCTOR] = constructor;
   copyProperties(constructor, newlessConstructor);
   setPrototype(newlessConstructor, constructor);
   return newlessConstructor;
-}
+} // Test whether a given syntax is supported
 
-; // Test whether a given syntax is supported
 
 function isSyntaxSupported(example, useStrict = true) {
   try {
-    return !!Function("", (useStrict ? "'use strict';" : "") + example);
+    return !!Function('', (useStrict ? "'use strict';" : '') + example);
   } catch (error) {
     return false;
   }
@@ -506,10 +571,10 @@ function isSyntaxSupported(example, useStrict = true) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: ./src/utils.js
+// EXTERNAL MODULE: ./src/utils.ts
 var utils = __webpack_require__(0);
 
-// CONCATENATED MODULE: ./src/Class.js
+// CONCATENATED MODULE: ./src/Class.ts
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -522,7 +587,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //  [x] let the returned class define protected and private getters which return the protected and private definitions.
 //  [x] migrate to builder-js-package so tests can run in the browser, and we can test custom elements
 //  [ ] protected and private static members
+//  [ ] no `any` types
 //  [ ] other TODOs in the code
+
 
 const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())];
 const publicProtoToProtectedProto = new WeakMap();
@@ -552,13 +619,9 @@ const defaultOptions = {
   },
   setClassDescriptors: true
 };
-
 class InvalidSuperAccessError extends Error {}
-
 class InvalidAccessError extends Error {}
-
-const Class = createClassHelper();
-
+const Class_Class = createClassHelper();
 function createClassHelper(options) {
   options = options ? _objectSpread({}, defaultOptions, options) : defaultOptions;
   options.defaultClassDescriptor = _objectSpread({}, defaultOptions.defaultClassDescriptor, options.defaultClassDescriptor);
@@ -568,50 +631,8 @@ function createClassHelper(options) {
     setClassDescriptors,
     nativeNaming
   } = options;
-  /*
-   * this is just the public interface adapter for createClass(). Depending
-   * on how you call this interface, you can do various things like:
-   *
-   * - anonymous empty class
-   *
-   *    Class()
-   *
-   * - named empty class
-   *
-   *    Class('Foo')
-   *
-   * - base class named Foo
-   *
-   *    Class('Foo', (Public, Protected, Private) => {
-   *      someMethod() { ... },
-   *    })
-   *
-   * - anonymous base class
-   *
-   *    Class((Public, Protected, Private) => {
-   *      someMethod() { ... },
-   *    })
-   *
-   *    Class('Foo').extends(OtherClass, (Public, Protected, Private) => ({
-   *      someMethod() { ... },
-   *    }))
-   *
-   *    OtherClass.subclass = Class
-   *    const Bar = OtherClass.subclass((Public, Protected, Private) => {
-   *      ...
-   *    })
-   *
-   * - any class made with lowclass has a static subclass if you prefer using
-   *   that:
-   *
-   *    Bar.subclass('Baz', (Public, Protected, Private) => {...})
-   *
-   * - but you could as well do
-   *
-   *    Class('Baz').extends(Bar, (Public, Protected, Private) => {...})
-   */
 
-  return function Class(...args) {
+  function Class(...args) {
     let usingStaticSubclassMethod = false; // if called as SomeConstructor.subclass, or bound to SomeConstructor
 
     if (typeof this === 'function') usingStaticSubclassMethod = true; // f.e. `Class()`, `Class('Foo')`, `Class('Foo', {...})` , `Class('Foo',
@@ -652,7 +673,9 @@ function createClassHelper(options) {
     }
 
     throw new TypeError('invalid args');
-  };
+  }
+
+  return Class;
   /**
    * @param {string} className The name that the class being defined should
    * have.
@@ -665,7 +688,7 @@ function createClassHelper(options) {
    */
 
   function createClass(className, definer, classBrand) {
-    "use strict"; // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
+    'use strict'; // f.e. ParentClass.subclass((Public, Protected, Private) => {...})
 
     let ParentClass = this;
 
@@ -688,19 +711,18 @@ function createClassHelper(options) {
           // force anonymous even in ES6+
           Ctor = (() => function () {})();
 
-          if (className) Object(utils["g" /* setDescriptor */])(Ctor, 'name', {
+          if (className) Object(utils["k" /* setDescriptor */])(Ctor, 'name', {
             value: className
           });
         }
         Ctor.prototype = {
           __proto__: Object.prototype,
-          constructor: Ctor // no static inheritance here, just like with `class Foo {}`
+          constructor: Ctor
+        }; // no static inheritance here, just like with `class Foo {}`
 
-        };
-        Object(utils["g" /* setDescriptor */])(Ctor, 'subclass', {
+        Object(utils["k" /* setDescriptor */])(Ctor, 'subclass', {
           value: Class,
           writable: true,
-          // TODO maybe let's make this non writable
           enumerable: false,
           configurable: false
         });
@@ -728,13 +750,12 @@ function createClassHelper(options) {
 
 
     classBrand = classBrand || {
-      brand: 'lexical' // the class "scope" that we will bind to the helper functions
+      brand: 'lexical'
+    }; // the class "scope" that we will bind to the helper functions
 
-    };
     const scope = {
       className,
 
-      // convenient for debugging
       get publicToPrivate() {
         return scopedPublicsToPrivates ? scopedPublicsToPrivates : brandToPublicsPrivates.get(classBrand);
       },
@@ -744,9 +765,9 @@ function createClassHelper(options) {
       // helper results, to make subsequent accessses faster.
       cachedPublicAccesses: new WeakMap(),
       cachedProtectedAccesses: new WeakMap(),
-      cachedPrivateAccesses: new WeakMap() // create the super helper for this class scope
+      cachedPrivateAccesses: new WeakMap()
+    }; // create the super helper for this class scope
 
-    };
     const supers = new WeakMap();
     const Super = superHelper.bind(null, supers, scope); // bind this class' scope to the helper functions
 
@@ -840,9 +861,9 @@ function createClassHelper(options) {
     // properties are public/protected/private so we can assign them onto
     // the respective prototypes.
 
-    copyDescriptors(Public.prototype, publicPrototype);
-    copyDescriptors(Protected.prototype, protectedPrototype);
-    copyDescriptors(Private.prototype, privatePrototype);
+    Object(utils["c" /* copyDescriptors */])(Public.prototype, publicPrototype);
+    Object(utils["c" /* copyDescriptors */])(Protected.prototype, protectedPrototype);
+    Object(utils["c" /* copyDescriptors */])(Private.prototype, privatePrototype);
 
     if (definition) {
       // delete these so we don't expose them on the class' public
@@ -862,12 +883,12 @@ function createClassHelper(options) {
 
       if (definition !== publicPrototype) {
         // copy whatever remains
-        copyDescriptors(definition, publicPrototype);
+        Object(utils["c" /* copyDescriptors */])(definition, publicPrototype);
       }
     }
 
     if (customClass) {
-      if (staticMembers) copyDescriptors(staticMembers, customClass);
+      if (staticMembers) Object(utils["c" /* copyDescriptors */])(staticMembers, customClass);
       return customClass;
     }
 
@@ -903,14 +924,14 @@ function createClassHelper(options) {
 
     if (className) {
       if (nativeNaming) {
-        const code = Object(utils["c" /* getFunctionBody */])(NewClass);
+        const code = Object(utils["d" /* getFunctionBody */])(NewClass);
         const proto = NewClass.prototype;
         NewClass = new Function(` userConstructor, ParentClass `, `
                     return function ${className}() { ${code} }
                 `)(userConstructor, ParentClass);
         NewClass.prototype = proto;
       } else {
-        Object(utils["g" /* setDescriptor */])(NewClass, 'name', {
+        Object(utils["k" /* setDescriptor */])(NewClass, 'name', {
           value: className
         });
       }
@@ -919,7 +940,7 @@ function createClassHelper(options) {
     if (userConstructor && userConstructor.length) {
       // length is not writable, only configurable, therefore the value
       // has to be set with a descriptor update
-      Object(utils["g" /* setDescriptor */])(NewClass, 'length', {
+      Object(utils["k" /* setDescriptor */])(NewClass, 'length', {
         value: userConstructor.length
       });
     } // static stuff {
@@ -927,11 +948,11 @@ function createClassHelper(options) {
 
 
     NewClass.__proto__ = ParentClass;
-    if (staticMembers) copyDescriptors(staticMembers, NewClass); // allow users to make subclasses. When subclass is called on a
+    if (staticMembers) Object(utils["c" /* copyDescriptors */])(staticMembers, NewClass); // allow users to make subclasses. When subclass is called on a
     // constructor, it defines `this` which is assigned to ParentClass
     // above.
 
-    Object(utils["g" /* setDescriptor */])(NewClass, 'subclass', {
+    Object(utils["k" /* setDescriptor */])(NewClass, 'subclass', {
       value: Class,
       writable: true,
       enumerable: false,
@@ -943,13 +964,13 @@ function createClassHelper(options) {
     NewClass.prototype.constructor = NewClass; // }
 
     if (setClassDescriptors) {
-      setDefaultStaticDescriptors(NewClass, options);
-      Object(utils["g" /* setDescriptor */])(NewClass, 'prototype', {
+      Object(utils["j" /* setDefaultStaticDescriptors */])(NewClass, options, staticBlacklist);
+      Object(utils["k" /* setDescriptor */])(NewClass, 'prototype', {
         writable: prototypeWritable
       });
-      setDefaultPrototypeDescriptors(NewClass.prototype, options);
-      setDefaultPrototypeDescriptors(protectedPrototype, options);
-      setDefaultPrototypeDescriptors(privatePrototype, options);
+      Object(utils["i" /* setDefaultPrototypeDescriptors */])(NewClass.prototype, options);
+      Object(utils["i" /* setDefaultPrototypeDescriptors */])(protectedPrototype, options);
+      Object(utils["i" /* setDefaultPrototypeDescriptors */])(privatePrototype, options);
     }
 
     scope.constructor = NewClass; // convenient for debugging
@@ -987,7 +1008,6 @@ function createClassHelper(options) {
 // XXX PERFORMANCE: We can also cache the access-helper results, which requires more memory,
 // but will make use of access helpers much faster, especially important for
 // animations.
-
 
 function getParentProtectedPrototype(parentPublicPrototype) {
   // look up the prototype chain until we find a parent protected prototype, if any.
@@ -1099,58 +1119,33 @@ function createPrivateInstance(scope, publicInstance) {
 }
 
 function isPublicInstance(scope, instance, brandedCheck = true) {
-  if (!brandedCheck) return hasPrototype(instance, scope.publicPrototype);
+  if (!brandedCheck) return Object(utils["g" /* hasPrototype */])(instance, scope.publicPrototype);
 
   for (const proto of Array.from(brandToPublicPrototypes.get(scope.classBrand))) {
-    if (hasPrototype(instance, proto)) return true;
+    if (Object(utils["g" /* hasPrototype */])(instance, proto)) return true;
   }
 
   return false;
 }
 
 function isProtectedInstance(scope, instance, brandedCheck = true) {
-  if (!brandedCheck) return hasPrototype(instance, scope.protectedPrototype);
+  if (!brandedCheck) return Object(utils["g" /* hasPrototype */])(instance, scope.protectedPrototype);
 
   for (const proto of Array.from(brandToProtectedPrototypes.get(scope.classBrand))) {
-    if (hasPrototype(instance, proto)) return true;
+    if (Object(utils["g" /* hasPrototype */])(instance, proto)) return true;
   }
 
   return false;
 }
 
 function isPrivateInstance(scope, instance, brandedCheck = true) {
-  if (!brandedCheck) return hasPrototype(instance, scope.privatePrototype);
+  if (!brandedCheck) return Object(utils["g" /* hasPrototype */])(instance, scope.privatePrototype);
 
   for (const proto of Array.from(brandToPrivatePrototypes.get(scope.classBrand))) {
-    if (hasPrototype(instance, proto)) return true;
+    if (Object(utils["g" /* hasPrototype */])(instance, proto)) return true;
   }
 
   return false;
-} // check if an object has the given prototype in its chain
-
-
-function hasPrototype(obj, proto) {
-  let currentProto = obj.__proto__;
-
-  do {
-    if (proto === currentProto) return true;
-    currentProto = currentProto.__proto__;
-  } while (currentProto);
-
-  return false;
-} // copy all properties (as descriptors) from source to destination
-
-
-function copyDescriptors(source, destination, mod) {
-  const props = Object.getOwnPropertyNames(source);
-  let i = props.length;
-
-  while (i--) {
-    const prop = props[i];
-    const descriptor = Object.getOwnPropertyDescriptor(source, prop);
-    if (mod) mod(descriptor);
-    Object.defineProperty(destination, prop, descriptor);
-  }
 }
 
 function superHelper(supers, scope, instance) {
@@ -1171,17 +1166,17 @@ function getSuperHelperObject(instance, parentPrototype, supers) {
 
   if (!_super) {
     supers.set(instance, _super = Object.create(parentPrototype));
-    const keys = Object(utils["e" /* getInheritedPropertyNames */])(parentPrototype);
+    const keys = Object(utils["f" /* getInheritedPropertyNames */])(parentPrototype);
     let i = keys.length;
 
     while (i--) {
       const key = keys[i];
-      Object(utils["g" /* setDescriptor */])(_super, key, {
+      Object(utils["k" /* setDescriptor */])(_super, key, {
         get: function () {
           let value = void undefined;
-          const descriptor = Object(utils["d" /* getInheritedDescriptor */])(parentPrototype, key);
+          const descriptor = Object(utils["e" /* getInheritedDescriptor */])(parentPrototype, key);
 
-          if (descriptor && Object(utils["f" /* propertyIsAccessor */])(descriptor)) {
+          if (descriptor && Object(utils["h" /* propertyIsAccessor */])(descriptor)) {
             const getter = descriptor.get;
             if (getter) value = getter.call(instance);
           } else {
@@ -1196,9 +1191,9 @@ function getSuperHelperObject(instance, parentPrototype, supers) {
         },
         // like native `super`, setting a super property does nothing.
         set: function (value) {
-          const descriptor = Object(utils["d" /* getInheritedDescriptor */])(parentPrototype, key);
+          const descriptor = Object(utils["e" /* getInheritedDescriptor */])(parentPrototype, key);
 
-          if (descriptor && Object(utils["f" /* propertyIsAccessor */])(descriptor)) {
+          if (descriptor && Object(utils["h" /* propertyIsAccessor */])(descriptor)) {
             const setter = descriptor.set;
             if (setter) value = setter.call(instance, value);
           } else {
@@ -1213,68 +1208,8 @@ function getSuperHelperObject(instance, parentPrototype, supers) {
   return _super;
 }
 
-function setDefaultPrototypeDescriptors(prototype, {
-  defaultClassDescriptor: {
-    writable,
-    enumerable,
-    configurable
-  }
-}) {
-  const descriptors = Object.getOwnPropertyDescriptors(prototype);
-  let descriptor;
-
-  for (const key in descriptors) {
-    descriptor = descriptors[key]; // regular value
-
-    if ('value' in descriptor || 'writable' in descriptor) {
-      descriptor.writable = writable;
-    } // accessor or regular value
-
-
-    descriptor.enumerable = enumerable;
-    descriptor.configurable = configurable;
-  }
-
-  Object(utils["h" /* setDescriptors */])(prototype, descriptors);
-}
-
-function setDefaultStaticDescriptors(Ctor, {
-  defaultClassDescriptor: {
-    writable,
-    enumerable,
-    configurable
-  }
-}) {
-  const descriptors = Object.getOwnPropertyDescriptors(Ctor);
-  let descriptor;
-
-  for (const key in descriptors) {
-    if (staticBlacklist.includes(key)) {
-      delete descriptors[key];
-      continue;
-    }
-
-    descriptor = descriptors[key]; // regular value
-
-    if ('value' in descriptor || 'writable' in descriptor) {
-      descriptor.writable = writable;
-    } // accessor or regular value
-
-
-    descriptor.enumerable = enumerable;
-    descriptor.configurable = configurable;
-  }
-
-  Object(utils["h" /* setDescriptors */])(Ctor, descriptors);
-}
-
-/* harmony default export */ var src_Class = (Class);
-
+/* harmony default export */ var src_Class = (Class_Class);
 // CONCATENATED MODULE: ./src/multiple.ts
-function multiple_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { multiple_defineProperty(target, key, source[key]); }); } return target; }
-
-function multiple_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 // --- TODO handle static inheritance. Nothing has been implemented with regards to
 // static inheritance yet.
 // --- TODO allow the subclass (f.e. the `Foo` in `class Foo extends multiple(One,
@@ -1292,16 +1227,57 @@ function multiple_defineProperty(obj, key, value) { if (key in obj) { Object.def
 // method in the order in which the classes were passed into multiple(). Look
 // here for ideas based on how different languages handle it:
 // https://en.wikipedia.org/wiki/Multiple_inheritance#The_diamond_problem
-const __instances__ = new WeakMap();
+var ImplementationMethod;
 
-const getInstances = inst => {
-  let result = __instances__.get(inst);
+(function (ImplementationMethod) {
+  ImplementationMethod["PROXIES_ON_INSTANCE_AND_PROTOTYPE"] = "PROXIES_ON_INSTANCE_AND_PROTOTYPE";
+  ImplementationMethod["PROXIES_ON_PROTOTYPE"] = "PROXIES_ON_PROTOTYPE";
+})(ImplementationMethod || (ImplementationMethod = {}));
 
-  if (!result) __instances__.set(inst, result = []);
-  return result;
-};
+function makeMultipleHelper(options) {
+  /**
+   * Mixes the given classes into a single class. This is useful for multiple
+   * inheritance.
+   *
+   * @example
+   * class Foo {}
+   * class Bar {}
+   * class Baz {}
+   * class MyClass extends multiple(Foo, Bar, Baz) {}
+   */
+  //  ------------ method 1, define the `multiple()` signature with overrides. The
+  //  upside is it is easy to understand, but the downside is that name collisions
+  //  in properties cause the collided property type to be `never`. This would make
+  //  it more difficult to provide solution for the diamond problem.
+  //  ----------------
+  // function multiple(): typeof Object
+  // function multiple<T extends Constructor>(classes: T): T
+  // function multiple<T extends Constructor[]>(...classes: T): Constructor<ConstructorUnionToInstanceTypeUnion<T[number]>>
+  // function multiple(...classes: any): any {
+  //
+  //  ------------ method 2, define the signature of `multiple()` with a single
+  //  signature. The upside is this picks the type of the first property
+  //  encountered when property names collide amongst all the classes passed into
+  //  `multiple()`, but the downside is the inner implementation may require
+  //  casting, and this approach can also cause an infinite type recursion
+  //  depending on the types used inside the implementation.
+  //  ----------------
+  return function multiple(...classes) {
+    const mode = options && options.method || ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE;
 
-let instanceKey = null;
+    switch (mode) {
+      case ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE:
+        {
+          return withProxiesOnThisAndPrototype(...classes);
+        }
+
+      case ImplementationMethod.PROXIES_ON_PROTOTYPE:
+        {
+          return withProxiesOnPrototype(...classes);
+        }
+    }
+  };
+}
 /**
  * Mixes the given classes into a single class. This is useful for multiple
  * inheritance.
@@ -1312,179 +1288,258 @@ let instanceKey = null;
  * class Baz {}
  * class MyClass extends multiple(Foo, Bar, Baz) {}
  */
-//  ------------ method 1, define the `multiple()` signature with overrides. The
-//  upside is it is easy to understand, but the downside is that name collisions
-//  in properties cause the collided property type to be `never`. This would make
-//  it more difficult to provide solution for the diamond problem.
-//  ----------------
-// function multiple(): typeof Object
-// function multiple<T extends Constructor>(classes: T): T
-// function multiple<T extends Constructor[]>(...classes: T): Constructor<ConstructorUnionToInstanceTypeUnion<T[number]>>
-// function multiple(...classes: any): any {
-//
-//  ------------ method 2, define the signature of `multiple()` with a single
-//  signature. The upside is this picks the type of the first property
-//  encountered when property names collide amongst all the classes passed into
-//  `multiple()`, but the downside is the inner implementation may require
-//  casting, and this approach can also cause an infinite type recursion
-//  depending on the types used inside the implementation.
-//  ----------------
 
-function multiple(...classes) {
+const multiple = makeMultipleHelper({
+  method: ImplementationMethod.PROXIES_ON_INSTANCE_AND_PROTOTYPE
+}); // export const multiple = makeMultipleHelper({method: ImplementationMethod.PROXIES_ON_PROTOTYPE})
+
+function withProxiesOnThisAndPrototype(...classes) {
   // avoid performance costs in special cases
   if (classes.length === 0) return Object;
-
-  if (classes.length === 1) {
-    const result = classes[0];
-    return typeof result === 'function' ? result : Object;
-  }
-
+  if (classes.length === 1) return classes[0];
   const FirstClass = classes.shift(); // inherit the first class normally. This allows for required native
   // inheritance in certain special cases (like inheriting from HTMLElement
   // when making Custom Elements).
 
   class MultiClass extends FirstClass {
     constructor(...args) {
-      let isPrimaryInstance = false;
+      super(...args);
+      const instances = []; // make instances of the other classes to get/set properties on.
 
-      if (!instanceKey) {
-        isPrimaryInstance = true;
-        instanceKey = {
-          // `name` is useful for debugging while looking around in devtools.
-          name: MultiClass.name
-        };
-      }
+      let Ctor;
 
-      super(...args); // This is so that `super` calls will work. We need to do this
-      // because MultiClass.prototype is non-configurable, so it is
-      // impossible to wrap it with a Proxy. So instead, we do surgery on
-      // the class that extends from MultiClass, and replace the prototype
-      // with our own custom Proxy-wrapped prototype.
-      //
-      // TODO traverse the chain and connect all MultiClasses (Disable the Three and Six tests and the Seven test should then fail)
-
-      const protoBeforeMultiClassProto = findPrototypeBeforeMultiClassPrototype(this, MultiClass.prototype);
-
-      if (protoBeforeMultiClassProto && protoBeforeMultiClassProto !== newMultiClassPrototype) {
-        Object.setPrototypeOf(protoBeforeMultiClassProto, newMultiClassPrototype);
-      }
-
-      const instances = getInstances(instanceKey); // make instances of the other classes to get/set properties on.
-
-      for (const Ctor of classes) {
+      for (let i = 0, l = classes.length; i < l; i += 1) {
+        Ctor = classes[i];
         const instance = Reflect.construct(Ctor, args);
         instances.push(instance);
       }
 
-      if (isPrimaryInstance) {
-        instanceKey = null;
-        return new Proxy(this, {
-          get(target, key, self) {
-            if (Reflect.ownKeys(self).includes(key)) return Reflect.get(target, key, self);
+      return new Proxy(this, {
+        // No `set()` trap is needed in this Proxy handler, at least for
+        // the tests so far. Methods automatically have the correct
+        // receiver when the are gotten with the `get()` trap, so if any
+        // methods set a property, the set happens on the expected
+        // instance, just like regular [[Set]].
+        get(target, key, self) {
+          if (Reflect.ownKeys(target).includes(key)) return Reflect.get(target, key, self);
+          let instance;
 
-            for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self);
-
-            const proto = Object.getPrototypeOf(self);
-            if (Reflect.has(proto, key)) return Reflect.get(proto, key, self);
-            return undefined;
-          },
-
-          has(target, key) {
-            if (Reflect.ownKeys(target).includes(key)) return true;
-
-            for (const instance of instances) if (Reflect.ownKeys(instance).includes(key)) return true; // all instances share the same prototype, so just check it once
-
-
-            const proto = Object.getPrototypeOf(self);
-            if (Reflect.has(proto, key)) return true;
-            return false;
+          for (let i = 0, l = instances.length; i < l; i += 1) {
+            instance = instances[i];
+            if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self);
           }
 
-        });
-      }
+          const proto = Object.getPrototypeOf(self);
+          if (Reflect.has(proto, key)) return Reflect.get(proto, key, self);
+          return undefined;
+        },
 
-      return this;
+        ownKeys(target) {
+          let keys = Reflect.ownKeys(target);
+          let instance;
+          let instanceKeys;
+
+          for (let i = 0, l = instances.length; i < l; i += 1) {
+            instance = instances[i];
+            instanceKeys = Reflect.ownKeys(instance);
+
+            for (let j = 0, l = instanceKeys.length; j < l; j += 1) keys.push(instanceKeys[j]);
+          }
+
+          return keys;
+        },
+
+        // This makes the `in` operator work, for example.
+        has(target, key) {
+          if (Reflect.ownKeys(target).includes(key)) return true;
+          let instance;
+
+          for (let i = 0, l = instances.length; i < l; i += 1) {
+            instance = instances[i];
+            if (Reflect.ownKeys(instance).includes(key)) return true;
+          } // all instances share the same prototype, so just check it once
+
+
+          const proto = Object.getPrototypeOf(self);
+          if (Reflect.has(proto, key)) return true;
+          return false;
+        }
+
+      });
     }
 
-  } // Give the constructor a new name, for aid in debugging (f.e. when looking
-  // at a prototype chain in devtools, this helps to understand what is what).
+  }
 
-
-  setValue(MultiClass, 'name', makeMultiClassName(FirstClass, ...classes));
-  const newMultiClassPrototype = new Proxy({
-    // --- TODO is __proto__ instead of Object.assign/create faster?
-    __proto__: MultiClass.prototype,
-    // This is useful for debugging while looking around in devtools.
-    __InjectedMultiClassPrototype__: MultiClass.name
-  }, {
+  const newMultiClassPrototype = new Proxy(Object.create(FirstClass.prototype), {
     get(target, key, self) {
       if (Reflect.has(target, key)) return Reflect.get(target, key, self);
+      let Class;
 
-      for (const Class of classes) if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self);
+      for (let i = 0, l = classes.length; i < l; i += 1) {
+        Class = classes[i];
+        if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self);
+      }
     },
 
     has(target, key) {
       if (Reflect.has(target, key)) return true;
+      let Class;
 
-      for (const Class of classes) if (Reflect.has(Class.prototype, key)) return true;
+      for (let i = 0, l = classes.length; i < l; i += 1) {
+        Class = classes[i];
+        if (Reflect.has(Class.prototype, key)) return true;
+      }
 
       return false;
     }
 
-  });
+  }); // This is so that `super` calls will work. We can't replace
+  // MultiClass.prototype with a Proxy because MultiClass.prototype is
+  // non-configurable, so it is impossible to wrap it with a Proxy. Instead,
+  // we stick our own custom Proxy-wrapped prototype object between
+  // MultiClass.prototype and FirstClass.prototype.
+
+  Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype);
   return MultiClass;
 }
 
-function findPrototypeBeforeMultiClassPrototype(obj, multiClassPrototype) {
-  let previous = obj;
-  let current = Object.getPrototypeOf(obj);
+let currentSelf = [];
 
-  while (current) {
-    if (current === multiClassPrototype) return previous;
-    previous = current;
-    current = Object.getPrototypeOf(current);
+function withProxiesOnPrototype(...classes) {
+  // avoid performance costs in special cases
+  if (classes.length === 0) return Object;
+  if (classes.length === 1) return classes[0];
+  const FirstClass = classes.shift(); // inherit the first class normally. This allows for required native
+  // inheritance in certain special cases (like inheriting from HTMLElement
+  // when making Custom Elements).
+
+  class MultiClass extends FirstClass {
+    constructor(...args) {
+      super(...args);
+      const instances = getInstances(this); // make instances of the other classes to get/set properties on.
+
+      for (const Ctor of classes) {
+        const instance = new Ctor(...args); // const instance = Reflect.construct(Ctor, args, new.target)
+
+        instances.push(instance);
+      }
+    }
+
   }
 
-  return null;
+  const __instances__ = new WeakMap();
+
+  const getInstances = inst => {
+    let result = __instances__.get(inst);
+
+    if (!result) __instances__.set(inst, result = []);
+    return result;
+  };
+
+  const newMultiClassPrototype = new Proxy(Object.create(FirstClass.prototype), {
+    get(target, key, self) {
+      currentSelf.push(self); // If the key is in the current prototype chain, continue like normal...
+
+      if (Reflect.has(target, key)) {
+        currentSelf.pop();
+        return Reflect.get(target, key, self);
+      }
+
+      currentSelf.pop(); // ...Otherwise if the key isn't, look it up on the instances of each class.
+      // This is something like a "prototype tree".
+
+      for (const instance of getInstances(self)) {
+        currentSelf.push(instance);
+
+        if (Reflect.has(instance, key)) {
+          currentSelf.pop();
+          return Reflect.get(instance, key, instance);
+        }
+
+        currentSelf.pop();
+      } // If the key is not found, return undefined like normal.
+
+
+      return undefined;
+    },
+
+    set(target, key, value, self) {
+      currentSelf.push(self); // If the key is in the current prototype chain, continue like normal...
+
+      if (Reflect.has(target, key)) {
+        currentSelf.pop();
+        return Reflect.set(target, key, value, self);
+      }
+
+      currentSelf.pop(); // ...Otherwise if the key isn't, set it on one of the instances of the classes.
+
+      for (const instance of getInstances(self)) {
+        currentSelf.push(instance);
+
+        if (Reflect.has(instance, key)) {
+          currentSelf.pop();
+          return Reflect.set(instance, key, value, instance); // return Reflect.set(instance, key, value, self)
+        }
+
+        currentSelf.pop();
+      } // If the key is not found, set it like normal.
+
+
+      return Reflect.set(target, key, value, self);
+    },
+
+    has(target, key) {
+      if (currentSelf.length) {
+        let current = currentSelf[currentSelf.length - 1];
+
+        while (current) {
+          if (Reflect.ownKeys(current).includes(key)) return true;
+          current = Reflect.getPrototypeOf(current);
+        }
+
+        for (const instance of getInstances(currentSelf[currentSelf.length - 1])) if (Reflect.has(instance, key)) return true;
+      } else {
+        if (Reflect.has(target, key)) return true;
+
+        for (const Ctor of classes) if (Reflect.has(Ctor.prototype, key)) return true;
+      }
+
+      return false;
+    }
+
+  }); // This is so that `super` calls will work. We can't replace
+  // MultiClass.prototype with a Proxy because MultiClass.prototype is
+  // non-configurable, so it is impossible to wrap it with a Proxy. Instead,
+  // we stick our own custom Proxy-wrapped prototype object between
+  // MultiClass.prototype and FirstClass.prototype.
+
+  Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype);
+  return MultiClass;
 }
-
-function makeMultiClassName(...classes) {
-  let result = 'Multiple:' + classes.shift().name;
-
-  for (const Ctor of classes) result += '+' + (Ctor.name || 'anonymous');
-
-  return result;
-}
-/**
- * Set the given `key`'s `value` on `obj` by editing the descriptor, instead of
- * setting the property the normally.
- */
-
-
-function setValue(obj, key, value) {
-  const desc = Object.getOwnPropertyDescriptor(obj, key);
-  Object.defineProperty(obj, key, multiple_objectSpread({}, desc, {
-    value
-  }));
-}
-// CONCATENATED MODULE: ./src/Mixin.js
+// CONCATENATED MODULE: ./src/Mixin.ts
 function Mixin_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { Mixin_defineProperty(target, key, source[key]); }); } return target; }
 
 function Mixin_defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+// TODO no any types
+// TODO no @ts-ignore
 
-function Mixin(factory, Default) {
+function Mixin(mixinFn, DefaultBase) {
   // XXX Maybe Cached should go last.
-  factory = Cached(factory);
-  factory = HasInstance(factory);
-  factory = Dedupe(factory);
-  factory = WithDefault(factory, Default || src());
-  factory = ApplyDefault(factory);
-  return factory();
-}
+  // @ts-ignore
+  mixinFn = Cached(mixinFn);
+  mixinFn = HasInstance(mixinFn);
+  mixinFn = Dedupe(mixinFn);
+  mixinFn = WithDefault(mixinFn, DefaultBase || src_Class());
+  mixinFn = ApplyDefault(mixinFn); // @ts-ignore
 
+  return mixinFn();
+}
+/* harmony default export */ var src_Mixin = (Mixin);
+ // TODO remove WithDefault, we can use default argument syntax instead, which is more clear and conventional
 
 function WithDefault(classFactory, Default) {
+  // @ts-ignore
   return named(classFactory.name, Base => {
     Base = Base || Default;
     return classFactory(Base);
@@ -1492,7 +1547,8 @@ function WithDefault(classFactory, Default) {
 }
 
 function Cached(classFactory) {
-  const classCache = new WeakMap();
+  const classCache = new WeakMap(); // @ts-ignore
+
   return named(classFactory.name, Base => {
     let Class = classCache.get(Base);
 
@@ -1505,14 +1561,13 @@ function Cached(classFactory) {
 }
 
 function HasInstance(classFactory) {
-  let instanceofSymbol;
+  let instanceofSymbol; // @ts-ignore
+
   return named(classFactory.name, Base => {
     const Class = classFactory(Base);
     if (typeof Symbol === 'undefined' || !Symbol.hasInstance) return Class;
     if (Object.getOwnPropertySymbols(Class).includes(Symbol.hasInstance)) return Class;
-    if (!instanceofSymbol) instanceofSymbol = Symbol('instanceofSymbol'); // NOTE we could also use a WeakMap instead of placing a flag on the
-    // Class directly.
-
+    if (!instanceofSymbol) instanceofSymbol = Symbol('instanceofSymbol');
     Class[instanceofSymbol] = true;
     Object.defineProperty(Class, Symbol.hasInstance, {
       value: function hasInstance(obj) {
@@ -1531,7 +1586,7 @@ function HasInstance(classFactory) {
         let currentProto = obj;
 
         while (currentProto) {
-          const descriptor = Object.getOwnPropertyDescriptor(currentProto, "constructor");
+          const descriptor = Object.getOwnPropertyDescriptor(currentProto, 'constructor');
           if (descriptor && descriptor.value && descriptor.value.hasOwnProperty(instanceofSymbol)) return true;
           currentProto = currentProto.__proto__;
         }
@@ -1552,7 +1607,8 @@ function ApplyDefault(classFactory) {
 
 
 function Dedupe(classFactory) {
-  const map = new WeakMap();
+  const map = new WeakMap(); // @ts-ignore
+
   return named(classFactory.name, Base => {
     if (hasMixin(Base, classFactory, map)) return Base;
     const Class = classFactory(Base);
@@ -1580,23 +1636,24 @@ function named(name, func) {
 
   return func;
 }
-// CONCATENATED MODULE: ./src/instanceOf.js
+// CONCATENATED MODULE: ./src/instanceOf.ts
 // helper function to use instead of instanceof for classes that implement the
 // static Symbol.hasInstance method, because the behavior of instanceof isn't
 // polyfillable.
 function instanceOf(instance, Constructor) {
   if (typeof Constructor == 'function' && Constructor[Symbol.hasInstance]) return Constructor[Symbol.hasInstance](instance);else return instance instanceof Constructor;
 }
-// EXTERNAL MODULE: ./src/native.js
+// EXTERNAL MODULE: ./src/native.ts
 var src_native = __webpack_require__(1);
 
-// CONCATENATED MODULE: ./src/index.js
+// CONCATENATED MODULE: ./src/index.ts
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "version", function() { return version; });
-/* concated harmony reexport Class */__webpack_require__.d(__webpack_exports__, "Class", function() { return Class; });
-/* concated harmony reexport createClassHelper */__webpack_require__.d(__webpack_exports__, "createClassHelper", function() { return createClassHelper; });
+/* concated harmony reexport staticBlacklist */__webpack_require__.d(__webpack_exports__, "staticBlacklist", function() { return staticBlacklist; });
 /* concated harmony reexport InvalidSuperAccessError */__webpack_require__.d(__webpack_exports__, "InvalidSuperAccessError", function() { return InvalidSuperAccessError; });
 /* concated harmony reexport InvalidAccessError */__webpack_require__.d(__webpack_exports__, "InvalidAccessError", function() { return InvalidAccessError; });
-/* concated harmony reexport staticBlacklist */__webpack_require__.d(__webpack_exports__, "staticBlacklist", function() { return staticBlacklist; });
+/* concated harmony reexport Class */__webpack_require__.d(__webpack_exports__, "Class", function() { return Class_Class; });
+/* concated harmony reexport createClassHelper */__webpack_require__.d(__webpack_exports__, "createClassHelper", function() { return createClassHelper; });
+/* concated harmony reexport makeMultipleHelper */__webpack_require__.d(__webpack_exports__, "makeMultipleHelper", function() { return makeMultipleHelper; });
 /* concated harmony reexport multiple */__webpack_require__.d(__webpack_exports__, "multiple", function() { return multiple; });
 /* concated harmony reexport Mixin */__webpack_require__.d(__webpack_exports__, "Mixin", function() { return Mixin; });
 /* concated harmony reexport WithDefault */__webpack_require__.d(__webpack_exports__, "WithDefault", function() { return WithDefault; });
@@ -1606,14 +1663,18 @@ var src_native = __webpack_require__(1);
 /* concated harmony reexport Dedupe */__webpack_require__.d(__webpack_exports__, "Dedupe", function() { return Dedupe; });
 /* concated harmony reexport instanceOf */__webpack_require__.d(__webpack_exports__, "instanceOf", function() { return instanceOf; });
 /* concated harmony reexport native */__webpack_require__.d(__webpack_exports__, "native", function() { return src_native["a" /* native */]; });
-/* concated harmony reexport getFunctionBody */__webpack_require__.d(__webpack_exports__, "getFunctionBody", function() { return utils["c" /* getFunctionBody */]; });
-/* concated harmony reexport setDescriptor */__webpack_require__.d(__webpack_exports__, "setDescriptor", function() { return utils["g" /* setDescriptor */]; });
-/* concated harmony reexport setDescriptors */__webpack_require__.d(__webpack_exports__, "setDescriptors", function() { return utils["h" /* setDescriptors */]; });
-/* concated harmony reexport propertyIsAccessor */__webpack_require__.d(__webpack_exports__, "propertyIsAccessor", function() { return utils["f" /* propertyIsAccessor */]; });
-/* concated harmony reexport getInheritedDescriptor */__webpack_require__.d(__webpack_exports__, "getInheritedDescriptor", function() { return utils["d" /* getInheritedDescriptor */]; });
-/* concated harmony reexport getInheritedPropertyNames */__webpack_require__.d(__webpack_exports__, "getInheritedPropertyNames", function() { return utils["e" /* getInheritedPropertyNames */]; });
 /* concated harmony reexport WeakTwoWayMap */__webpack_require__.d(__webpack_exports__, "WeakTwoWayMap", function() { return utils["b" /* WeakTwoWayMap */]; });
+/* concated harmony reexport getFunctionBody */__webpack_require__.d(__webpack_exports__, "getFunctionBody", function() { return utils["d" /* getFunctionBody */]; });
+/* concated harmony reexport setDescriptor */__webpack_require__.d(__webpack_exports__, "setDescriptor", function() { return utils["k" /* setDescriptor */]; });
+/* concated harmony reexport setDescriptors */__webpack_require__.d(__webpack_exports__, "setDescriptors", function() { return utils["l" /* setDescriptors */]; });
+/* concated harmony reexport propertyIsAccessor */__webpack_require__.d(__webpack_exports__, "propertyIsAccessor", function() { return utils["h" /* propertyIsAccessor */]; });
+/* concated harmony reexport getInheritedDescriptor */__webpack_require__.d(__webpack_exports__, "getInheritedDescriptor", function() { return utils["e" /* getInheritedDescriptor */]; });
+/* concated harmony reexport getInheritedPropertyNames */__webpack_require__.d(__webpack_exports__, "getInheritedPropertyNames", function() { return utils["f" /* getInheritedPropertyNames */]; });
 /* concated harmony reexport Constructor */__webpack_require__.d(__webpack_exports__, "Constructor", function() { return utils["a" /* Constructor */]; });
+/* concated harmony reexport hasPrototype */__webpack_require__.d(__webpack_exports__, "hasPrototype", function() { return utils["g" /* hasPrototype */]; });
+/* concated harmony reexport copyDescriptors */__webpack_require__.d(__webpack_exports__, "copyDescriptors", function() { return utils["c" /* copyDescriptors */]; });
+/* concated harmony reexport setDefaultPrototypeDescriptors */__webpack_require__.d(__webpack_exports__, "setDefaultPrototypeDescriptors", function() { return utils["i" /* setDefaultPrototypeDescriptors */]; });
+/* concated harmony reexport setDefaultStaticDescriptors */__webpack_require__.d(__webpack_exports__, "setDefaultStaticDescriptors", function() { return utils["j" /* setDefaultStaticDescriptors */]; });
 // the bread and butter
 
 
