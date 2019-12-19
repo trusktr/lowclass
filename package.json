@@ -1,57 +1,57 @@
 {
-  "name": "lowclass",
-  "version": "4.9.0",
-  "description": "Low-complexity class inheritance with protected/public/private members.",
-  "main": "index.js",
-  "types": "src/index.ts",
-  "scripts": {
-    "clean": "builder run build:clean",
-    "build": "builder run build:prod",
-    "dev": "builder run build:dev",
-    "test": "builder run npm:test",
-    "tsc": "tsc -p ./tsconfig.json",
-    "tsc:watch": "tsc -p ./tsconfig.json --watch",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch",
-    "release:patch": "builder run release:patch",
-    "release:minor": "builder run release:minor",
-    "release:major": "builder run release:major",
-    "version": "builder run npm:version",
-    "postversion": "builder run npm:postversion",
-    "serve": "browser-sync start --server ./ --files dist --port 12345"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/trusktr/lowclass.git"
-  },
-  "author": "Joe Pea <joe@trusktr.io>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/trusktr/lowclass/issues"
-  },
-  "homepage": "http://github.com/trusktr/lowclass#readme",
-  "dependencies": {
-    "@babel/runtime": "7.0.0-beta.46"
-  },
-  "devDependencies": {
-    "browser-sync": "^2.26.7",
-    "builder": "4.0.0",
-    "builder-js-package": "trusktr/builder-js-package#17d73e2f28678773d7ebb731d96e7b114e49b368",
-    "typescript": "^3.7.2",
-    "prettier": "^1.19.1"
-  },
-  "keywords": [
-    "classes",
-    "es5 classes",
-    "classical inheritance",
-    "classical",
-    "prototype",
-    "prototypical inheritance",
-    "prototypes",
-    "prototype classes",
-    "private",
-    "protected",
-    "access specifiers",
-    "access modifiers"
-  ]
+	"name": "lowclass",
+	"version": "4.9.0",
+	"description": "Low-complexity class inheritance with protected/public/private members.",
+	"main": "index.js",
+	"types": "src/index.ts",
+	"scripts": {
+		"clean": "builder run build:clean",
+		"build": "builder run build:prod",
+		"dev": "builder run build:dev",
+		"test": "builder run npm:test",
+		"tsc": "tsc -p ./tsconfig.json",
+		"tsc:watch": "tsc -p ./tsconfig.json --watch",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit",
+		"typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch",
+		"release:patch": "builder run release:patch",
+		"release:minor": "builder run release:minor",
+		"release:major": "builder run release:major",
+		"version": "builder run npm:version",
+		"postversion": "builder run npm:postversion",
+		"serve": "browser-sync start --server ./ --files dist --port 12345"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/trusktr/lowclass.git"
+	},
+	"author": "Joe Pea <joe@trusktr.io>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/trusktr/lowclass/issues"
+	},
+	"homepage": "http://github.com/trusktr/lowclass#readme",
+	"dependencies": {
+		"@babel/runtime": "7.0.0-beta.46"
+	},
+	"devDependencies": {
+		"browser-sync": "^2.26.7",
+		"builder": "4.0.0",
+		"builder-js-package": "trusktr/builder-js-package#17d73e2f28678773d7ebb731d96e7b114e49b368",
+		"typescript": "^3.7.2",
+		"prettier": "^1.19.1"
+	},
+	"keywords": [
+		"classes",
+		"es5 classes",
+		"classical inheritance",
+		"classical",
+		"prototype",
+		"prototypical inheritance",
+		"prototypes",
+		"prototype classes",
+		"private",
+		"protected",
+		"access specifiers",
+		"access modifiers"
+	]
 }
