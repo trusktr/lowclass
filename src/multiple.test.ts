@@ -1,4 +1,4 @@
-import {multiple} from './multiple'
+import {multiple} from './multiple.js'
 
 const log = console.log.bind(console)
 const assert = console.assert.bind(console)
@@ -7,6 +7,7 @@ runTests()
 
 function runTests() {
 	log('testing...')
+
 	test0()
 	test1()
 	test2 // TODO, constructor args
@@ -15,6 +16,7 @@ function runTests() {
 	test5()
 	test6()
 	test7()
+	testAccessPropFromSubInstanceInMainInstance()
 
 	// time the Proxy-based version
 	log('testing speed of Proxy version...')
@@ -419,11 +421,18 @@ function test5() {
 		logSix() {
 			assert(this.four === 4 && this.five === 5 && this.six === 6)
 		}
+		logSeven() {
+			// crap, look at the subclass below, it has an error. :(
+			console.log(' --------- yeaaaaaaaaaaaaaaaaaaaaah')
+		}
 	}
 
 	class Seven extends multiple(Three, Six) {
 		seven = 7
+		// @ts-ignore
 		logSeven() {
+			console.log(' --------- about to call super')
+			super.logSeven()
 			assert(this.one === 1, `expected ${this.one} to be ${1}`)
 			assert(this.two === 2, `expected ${this.two} to be ${2}`)
 			assert(this.three === 3, `expected ${this.three} to be ${3}`)
@@ -446,6 +455,7 @@ function test5() {
 
 	class Seven2 extends multiple(Three, Six) {
 		seven = 7
+		// @ts-ignore
 		logSeven() {
 			assert(this.seven === 7, 'assert this.seven is 7')
 
@@ -819,4 +829,27 @@ function testMixinSpeed() {
 	'five' in seven2
 	'six' in seven2
 	'seven' in seven2
+}
+
+function testAccessPropFromSubInstanceInMainInstance() {
+	class One {
+		test1() {
+			// @ts-ignore
+			assert(this.three === 3)
+		}
+	}
+
+	class Two {
+		test2() {
+			// @ts-ignore
+			assert(this.three === 3)
+		}
+	}
+
+	class Three extends multiple(One, Two) {
+		three = 3
+	}
+
+	new Three().test1()
+	new Three().test2()
 }

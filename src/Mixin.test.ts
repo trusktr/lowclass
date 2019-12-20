@@ -1,8 +1,8 @@
 // TODO no @ts-ignore comments
 
-import Mixin, {HasInstance, MixinResult} from './Mixin'
-import instanceOf from './instanceOf'
-import {Constructor} from './utils'
+import Mixin, {HasInstance, MixinResult} from './Mixin.js'
+import instanceOf from './instanceOf.js'
+import {Constructor} from './utils.js'
 
 describe('Mixin', () => {
 	it('Mixin returns a Function', () => {

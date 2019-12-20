@@ -1,17 +1,17 @@
 // the bread and butter
-export * from './Class'
-import Class from './Class'
+export * from './Class.js'
+import Class from './Class.js'
 export default Class
 
 // mix and match your classes!
-export * from './multiple'
-export * from './Mixin'
+export * from './multiple.js'
+export * from './Mixin.js'
 
 // extras
-export {default as instanceOf} from './instanceOf'
-export * from './native'
-export * from './utils'
+export {default as instanceOf} from './instanceOf.js'
+export * from './native.js'
+export * from './utils.js'
 
-export * from './types'
+export * from './types.js'
 
-export const version = '4.8.0'
+export const version = '4.9.0'
