@@ -1,4 +1,4 @@
-import Class from '../src/index'
+import Class from '../index'
 
 const test = it
 

@@ -1,6 +1,6 @@
-import {Class, InvalidAccessError, InvalidSuperAccessError} from '../src/index'
+import {Class, InvalidAccessError, InvalidSuperAccessError} from '../index'
 
-import {native} from '../src/native'
+import {native} from '../native'
 
 const test = it
 

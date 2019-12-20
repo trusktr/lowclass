@@ -1,7 +1,7 @@
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java, using intentionally shared class brands
 
-import Class from '../src/index'
+import Class from '../index'
 
 // an empty object used as a brand key by the Class() helper
 //
