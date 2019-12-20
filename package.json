@@ -1,6 +1,6 @@
 {
 	"name": "lowclass",
-	"version": "4.9.0",
+	"version": "4.9.1",
 	"description": "JavaScript/TypeScript class inheritance tools.",
 	"type": "module",
 	"COMMENT-main-types-fields": "The 'main' and 'types' fields are relative to dist/ after building.",
