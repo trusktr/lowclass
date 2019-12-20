@@ -1,4 +1,4 @@
-import {Constructor} from './utils'
+import {Constructor} from './utils.js'
 
 // --- TODO handle static inheritance. Nothing has been implemented with regards to
 // static inheritance yet.
@@ -25,6 +25,14 @@ import {Constructor} from './utils'
 enum ImplementationMethod {
 	PROXIES_ON_INSTANCE_AND_PROTOTYPE = 'PROXIES_ON_INSTANCE_AND_PROTOTYPE',
 	PROXIES_ON_PROTOTYPE = 'PROXIES_ON_PROTOTYPE',
+
+	// TODO, This will be similar to PROXIES_ON_INSTANCE_AND_PROTOTYPE, but
+	// instead of placing a proxy on the instance, place a Proxy as a direct
+	// prototype of the instance. I think this should work with Custom Elements,
+	// and unlike PROXIES_ON_PROTOTYPE, super calls won't access own properties
+	// on the instance, but actually on the prototypes (test5 super access tests
+	// fail with PROXIES_ON_PROTOTYPE method).
+	PROXY_AFTER_INSTANCE_AND_PROTOTYPE = 'PROXY_AFTER_INSTANCE_AND_PROTOTYPE',
 }
 
 type MultipleOptions = {
@@ -68,6 +76,9 @@ export function makeMultipleHelper(options?: MultipleOptions) {
 			}
 			case ImplementationMethod.PROXIES_ON_PROTOTYPE: {
 				return (withProxiesOnPrototype as any)(...classes)
+			}
+			case ImplementationMethod.PROXY_AFTER_INSTANCE_AND_PROTOTYPE: {
+				throw new Error(' not implemented yet')
 			}
 		}
 	}
@@ -204,6 +215,57 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 
 let currentSelf: Object[] = []
 
+const __instances__ = new WeakMap<object, Object[]>()
+const getInstances = (inst: object): Object[] => {
+	let result = __instances__.get(inst)
+	if (!result) __instances__.set(inst, (result = []))
+	return result
+}
+
+// function hasKey(instance: object, key: string | number | symbol, traverse: boolean = true): boolean {
+// 	if (Reflect.ownKeys(instance).includes(key)) return true
+
+// 	if (!traverse) return false
+
+// 	const instances = __instances__.get(instance)
+// 	if (!instances) return false
+
+// 	for (const instance of instances) if (hasKey(instance, key, true)) return true
+
+// 	return false
+// }
+
+type GetResult = {has: boolean; value: any}
+
+const getResult: GetResult = {has: false, value: undefined}
+
+function getFromInstance(instance: object, key: string | number | symbol, result: GetResult): void {
+	result.has = false
+	result.value = undefined
+
+	if (Reflect.ownKeys(instance).includes(key)) {
+		result.has = true
+		result.value = Reflect.get(instance, key)
+		return
+	}
+
+	const instances = __instances__.get(instance)
+	if (!instances) return
+
+	for (const instance of instances) {
+		// if (hasKey(instance, key, true)) {
+		//     getFromInstance(instance, key, result)
+		//     return
+		// }
+
+		getFromInstance(instance, key, result)
+		if (result.has) return
+	}
+}
+
+let shouldGetFromPrototype = false
+let topLevelMultiClassPrototype: object | null = null
+
 function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): CombinedClasses<T> {
 	// avoid performance costs in special cases
 	if (classes.length === 0) return Object as any
@@ -218,51 +280,81 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 		constructor(...args: any[]) {
 			super(...args)
 
+			// This assumes no super constructor returns a different this from
+			// their constructor. Otherwise the getInstances call won't work as
+			// expected.
 			const instances = getInstances(this)
 
 			// make instances of the other classes to get/set properties on.
 			for (const Ctor of classes) {
-				const instance = new Ctor(...args)
-				// const instance = Reflect.construct(Ctor, args, new.target)
+				const instance = Reflect.construct(Ctor, args)
 				instances.push(instance)
 			}
 		}
 	}
 
-	const __instances__ = new WeakMap<MultiClass, Object[]>()
-	const getInstances = (inst: MultiClass): Object[] => {
-		let result = __instances__.get(inst)
-		if (!result) __instances__.set(inst, (result = []))
-		return result
-	}
-
 	const newMultiClassPrototype = new Proxy(Object.create(FirstClass.prototype), {
 		get(target, key: string | symbol, self: MultiClass): any {
-			currentSelf.push(self)
+			if (!topLevelMultiClassPrototype) topLevelMultiClassPrototype = target
 
-			// If the key is in the current prototype chain, continue like normal...
-			if (Reflect.has(target, key)) {
-				currentSelf.pop()
-				return Reflect.get(target, key, self)
-			}
+			if (!shouldGetFromPrototype) {
+				getFromInstance(self, key, getResult)
 
-			currentSelf.pop()
-
-			// ...Otherwise if the key isn't, look it up on the instances of each class.
-			// This is something like a "prototype tree".
-			for (const instance of getInstances(self)) {
-				currentSelf.push(instance)
-
-				if (Reflect.has(instance, key)) {
-					currentSelf.pop()
-					return Reflect.get(instance, key, instance)
+				if (getResult.has) {
+					topLevelMultiClassPrototype = null
+					return getResult.value
 				}
 
-				currentSelf.pop()
+				// only the top level MultiClass subclass prototype will check
+				// instances for a property. The superclass MultiClass
+				// prototypes will do a regular prototype get.
+				shouldGetFromPrototype = true
 			}
 
-			// If the key is not found, return undefined like normal.
-			return undefined
+			// TODO, I think instead of passing `self` we should be passing the
+			// instances created from the classes? We need to write more tests,
+			// especially ones that create new properties later and not at
+			// construction time.
+			if (shouldGetFromPrototype) {
+				let result: any = undefined
+
+				if (Reflect.has(target, key)) result = Reflect.get(target, key, self)
+
+				let Class: Constructor
+				for (let i = 0, l = classes.length; i < l; i += 1) {
+					Class = classes[i]
+					if (Reflect.has(Class.prototype, key)) result = Reflect.get(Class.prototype, key, self)
+				}
+
+				if (topLevelMultiClassPrototype === target) {
+					topLevelMultiClassPrototype = null
+					shouldGetFromPrototype = false
+				}
+
+				return result
+			}
+
+			// currentSelf.push(self)
+
+			// if (Reflect.ownKeys(self).includes(key)) {
+			// 	currentSelf.pop()
+			// 	return Reflect.get(target, key, self)
+			// }
+
+			// currentSelf.pop()
+
+			// for (const instance of getInstances(self)) {
+			// 	currentSelf.push(instance)
+
+			// 	if (Reflect.ownKeys(instance).includes(key)) {
+			// 		currentSelf.pop()
+			// 		return Reflect.get(instance, key, instance)
+			// 	}
+
+			// 	currentSelf.pop()
+			// }
+
+			// return undefined
 		},
 
 		set(target, key: string | symbol, value: any, self): boolean {
@@ -294,20 +386,25 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 		},
 
 		has(target, key): boolean {
-			if (currentSelf.length) {
-				let current = currentSelf[currentSelf.length - 1]
+			// if (currentSelf.length) {
+			// 	let current = currentSelf[currentSelf.length - 1]
 
-				while (current) {
-					if (Reflect.ownKeys(current).includes(key)) return true
-					current = Reflect.getPrototypeOf(current) as MultiClass
-				}
+			// 	while (current) {
+			// 		if (Reflect.ownKeys(current).includes(key)) return true
+			// 		current = Reflect.getPrototypeOf(current) as MultiClass
+			// 	}
 
-				for (const instance of getInstances(currentSelf[currentSelf.length - 1] as MultiClass))
-					if (Reflect.has(instance, key)) return true
-			} else {
-				if (Reflect.has(target, key)) return true
-				for (const Ctor of classes) if (Reflect.has(Ctor.prototype, key)) return true
+			// 	for (const instance of getInstances(current as MultiClass))
+			// 		if (Reflect.has(instance, key)) return true
+			// } else {
+			if (Reflect.has(target, key)) return true
+
+			let Class: Constructor
+			for (let i = 0, l = classes.length; i < l; i += 1) {
+				Class = classes[i]
+				if (Reflect.has(Class.prototype, key)) return true
 			}
+			// }
 
 			return false
 		},

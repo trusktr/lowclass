@@ -9,14 +9,14 @@
 //  [ ] no `any` types
 //  [ ] other TODOs in the code
 
-import {Id} from './types'
+import {Id} from './types.js'
 import {
 	Constructor,
 	copyDescriptors,
 	setDefaultStaticDescriptors,
 	setDefaultPrototypeDescriptors,
 	hasPrototype,
-} from './utils'
+} from './utils.js'
 
 type ImplementationKeys = 'static' | 'private' | 'protected'
 
@@ -76,7 +76,7 @@ import {
 	getInheritedDescriptor,
 	getInheritedPropertyNames,
 	WeakTwoWayMap,
-} from './utils'
+} from './utils.js'
 
 export const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())]
 

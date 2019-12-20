@@ -1,4 +1,4 @@
-import {Constructor} from './utils'
+import {Constructor} from './utils.js'
 
 // helper function to use instead of instanceof for classes that implement the
 // static Symbol.hasInstance method, because the behavior of instanceof isn't

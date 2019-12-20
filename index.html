@@ -9,4 +9,11 @@
 		}
 	</script>
 	<script type="module-shim" src="./dist/multiple.test.js"></script>
+
+	<script src="./dist/global.js"></script>
+	<script>
+		console.assert(typeof lowclass.multiple === 'function')
+		console.assert(typeof lowclass.Mixin === 'function')
+		console.assert(typeof lowclass.Class === 'function')
+	</script>
 </body>

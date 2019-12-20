@@ -1,7 +1,6 @@
 {
 	"extends": "./node_modules/builder-js-package/config/tsconfig.json",
 	"compileOnSave": true,
-	"include": ["src/**/*"],
 	"compilerOptions": {
 		"strict": true,
 		// "checkJs": true,
@@ -11,7 +10,6 @@
 		"lib": ["dom", "es2018"],
 		"target": "es2018",
 		"module": "esnext",
-		"outDir": "dist",
 		"noEmitOnError": false
 	}
 }
