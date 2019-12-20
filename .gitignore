@@ -11,10 +11,6 @@
 !/tests
 !/meteor-package
 
-# global build, to be published
-!/global.js
-!/global.js.map
-
 # config files
 !/.builderrc
 !/.editorconfig
