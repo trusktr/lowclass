@@ -1,4 +1,3 @@
-
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java, using intentionally shared class brands
 
@@ -10,39 +9,40 @@ import Class from '../src/index'
 // Symbol here, which would be cleaner.
 let FriendKey = {}
 
-const Counter2 = Class('Counter2', ({ Private }) => ({
+const Counter2 = Class(
+	'Counter2',
+	({Private}) => ({
+		value() {
+			return Private(this).count
+		},
 
-    value() {
-        return Private(this).count
-    },
+		private: {
+			count: 0,
+		},
 
-    private: {
-        count: 0,
-    },
-
-    protected: {
-        increment() {
-            Private(this).count ++
-        },
-    },
-
-}), FriendKey)
+		protected: {
+			increment() {
+				Private(this).count++
+			},
+		},
+	}),
+	FriendKey,
+)
 
 // note how Incrementor2 does not extend from Counter2
-const Incrementor2 = Class('Incrementor2', ({ Private, Protected }) => ({
+const Incrementor2 = Class(
+	'Incrementor2',
+	({Private, Protected}) => ({
+		constructor(counter) {
+			Private(this).counter = counter
+		},
 
-    constructor( counter ) {
-        Private(this).counter = counter
-    },
+		increment() {
+			const counter = Private(this).counter
+			Protected(counter).increment()
+		},
+	}),
+	FriendKey,
+)
 
-    increment() {
-        const counter = Private(this).counter
-        Protected( counter ).increment()
-    },
-
-}), FriendKey)
-
-export {
-    Counter2,
-    Incrementor2
-}
+export {Counter2, Incrementor2}

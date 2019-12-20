@@ -1,17 +1,17 @@
 {
-    "extends": "./node_modules/builder-js-package/config/tsconfig.json",
-    "compileOnSave": true,
-    "include": ["src/**/*"],
-    "compilerOptions": {
-        "strict": true,
-        // "checkJs": true,
-        // "allowJs": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "lib": ["dom", "es2018"],
-        "target": "es2018",
-        "module": "esnext",
-        "outDir": "dist",
-        "noEmitOnError": false
-    }
+	"extends": "./node_modules/builder-js-package/config/tsconfig.json",
+	"compileOnSave": true,
+	"include": ["src/**/*"],
+	"compilerOptions": {
+		"strict": true,
+		// "checkJs": true,
+		// "allowJs": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"lib": ["dom", "es2018"],
+		"target": "es2018",
+		"module": "esnext",
+		"outDir": "dist",
+		"noEmitOnError": false
+	}
 }

@@ -1,73 +1,67 @@
-
 import Class from '../src/index'
-import { native } from '../src/native'
+import {native} from '../src/native'
 
 const test = it
 
-describe( 'extending native classes', () => {
+describe('extending native classes', () => {
+	test('extend native class, and using Super helper', () => {
+		class Foo {
+			constructor(msg) {
+				this.message = msg
+			}
 
-    test('extend native class, and using Super helper', () => {
+			method() {
+				return this.message
+			}
+		}
 
-        class Foo {
-            constructor( msg ) {
-                this.message = msg
-            }
+		// TODO auto-detect `class`es
+		const Bar = Class().extends(native(Foo), ({Super}) => ({
+			constructor(msg) {
+				Super(this).constructor(msg)
 
-            method() {
-                return this.message
-            }
-        }
+				this.message += '!'
+			},
 
-        // TODO auto-detect `class`es
-        const Bar = Class().extends( native(Foo), ({Super}) => ({
-            constructor( msg ) {
-                Super(this).constructor( msg )
+			method() {
+				return Super(this).method()
+			},
+		}))
 
-                this.message += '!'
-            },
+		const b = new Bar('it works')
 
-            method() {
-                return Super(this).method()
-            },
-        }))
+		expect(b instanceof Bar).toBeTruthy()
+		expect(b instanceof Foo).toBeTruthy()
+		expect(b.method() === 'it works!').toBeTruthy()
+	})
 
-        const b = new Bar( 'it works' )
+	test('extend native class, and using native `super`', () => {
+		class Foo {
+			constructor(msg) {
+				this.message = msg
+			}
 
-        expect( b instanceof Bar ).toBeTruthy()
-        expect( b instanceof Foo ).toBeTruthy()
-        expect( b.method() === 'it works!' ).toBeTruthy()
+			method() {
+				return this.message
+			}
+		}
 
-    })
+		const Bar = Class().extends(native(Foo), {
+			constructor(msg) {
+				super.constructor(msg)
 
-    test('extend native class, and using native `super`', () => {
+				this.message += '!'
+			},
 
-        class Foo {
-            constructor( msg ) {
-                this.message = msg
-            }
+			method() {
+				return super.method()
+			},
+		})
 
-            method() {
-                return this.message
-            }
-        }
+		const b = new Bar('it works')
 
-        const Bar = Class().extends( native(Foo), {
-            constructor( msg ) {
-                super.constructor( msg )
-
-                this.message += '!'
-            },
-
-            method() {
-                return super.method()
-            },
-        })
-
-        const b = new Bar( 'it works' )
-
-        expect( b instanceof Bar ).toBeTruthy()
-        expect( b instanceof Foo ).toBeTruthy()
-        expect( b.method() === 'it works!' ).toBeTruthy()
-
-    })
-} )
+		expect(b instanceof Bar).toBeTruthy()
+		expect(b instanceof Foo).toBeTruthy()
+		expect(b.method() === 'it works!').toBeTruthy()
+	})
+})

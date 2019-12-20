@@ -1,115 +1,118 @@
-
 import Class from '../src/index'
 
 const test = it
 
-describe( 'wrap existing classes', () => {
+describe('wrap existing classes', () => {
+	test('protected and private members for custom-made ES5 classes', () => {
+		const Foo = Class(({Protected, Private}) => {
+			// make and return our own es5-style base class, with Protected and
+			// Private helpers in scope.
 
-    test('protected and private members for custom-made ES5 classes', () => {
+			function Foo() {
+				this.foo = 'foo'
+			}
 
-        const Foo = Class(({Protected, Private}) => {
+			Foo.prototype = {
+				constructor: Foo,
+				test() {
+					expect(this.foo === 'foo').toBeTruthy()
+					expect(Private(this).bar === 'bar').toBeTruthy()
+					expect(Protected(this).baz === 'baz').toBeTruthy()
+				},
 
-            // make and return our own es5-style base class, with Protected and
-            // Private helpers in scope.
+				// define access just like with regular class definitions
+				private: {
+					bar: 'bar',
+				},
+				protected: {
+					baz: 'baz',
+				},
+			}
 
-            function Foo() {
-                this.foo = 'foo'
-            }
+			return Foo
+		})
 
-            Foo.prototype = {
-                constructor: Foo,
-                test() {
-                    expect( this.foo === 'foo' ).toBeTruthy()
-                    expect( Private(this).bar === 'bar' ).toBeTruthy()
-                    expect( Protected(this).baz === 'baz' ).toBeTruthy()
-                },
+		const foo = new Foo()
+		foo.test()
 
-                // define access just like with regular class definitions
-                private: {
-                    bar: 'bar'
-                },
-                protected: {
-                    baz: 'baz'
-                },
-            }
+		const Bar = Class(({Super, Private}) => {
+			// make and return our own es5-style subclass
 
-            return Foo
-        })
+			const prototype = {
+				__proto__: Foo.prototype,
 
-        const foo = new Foo
-        foo.test()
+				constructor: function() {
+					Super(this).constructor()
+				},
 
-        const Bar = Class(({Super, Private}) => {
+				test() {
+					super.test()
+					expect(Private(this).who === 'you').toBeTruthy()
+				},
 
-            // make and return our own es5-style subclass
+				private: {
+					who: 'you',
+				},
+			}
 
-            const prototype = {
-                __proto__: Foo.prototype,
+			prototype.constructor.prototype = prototype
 
-                constructor: function() {
-                    Super(this).constructor()
-                },
+			return prototype.constructor
+		})
 
-                test() {
-                    super.test()
-                    expect( Private(this).who === 'you' ).toBeTruthy()
-                },
+		const bar = new Bar()
+		bar.test()
+	})
 
-                private: {
-                    who: 'you'
-                },
-            }
+	test('protected and private members for custom-made native ES6+ classes', () => {
+		// wrap our own es6 native-style base class with access helpers in scope.
+		const Lorem = Class(
+			({Protected, Private}) =>
+				class {
+					constructor() {
+						this.foo = 'foo'
+					}
 
-            prototype.constructor.prototype = prototype
+					test() {
+						expect(this.foo === 'foo').toBeTruthy()
+						expect(Private(this).bar === 'bar').toBeTruthy()
+						expect(Protected(this).baz === 'baz').toBeTruthy()
+					}
 
-            return prototype.constructor
-        })
+					get private() {
+						return {
+							bar: 'bar',
+						}
+					}
 
-        const bar = new Bar
-        bar.test()
-    })
+					get protected() {
+						return {
+							baz: 'baz',
+						}
+					}
+				},
+		)
 
-    test('protected and private members for custom-made native ES6+ classes', () => {
+		const lorem = new Lorem()
+		lorem.test()
 
-        // wrap our own es6 native-style base class with access helpers in scope.
-        const Lorem = Class(({Protected, Private}) => class {
-            constructor() {
-                this.foo = 'foo'
-            }
+		// wrap our own es6 native-style subclass with the access helpers in scope
+		const Ipsum = Class(({Private}) => {
+			return class extends Lorem {
+				test() {
+					super.test()
+					expect(Private(this).secret === 'he did it').toBeTruthy()
+				}
 
-            test() {
-                expect( this.foo === 'foo' ).toBeTruthy()
-                expect( Private(this).bar === 'bar' ).toBeTruthy()
-                expect( Protected(this).baz === 'baz' ).toBeTruthy()
-            }
+				get private() {
+					return {
+						secret: 'he did it',
+					}
+				}
+			}
+		})
 
-            get private() { return {
-                bar: 'bar'
-            }}
-
-            get protected() { return {
-                baz: 'baz'
-            }}
-        })
-
-        const lorem = new Lorem
-        lorem.test()
-
-        // wrap our own es6 native-style subclass with the access helpers in scope
-        const Ipsum = Class(({Private}) => {
-            return class extends Lorem {
-                test() {
-                    super.test()
-                    expect( Private(this).secret === 'he did it' ).toBeTruthy()
-                }
-
-                get private() { return {
-                    secret: 'he did it'
-                }}
-            }
-        })
-
-        const ip = new Ipsum
-        ip.test()
-    })
-} )
+		const ip = new Ipsum()
+		ip.test()
+	})
+})

@@ -1,41 +1,36 @@
-
 // this shows the difference between our version of newless and the original
 // (see ./native.js)
 
-import { native } from './native'
+import {native} from './native'
 
 const test = it
 
-describe( 'native helper (newless)', () => {
+describe('native helper (newless)', () => {
+	test('explain original behavior (conditions negated to pass)', () => {
+		class Foo {}
 
-    test('explain original behavior (conditions negated to pass)', () => {
+		const _Foo = native(Foo)
+		expect(!(_Foo.prototype === Foo.prototype)).toBeTruthy()
+		expect(!(_Foo.prototype.constructor === Foo)).toBeTruthy()
 
-        class Foo {}
+		const f = new _Foo()
+		expect(f instanceof Foo).toBeTruthy()
+		expect(f instanceof _Foo).toBeTruthy()
+		expect(!(f.constructor !== _Foo)).toBeTruthy()
+		expect(!(f.constructor === Foo)).toBeTruthy()
+	})
 
-        const _Foo = native(Foo)
-        expect( !( _Foo.prototype === Foo.prototype ) ).toBeTruthy()
-        expect( !( _Foo.prototype.constructor === Foo ) ).toBeTruthy()
+	test('new behavior of our version of newless', () => {
+		class Foo {}
 
-        const f = new _Foo()
-        expect(f instanceof Foo).toBeTruthy()
-        expect(f instanceof _Foo).toBeTruthy()
-        expect( !( f.constructor !== _Foo ) ).toBeTruthy()
-        expect( !( f.constructor === Foo ) ).toBeTruthy()
-    })
+		const _Foo = native(Foo)
+		expect(_Foo.prototype === _Foo.prototype).toBeTruthy()
+		expect(_Foo.prototype.constructor === _Foo).toBeTruthy()
 
-    test('new behavior of our version of newless', () => {
-
-        class Foo {}
-
-        const _Foo = native(Foo)
-        expect(_Foo.prototype === _Foo.prototype).toBeTruthy()
-        expect(_Foo.prototype.constructor === _Foo).toBeTruthy()
-
-        const f = new _Foo()
-        expect(f instanceof Foo).toBeTruthy()
-        expect(f instanceof _Foo).toBeTruthy()
-        expect(f.constructor === _Foo).toBeTruthy()
-        expect(f.constructor !== Foo).toBeTruthy()
-    })
-
-} )
+		const f = new _Foo()
+		expect(f instanceof Foo).toBeTruthy()
+		expect(f instanceof _Foo).toBeTruthy()
+		expect(f.constructor === _Foo).toBeTruthy()
+		expect(f.constructor !== Foo).toBeTruthy()
+	})
+})
