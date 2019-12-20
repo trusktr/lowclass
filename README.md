@@ -37,6 +37,7 @@ Lowclass is a lib that includes the following inheritance tools:
     		/* ... */
     	}
     }
+
     const atat = new StarWarsATATWalker()
     atat.walk()
     atat.fireLaser()
@@ -48,6 +49,7 @@ Lowclass is a lib that includes the following inheritance tools:
     		/* ... */
     	}
     }
+
     const dog = new Dog()
     dog.lick()
     dog.walk()
@@ -59,6 +61,7 @@ Lowclass is a lib that includes the following inheritance tools:
     		/* Hey! */
     	}
     }
+
     const person = new Human()
     person.yell()
     person.walk()
@@ -76,38 +79,34 @@ Lowclass is a lib that includes the following inheritance tools:
     import {Mixin} from 'lowclass'
 
     // define a few "class-factory mixins":
-    const Walker = Mixin(
-    	Base =>
-    		class Walker extends Base {
-    			walk() {
-    				/* feet move */
-    			}
-    		},
-    )
-    const Talker = Mixin(
-    	Base =>
-    		class Talker extends Base {
-    			talk() {
-    				/* hello */
-    			}
-    		},
-    )
-    const Barker = Mixin(
-    	Base =>
-    		class extends Base {
-    			bark() {
-    				/* woof */
-    			}
-    		},
-    )
-    const Attacker = Mixin(
-    	Base =>
-    		class extends Base {
-    			attack() {
-    				/* boom */
-    			}
-    		},
-    )
+    const Walker = Mixin(Base => {
+    	return class Walker extends Base {
+    		walk() {
+    			/* feet move */
+    		}
+    	}
+    })
+    const Talker = Mixin(Base => {
+    	return class Talker extends Base {
+    		talk() {
+    			/* hello */
+    		}
+    	}
+    })
+    const Barker = Mixin(Base => {
+    	return class extends Base {
+    		bark() {
+    			/* woof */
+    		}
+    	}
+    })
+    const Attacker = Mixin(Base => {
+    	return class extends Base {
+    		attack() {
+    			/* boom */
+    		}
+    	}
+    })
 
     // At this point Walker, Talker, and Barker are references to ES2015 `class`es.
 
@@ -118,17 +117,19 @@ Lowclass is a lib that includes the following inheritance tools:
     		/* ... */
     	}
     }
+
     const atat = new StarWarsATATWalker()
     atat.walk()
     atat.fireLaser()
 
-    // Or mix them together to compose feature together:
+    // Or mix them together to compose features together:
 
     class Dog extends Walker.mixin(Barker.mixin(Attacker)) {
     	lick() {
     		/* ... */
     	}
     }
+
     const dog = new Dog()
     dog.lick()
     dog.walk()
@@ -140,6 +141,7 @@ Lowclass is a lib that includes the following inheritance tools:
     		/* Hey! */
     	}
     }
+
     const person = new Human()
     person.yell()
     person.walk()
