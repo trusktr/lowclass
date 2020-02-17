@@ -11,9 +11,7 @@
 		"./": "./dist/"
 	},
 	"scripts": {
-		"clean": "LOCAL_DEV=true builder run clean",
-		"build": "LOCAL_DEV=true builder run build:prod",
-		"dev": "LOCAL_DEV=true builder run build:dev",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX BUILDER SCRIPTS": "",
 		"test": "LOCAL_DEV=true builder run npm:test",
 		"test:debug": "LOCAL_DEV=true builder run npm:test-debug",
 		"tsc": "LOCAL_DEV=true builder run tsc",
@@ -26,6 +24,11 @@
 		"release:major": "LOCAL_DEV=true builder run release:major",
 		"version": "LOCAL_DEV=true builder run npm:version",
 		"postversion": "LOCAL_DEV=true builder run npm:postversion",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+		"clean": "lume clean",
+		"build": "lume build",
+		"dev": "lume dev",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
 		"serve": "browser-sync start --server ./ --files dist --port 12345"
 	},
 	"repository": {
