@@ -2,6 +2,9 @@
 	"name": "lowclass",
 	"version": "4.9.2",
 	"description": "JavaScript/TypeScript class inheritance tools.",
+	"author": "Joe Pea <joe@trusktr.io>",
+	"license": "MIT",
+	"homepage": "http://github.com/trusktr/lowclass#readme",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -11,44 +14,36 @@
 		"./": "./dist/"
 	},
 	"scripts": {
-		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX BUILDER SCRIPTS": "",
-		"test": "LOCAL_DEV=true builder run npm:test",
-		"test:debug": "LOCAL_DEV=true builder run npm:test-debug",
-		"tsc": "LOCAL_DEV=true builder run tsc",
-		"tsc:watch": "LOCAL_DEV=true builder run tsc:watch",
-		"typecheck": "LOCAL_DEV=true builder run typecheck",
-		"typecheck:watch": "LOCAL_DEV=true builder run typecheck:watch",
-		"prettier": "LOCAL_DEV=true builder run prettier",
-		"release:patch": "LOCAL_DEV=true builder run release:patch",
-		"release:minor": "LOCAL_DEV=true builder run release:minor",
-		"release:major": "LOCAL_DEV=true builder run release:major",
-		"version": "LOCAL_DEV=true builder run npm:version",
-		"postversion": "LOCAL_DEV=true builder run npm:postversion",
-		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+		"LUME SCRIPTS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX": "",
 		"clean": "lume clean",
 		"build": "lume build",
 		"dev": "lume dev",
+		"typecheck": "lume typecheck",
+		"typecheck:watch": "lume typecheckWatch",
+		"test": "lume test",
+		"test:debug": "lume testDebug",
+		"prettier": "lume prettier",
+		"prettier:check": "lume prettierCheck",
+		"release:patch": "lume releasePatch",
+		"release:minor": "lume releaseMinor",
+		"release:major": "lume releaseMajor",
+		"version": "lume versionHook",
+		"postversion": "lume postVersionHook",
 		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
 		"serve": "browser-sync start --server ./ --files dist --port 12345"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"browser-sync": "^2.26.7",
+		"builder-js-package": "^1.0.0",
+		"prettier": "^1.19.1"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com/trusktr/lowclass.git"
 	},
-	"author": "Joe Pea <joe@trusktr.io>",
-	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/trusktr/lowclass/issues"
-	},
-	"homepage": "http://github.com/trusktr/lowclass#readme",
-	"dependencies": {
-		"@babel/runtime": "7.0.0-beta.46"
-	},
-	"devDependencies": {
-		"browser-sync": "^2.26.7",
-		"builder": "^5.0.0",
-		"builder-js-package": "^1.0.0",
-		"prettier": "^1.19.1"
 	},
 	"keywords": [
 		"classes",
