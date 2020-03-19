@@ -1,28 +1,5 @@
-### ignore everything
-/*
-
-# including hidden files, those have to be manually added to the repo.
-/**/.*
-
-### except for the following top-level whitelist:
-
-# folders
-!/src
-!/tests
-!/meteor-package
-
-# config files
-!/.builderrc
-!/.editorconfig
-!/.gitignore
-!/.npmignore
-!/.npmrc
-!/.prettierrc.js
-!/.prettierignore
-!/package.json
-!/tsconfig.json
-!/index.html
-
-# the basics!
-!/README.md
-!/LICENSE
+node_modules/
+package-lock.json
+dist/
+.vscode/
+*.log
