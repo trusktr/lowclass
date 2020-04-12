@@ -1,5 +1,5 @@
 {
-	"extends": "./node_modules/@lume/cli/config/tsconfig.json",
+	"extends": "./node_modules/@lume/cli/config/ts.config.json",
 	"compileOnSave": true,
 	"compilerOptions": {
 		"strict": true,
