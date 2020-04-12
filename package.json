@@ -35,7 +35,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"browser-sync": "^2.26.7",
-		"@lume/cli": "^1.0.0",
+		"@lume/cli": "^2.0.0",
 		"prettier": "^1.19.1"
 	},
 	"repository": {
