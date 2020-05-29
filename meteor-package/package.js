@@ -2,7 +2,7 @@ Package.describe({
 	name: 'trusktr:lowclass',
 	version: '3.0.0',
 	summary: 'Low-complexity class inheritance.',
-	git: 'https://github.com/infamous/motor.git',
+	git: 'https://github.com/lume/lume.git',
 })
 
 Package.onUse(function(api) {
