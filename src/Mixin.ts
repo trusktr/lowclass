@@ -16,8 +16,11 @@ export function Mixin<T extends MixinFunction>(mixinFn: T, DefaultBase?: Constru
 	// XXX Maybe Cached should go last.
 	// @ts-ignore
 	mixinFn = Cached(mixinFn)
+	// @ts-ignore TS v4 introduced a type error
 	mixinFn = HasInstance(mixinFn)
+	// @ts-ignore TS v4 introduced a type error
 	mixinFn = Dedupe(mixinFn)
+	// @ts-ignore TS v4 introduced a type error
 	mixinFn = WithDefault(mixinFn, DefaultBase || Class())
 	mixinFn = ApplyDefault(mixinFn)
 

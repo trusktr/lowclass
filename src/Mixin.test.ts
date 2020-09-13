@@ -142,6 +142,7 @@ describe('Mixin', () => {
 			return Foo as MixinResult<typeof Foo, T>
 		}
 
+		// @ts-ignore TS v4 introduced a type error
 		FooMixin = HasInstance(FooMixin)
 
 		const Foo = FooMixin(class {})
@@ -153,6 +154,7 @@ describe('Mixin', () => {
 			return Bar as MixinResult<typeof Bar, T>
 		}
 
+		// @ts-ignore TS v4 introduced a type error
 		BarMixin = HasInstance(BarMixin)
 
 		const Bar = BarMixin(class {})
