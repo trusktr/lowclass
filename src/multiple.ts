@@ -1,4 +1,4 @@
-import {Constructor} from './utils.js'
+import type {Constructor} from './utils.js'
 
 // --- TODO handle static inheritance. Nothing has been implemented with regards to
 // static inheritance yet.

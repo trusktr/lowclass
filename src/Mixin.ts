@@ -1,8 +1,9 @@
 // TODO no any types
 // TODO no @ts-ignore
 
-import {Constructor} from './utils.js'
 import Class from './Class.js'
+
+import type {Constructor} from './utils.js'
 
 // export type MixinFunction<T extends Constructor> = (BaseClass: T) => T
 export type MixinFunction = <T extends Constructor<any>>(BaseClass: T) => T

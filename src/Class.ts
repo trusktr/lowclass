@@ -8,7 +8,6 @@
 //  [ ] no `any` types
 //  [ ] other TODOs in the code
 
-import {Id} from './types.js'
 import {
 	Constructor,
 	copyDescriptors,
@@ -16,6 +15,8 @@ import {
 	setDefaultPrototypeDescriptors,
 	hasPrototype,
 } from './utils.js'
+
+import type {Id} from './types.js'
 
 type ImplementationKeys = 'static' | 'private' | 'protected'
 
