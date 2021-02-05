@@ -1,6 +1,9 @@
-# this file is copied into the dist/ after build, and the lib is published
-# relative to the dist/ folder.
-/**/*.test.js
-/**/*.test.js.map
-/**/*.test.d.ts
-/tests/
+/**/*
+
+!/dist/**/*
+!/src/**/*
+
+/dist/**/*.test.*
+/dist/tests/**/*
+/src/**/*.test.*
+/src/tests/**/*
