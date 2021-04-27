@@ -5,7 +5,7 @@ Package.describe({
 	git: 'https://github.com/lume/lume.git',
 })
 
-Package.onUse(function(api) {
+Package.onUse(function (api) {
 	api.versionsFrom('METEOR@1.2-rc.7')
 
 	// TODO

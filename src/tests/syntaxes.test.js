@@ -38,7 +38,7 @@ describe('various forms of writing classes', () => {
 	})
 
 	test('definer function (non-arrow), returning an object literal', () => {
-		const Foo = Class(function({Super}) {
+		const Foo = Class(function ({Super}) {
 			return {
 				constructor() {
 					this.bar = 'bar'
@@ -57,10 +57,10 @@ describe('various forms of writing classes', () => {
 
 	test('definer function (arrow function), setting ES5-like prototype assignment', () => {
 		const Foo = Class(({Super, Public}) => {
-			Public.prototype.constructor = function() {
+			Public.prototype.constructor = function () {
 				this.bar = 'bar'
 			}
-			Public.prototype.foo = function() {
+			Public.prototype.foo = function () {
 				expect(Super(this).hasOwnProperty('bar')).toBe(true)
 				expect(this.bar === 'bar').toBeTruthy()
 			}
@@ -161,11 +161,11 @@ describe('various forms of writing classes', () => {
 
 	test('definer function and ES5-like prototype assignment', () => {
 		const Foo = Class(({Protected, Private, Public}) => {
-			Public.prototype.constructor = function() {
+			Public.prototype.constructor = function () {
 				this.bar = 'bar'
 			}
 
-			Public.prototype.foo = function() {
+			Public.prototype.foo = function () {
 				expect(this.bar === 'bar').toBeTruthy()
 				expect(Protected(this).foo() === 'barbar3').toBeTruthy()
 				expect(Private(this).foo() === 'barbar2').toBeTruthy()
@@ -174,13 +174,13 @@ describe('various forms of writing classes', () => {
 
 			Protected.prototype.bar = 'bar2'
 
-			Protected.prototype.foo = function() {
+			Protected.prototype.foo = function () {
 				return Public(this).bar + Private(this).bar
 			}
 
 			Private.prototype.bar = 'bar3'
 
-			Private.prototype.foo = function() {
+			Private.prototype.foo = function () {
 				return Public(this).bar + Protected(this).bar
 			}
 		})
@@ -190,11 +190,11 @@ describe('various forms of writing classes', () => {
 		expect(f.foo() === 'it works').toBeTruthy()
 
 		const Bar = Foo.subclass(({Public, Protected, Super}) => {
-			Public.prototype.test = function() {
+			Public.prototype.test = function () {
 				return Protected(this).test()
 			}
 
-			Protected.prototype.test = function() {
+			Protected.prototype.test = function () {
 				return Super(Public(this)).foo()
 			}
 		})

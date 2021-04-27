@@ -50,7 +50,7 @@ describe('basics', () => {
 		})
 
 		const UnrelatedClass = Class(function UnrelatedClass(Public, Protected) {
-			Public.prototype.testInvalidAccess = function() {
+			Public.prototype.testInvalidAccess = function () {
 				const dog = new Dog()
 				console.log('should fail:', Protected(dog).sound)
 			}
@@ -69,7 +69,7 @@ describe('basics', () => {
 		})
 
 		const UnrelatedClass = Class(function UnrelatedClass({Public, Private}) {
-			Public.prototype.testInvalidAccess = function() {
+			Public.prototype.testInvalidAccess = function () {
 				const dog = new Dog()
 				console.log('should fail:', Private(dog).breed)
 			}
@@ -160,13 +160,13 @@ describe('basics', () => {
 
 		const Dog = Animal.subclass(function Dog({Public, Private}) {
 			Private.prototype.sound = 'Woof!'
-			Public.prototype.verifySound = function() {
+			Public.prototype.verifySound = function () {
 				expect(Private(this).sound === 'Woof!').toBeTruthy()
 			}
-			Public.prototype.changeSound = function() {
+			Public.prototype.changeSound = function () {
 				Private(this).sound = 'grrr!'
 			}
-			Public.prototype.checkBar = function() {
+			Public.prototype.checkBar = function () {
 				// the private instance for the Dog class is not the same instance a for the Animal class
 				expect(Private(this) !== AnimalPrivate(this)).toBeTruthy()
 
@@ -176,7 +176,7 @@ describe('basics', () => {
 				// and therefore this value is different, because it's a different instance
 				expect(AnimalPrivate(this).bar === 'of soap').toBeTruthy()
 			}
-			Public.prototype.exposePrivate = function() {
+			Public.prototype.exposePrivate = function () {
 				dogPrivate = Private(this)
 			}
 		})
@@ -197,7 +197,7 @@ describe('basics', () => {
 
 		const Dog = Animal.subclass(function Dog({Public, Private}) {
 			Private.prototype.sound = 'Woof!'
-			Public.prototype.foo = function() {
+			Public.prototype.foo = function () {
 				// we should not be able to access Animal's private bar property
 				this.changeBar() // changed Animal's private bar property
 
@@ -216,7 +216,7 @@ describe('basics', () => {
 	test('further example, private members are isolated to their classes', () => {
 		const Animal = Class('Animal', ({Private}) => ({
 			public: {
-				test: function() {
+				test: function () {
 					const dog = new Dog()
 					dog.bar = 'bar'
 					dog.setBar()
@@ -233,10 +233,10 @@ describe('basics', () => {
 		}))
 
 		const Dog = Animal.subclass('Dog', ({Private}) => ({
-			setBar: function() {
+			setBar: function () {
 				Private(this).bar = 'yippee'
 			},
-			checkBar: function() {
+			checkBar: function () {
 				expect(Private(this).bar === 'yippee').toBeTruthy()
 				Private(this).bar = 'woohoo'
 			},
@@ -270,7 +270,7 @@ describe('basics', () => {
 				someClassPrivateInstance = Private(this)
 			},
 
-			publicMethod: function() {
+			publicMethod: function () {
 				expect(this === Public(this)).toBeTruthy()
 				expect(this.foo === Public(this).foo).toBeTruthy()
 
@@ -293,7 +293,7 @@ describe('basics', () => {
 			protected: {
 				bar: 'bar',
 
-				protectedMethod: function() {
+				protectedMethod: function () {
 					expect(this === Protected(this)).toBeTruthy()
 					expect(this.bar === Protected(this).bar).toBeTruthy()
 
@@ -318,7 +318,7 @@ describe('basics', () => {
 			private: {
 				baz: 'baz',
 
-				privateMethod: function() {
+				privateMethod: function () {
 					foundPrivate = Private(this)
 					expect(this === Private(this)).toBeTruthy()
 					expect(this.baz === Private(this).baz).toBeTruthy()
@@ -772,7 +772,7 @@ describe('basics', () => {
 		const Foo = Class((Public, Protected) => {
 			fooProtectedGetter = Protected
 			Protected.prototype.foo = 'foo'
-			Public.prototype.constructor = function() {
+			Public.prototype.constructor = function () {
 				fooProtected = Protected(this)
 			}
 		})
@@ -782,11 +782,11 @@ describe('basics', () => {
 		const Bar = Class().extends(Foo, ({Super, Public, Protected}) => {
 			barProtectedGetter = Protected
 			Protected.prototype.bar = 'bar'
-			Public.prototype.constructor = function() {
+			Public.prototype.constructor = function () {
 				Super(this).constructor()
 				barProtected = Protected(this)
 			}
-			Public.prototype.test = function() {
+			Public.prototype.test = function () {
 				const f = new Foo()
 				Protected(f)
 			}
@@ -892,20 +892,20 @@ describe('basics', () => {
 	// https://stackoverflow.com/a/11199220/454780 and other places
 	test("there's no recursive problem, using Super helper", () => {
 		const A = Class({
-			foo: function(n) {
+			foo: function (n) {
 				return n
 			},
 		})
 
 		const B = A.subclass(({Super}) => ({
-			foo: function(n) {
+			foo: function (n) {
 				if (n > 100) return -1
 				return Super(this).foo(n + 1)
 			},
 		}))
 
 		const C = B.subclass(({Super}) => ({
-			foo: function(n) {
+			foo: function (n) {
 				return Super(this).foo(n + 2)
 			},
 		}))
@@ -918,7 +918,7 @@ describe('basics', () => {
 	// (for ES6+ environments)
 	test("there's no recursive problem, using native super", () => {
 		const A = Class({
-			foo: function(n) {
+			foo: function (n) {
 				return n
 			},
 		})

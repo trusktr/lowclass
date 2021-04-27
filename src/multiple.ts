@@ -148,7 +148,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 					let keys = Reflect.ownKeys(target)
 
 					let instance: Object
-					let instanceKeys: (string | symbol | number)[]
+					let instanceKeys: (string | symbol)[]
 
 					for (let i = 0, l = instances.length; i < l; i += 1) {
 						instance = instances[i]
@@ -239,7 +239,7 @@ type GetResult = {has: boolean; value: any}
 
 const getResult: GetResult = {has: false, value: undefined}
 
-function getFromInstance(instance: object, key: string | number | symbol, result: GetResult): void {
+function getFromInstance(instance: object, key: string | symbol, result: GetResult): void {
 	result.has = false
 	result.value = undefined
 

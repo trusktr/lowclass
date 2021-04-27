@@ -41,7 +41,7 @@ describe('wrap existing classes', () => {
 			const prototype = {
 				__proto__: Foo.prototype,
 
-				constructor: function() {
+				constructor: function () {
 					Super(this).constructor()
 				},
 

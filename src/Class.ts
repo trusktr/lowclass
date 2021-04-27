@@ -248,7 +248,7 @@ export function createClassHelper(options?: any) {
 			// Class().extends(OtherClass, (Public, Protected, Private) => ({
 			//   ...
 			// }))
-			Ctor.extends = function(ParentClass: any, def: any, brand: any) {
+			Ctor.extends = function (ParentClass: any, def: any, brand: any) {
 				def = def || definer
 				brand = brand || classBrand
 				return createClass.call(ParentClass, name, def, brand)
@@ -300,7 +300,7 @@ export function createClassHelper(options?: any) {
 			if (nativeNaming && className) Ctor = new Function(`return function ${className}() {}`)()
 			else {
 				// force anonymous even in ES6+
-				Ctor = (() => function() {})()
+				Ctor = (() => function () {})()
 
 				if (className) setDescriptor(Ctor, 'name', {value: className})
 			}
@@ -505,7 +505,7 @@ export function createClassHelper(options?: any) {
 		// ES5 version (which seems to be so much better)
 		if (mode === 'es5') {
 			NewClass = (() =>
-				function(this: any) {
+				function (this: any) {
 					let ret = null
 
 					let constructor = null
@@ -839,7 +839,7 @@ function getSuperHelperObject(instance: any, parentPrototype: any, supers: any) 
 				_super,
 				key,
 				{
-					get: function() {
+					get: function () {
 						let value: any = void undefined
 
 						const descriptor = getInheritedDescriptor(parentPrototype, key)
@@ -859,7 +859,7 @@ function getSuperHelperObject(instance: any, parentPrototype: any, supers: any) 
 					},
 
 					// like native `super`, setting a super property does nothing.
-					set: function(value) {
+					set: function (value) {
 						const descriptor = getInheritedDescriptor(parentPrototype, key)
 
 						if (descriptor && propertyIsAccessor(descriptor)) {

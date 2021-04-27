@@ -41,7 +41,7 @@ var setPrototype =
 // Polyfill for Reflect.construct
 var construct =
 	(Reflect && Reflect.construct) ||
-	(function() {
+	(function () {
 		if (supportsClass) {
 			return Function(
 				'constructor, args, target',
@@ -124,7 +124,7 @@ var construct =
 			//  return value;
 			//`);
 		} else {
-			var instantiator = function() {} as any
+			var instantiator = function () {} as any
 			return function construct(constructor: any, args: any, target: any) {
 				if (arguments.length === 3 && typeof target !== 'function')
 					throw new TypeError(target + ' is not a constructor')
@@ -183,7 +183,7 @@ function newless<T extends Constructor>(constructor: T): FuncLikeCtor<InstanceTy
 	var requiresNew = usesClassSyntax ? true : null
 
 	var newlessConstructor = (() =>
-		function(this: any) {
+		function (this: any) {
 			// If called with an already valid 'this', preserve that 'this' value
 			// in the super-type's constructor whenever possible. With function
 			// constructors (as opposed to class constructors), it's possible to
