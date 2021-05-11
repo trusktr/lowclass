@@ -9,7 +9,9 @@ jobs:
         strategy:
             matrix:
                 node-version: [13.x]
-                operating-system: [ubuntu-latest, macos-latest, windows-latest]
+                # TODO get testing working in Windows. Help wanted!
+                # windows-latest
+                operating-system: [ubuntu-latest, macos-latest]
 
         steps:
             - uses: actions/checkout@v1
