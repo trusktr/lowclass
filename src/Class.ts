@@ -173,9 +173,7 @@ export function createClassHelper(options?: any) {
 	 */
 	function Class(): typeof Object
 	// export function Class<TBase>(
-	function Class(
-		name: string,
-	): {
+	function Class(name: string): {
 		extends<TBase extends Constructor, T>(
 			base: TBase,
 			members: (helpers: {

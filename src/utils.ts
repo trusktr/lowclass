@@ -130,7 +130,7 @@ export type Constructor<T = object, A extends any[] = any[], Static = {}> = (new
 
 // this is used for type casting in special cases, see the declaration file
 export function Constructor<T = object, Static = {}>(Ctor: Constructor<any>): Constructor<T> & Static {
-	return (Ctor as unknown) as Constructor<T> & Static
+	return Ctor as unknown as Constructor<T> & Static
 }
 
 // check if an object has the given prototype in its chain

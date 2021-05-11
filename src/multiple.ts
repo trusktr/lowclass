@@ -210,7 +210,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 	// MultiClass.prototype and FirstClass.prototype.
 	Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype)
 
-	return (MultiClass as unknown) as CombinedClasses<T>
+	return MultiClass as unknown as CombinedClasses<T>
 }
 
 let currentSelf: Object[] = []
@@ -417,7 +417,7 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 	// MultiClass.prototype and FirstClass.prototype.
 	Object.setPrototypeOf(MultiClass.prototype, newMultiClassPrototype)
 
-	return (MultiClass as unknown) as CombinedClasses<T>
+	return MultiClass as unknown as CombinedClasses<T>
 }
 
 // type ConstructorUnionToInstanceTypeUnion<U> = (U extends Constructor

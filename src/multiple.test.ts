@@ -121,7 +121,7 @@ function test1() {
 			// classes don't magically know about each other (Two does not know
 			// about One because Two does not inherit from One), but this proves
 			// that the inheritance works in like in plain JS.
-			assert(((this as any) as One).var === 'bright') // should be "bright"
+			assert((this as any as One).var === 'bright') // should be "bright"
 		}
 	}
 

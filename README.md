@@ -4,211 +4,211 @@ JavaScript/TypeScript class inheritance tools.
 
 Lowclass is a lib that includes the following inheritance tools:
 
--   A `multiple()` function for composing ES2015 `class`es together in a simple
-    ergonomic way. For example:
+- A `multiple()` function for composing ES2015 `class`es together in a simple
+  ergonomic way. For example:
 
-    ```js
-    // define a few classes with unique features:
-    class Walker {
-    	walk() {
-    		/* feet move */
-    	}
-    }
-    class Talker {
-    	talk() {
-    		/* hello */
-    	}
-    }
-    class Barker {
-    	bark() {
-    		/* woof */
-    	}
-    }
-    class Attacker {
-    	attack() {
-    		/* boom */
-    	}
-    }
+  ```js
+  // define a few classes with unique features:
+  class Walker {
+  	walk() {
+  		/* feet move */
+  	}
+  }
+  class Talker {
+  	talk() {
+  		/* hello */
+  	}
+  }
+  class Barker {
+  	bark() {
+  		/* woof */
+  	}
+  }
+  class Attacker {
+  	attack() {
+  		/* boom */
+  	}
+  }
 
-    // Now use them like regular classes by extending from them normally:
+  // Now use them like regular classes by extending from them normally:
 
-    class StarWarsATATWalker extends Walker {
-    	fireLaser() {
-    		/* ... */
-    	}
-    }
+  class StarWarsATATWalker extends Walker {
+  	fireLaser() {
+  		/* ... */
+  	}
+  }
 
-    const atat = new StarWarsATATWalker()
-    atat.walk()
-    atat.fireLaser()
+  const atat = new StarWarsATATWalker()
+  atat.walk()
+  atat.fireLaser()
 
-    // Or compose them together:
+  // Or compose them together:
 
-    class Dog extends multiple(Walker, Barker, Attacker) {
-    	lick() {
-    		/* ... */
-    	}
-    }
+  class Dog extends multiple(Walker, Barker, Attacker) {
+  	lick() {
+  		/* ... */
+  	}
+  }
 
-    const dog = new Dog()
-    dog.lick()
-    dog.walk()
-    dog.bark()
-    dog.attack()
+  const dog = new Dog()
+  dog.lick()
+  dog.walk()
+  dog.bark()
+  dog.attack()
 
-    class Human extends multiple(Talker, Attacker, Walker) {
-    	yell() {
-    		/* Hey! */
-    	}
-    }
+  class Human extends multiple(Talker, Attacker, Walker) {
+  	yell() {
+  		/* Hey! */
+  	}
+  }
 
-    const person = new Human()
-    person.yell()
-    person.walk()
-    person.talk()
-    person.attack()
-    ```
+  const person = new Human()
+  person.yell()
+  person.walk()
+  person.talk()
+  person.attack()
+  ```
 
--   A `Mixin()` helper for making mixable ES2015 `class`es. Mixins are less
-    ergonomic than composing classes with the `multiple()` helper, but if you're
-    after performance, then mixins (made with or without the `Mixin()` helper) will have
-    faster instantiation and property lookup than classes composed with
-    `multiple()`. For example:
+- A `Mixin()` helper for making mixable ES2015 `class`es. Mixins are less
+  ergonomic than composing classes with the `multiple()` helper, but if you're
+  after performance, then mixins (made with or without the `Mixin()` helper) will have
+  faster instantiation and property lookup than classes composed with
+  `multiple()`. For example:
 
-    ```js
-    import {Mixin} from 'lowclass'
+  ```js
+  import {Mixin} from 'lowclass'
 
-    // define a few "class-factory mixins":
-    const Walker = Mixin(Base => {
-    	return class Walker extends Base {
-    		walk() {
-    			/* feet move */
-    		}
-    	}
-    })
-    const Talker = Mixin(Base => {
-    	return class Talker extends Base {
-    		talk() {
-    			/* hello */
-    		}
-    	}
-    })
-    const Barker = Mixin(Base => {
-    	return class extends Base {
-    		bark() {
-    			/* woof */
-    		}
-    	}
-    })
-    const Attacker = Mixin(Base => {
-    	return class extends Base {
-    		attack() {
-    			/* boom */
-    		}
-    	}
-    })
+  // define a few "class-factory mixins":
+  const Walker = Mixin(Base => {
+  	return class Walker extends Base {
+  		walk() {
+  			/* feet move */
+  		}
+  	}
+  })
+  const Talker = Mixin(Base => {
+  	return class Talker extends Base {
+  		talk() {
+  			/* hello */
+  		}
+  	}
+  })
+  const Barker = Mixin(Base => {
+  	return class extends Base {
+  		bark() {
+  			/* woof */
+  		}
+  	}
+  })
+  const Attacker = Mixin(Base => {
+  	return class extends Base {
+  		attack() {
+  			/* boom */
+  		}
+  	}
+  })
 
-    // At this point Walker, Talker, and Barker are references to ES2015 `class`es.
+  // At this point Walker, Talker, and Barker are references to ES2015 `class`es.
 
-    // Now use them like regular classes by extending from them normally:
+  // Now use them like regular classes by extending from them normally:
 
-    class StarWarsATATWalker extends Walker {
-    	fireLaser() {
-    		/* ... */
-    	}
-    }
+  class StarWarsATATWalker extends Walker {
+  	fireLaser() {
+  		/* ... */
+  	}
+  }
 
-    const atat = new StarWarsATATWalker()
-    atat.walk()
-    atat.fireLaser()
+  const atat = new StarWarsATATWalker()
+  atat.walk()
+  atat.fireLaser()
 
-    // Or mix them together to compose features together:
+  // Or mix them together to compose features together:
 
-    class Dog extends Walker.mixin(Barker.mixin(Attacker)) {
-    	lick() {
-    		/* ... */
-    	}
-    }
+  class Dog extends Walker.mixin(Barker.mixin(Attacker)) {
+  	lick() {
+  		/* ... */
+  	}
+  }
 
-    const dog = new Dog()
-    dog.lick()
-    dog.walk()
-    dog.bark()
-    dog.attack()
+  const dog = new Dog()
+  dog.lick()
+  dog.walk()
+  dog.bark()
+  dog.attack()
 
-    class Human extends Talker.mixin(Attacker.mixin(Walker)) {
-    	yell() {
-    		/* Hey! */
-    	}
-    }
+  class Human extends Talker.mixin(Attacker.mixin(Walker)) {
+  	yell() {
+  		/* Hey! */
+  	}
+  }
 
-    const person = new Human()
-    person.yell()
-    person.walk()
-    person.talk()
-    person.attack()
-    ```
+  const person = new Human()
+  person.yell()
+  person.walk()
+  person.talk()
+  person.attack()
+  ```
 
--   A `Class()` tool for creating classes with public, protected, and private members. For example:
+- A `Class()` tool for creating classes with public, protected, and private members. For example:
 
-    ```js
-    import Class from 'lowclass'
-    import Something from 'somewhere'
+  ```js
+  import Class from 'lowclass'
+  import Something from 'somewhere'
 
-    export default Class('Thing').extends(Something, ({Protected, Private}) => ({
-        doSomething() {
-            // this method is public
-            Protected(this).makeStuff()
-        }
+  export default Class('Thing').extends(Something, ({Protected, Private}) => ({
+      doSomething() {
+          // this method is public
+          Protected(this).makeStuff()
+      }
 
-        protected: {
-            makeStuff() {
-                // this method is protected
-                Private(this).stuffImpl()
-            }
-        },
+      protected: {
+          makeStuff() {
+              // this method is protected
+              Private(this).stuffImpl()
+          }
+      },
 
-        private: {
-            stuffImpl() {
-                // this method is private
-            }
-        }
-    }))
-    ```
+      private: {
+          stuffImpl() {
+              // this method is private
+          }
+      }
+  }))
+  ```
 
-    ```js
-    import Thing from './Thing'
+  ```js
+  import Thing from './Thing'
 
-    const Blob = Class('Blob').extends(Thing, ({Super, Protected, Private}) => ({
-    	doSomething() {
-    		Super(this).doSomething() // works fine, makeStuff is public.
-    		Protected(this).makeStuff() // works fine, makeStuff is protected and inherited
+  const Blob = Class('Blob').extends(Thing, ({Super, Protected, Private}) => ({
+  	doSomething() {
+  		Super(this).doSomething() // works fine, makeStuff is public.
+  		Protected(this).makeStuff() // works fine, makeStuff is protected and inherited
 
-    		// logs "undefined", private methods are not inherited
-    		console.log(this.stuffImpl)
+  		// logs "undefined", private methods are not inherited
+  		console.log(this.stuffImpl)
 
-    		// try to access it with the Private helper:
-    		Private(this).stuffImpl() // error, can not read property "stuffImpl" of undefined.
-    	},
-    }))
+  		// try to access it with the Private helper:
+  		Private(this).stuffImpl() // error, can not read property "stuffImpl" of undefined.
+  	},
+  }))
 
-    const blob = new Blob()
-    // access public members:
-    blob.doSomething() // it works
+  const blob = new Blob()
+  // access public members:
+  blob.doSomething() // it works
 
-    // can not acecss protected or private members:
-    blob.makeStuff() // error, can not read property "makeStuff" of undefined.
-    blob.stuffImpl() // error, can not read property "stuffImpl" of undefined.
-    ```
+  // can not acecss protected or private members:
+  blob.makeStuff() // error, can not read property "makeStuff" of undefined.
+  blob.stuffImpl() // error, can not read property "stuffImpl" of undefined.
+  ```
 
 #### `npm install lowclass --save`
 
 Lowclass let's us define classes with protected and private data similar to in
 C++ (and similar to some some extent Java):
 
--   `Public` members can be accessed from outside the class.
--   `Protected` members can be accessed in the class and its derived classes.
--   `Private` members can be only accessed within the class.
+- `Public` members can be accessed from outside the class.
+- `Protected` members can be accessed in the class and its derived classes.
+- `Private` members can be only accessed within the class.
 
 But there's an interesting difference (advantage) that lowclass private members
 have over C++ private members: private functionality of a class made with
@@ -220,13 +220,13 @@ contracts.
 
 Lowclass supports
 
--   extending builtins like Array. (see
-    [`tests/extending-builtins.test.js`](./tests/extending-builtins.test.js)).
--   extending native ES6 classes. (see
-    [`tests/extending-native-classes.test.js`](./tests/extending-native-classes.test.js))
--   extending builtins like `HTMLElement` and using the subclasses in native APIs
-    like Custom Elements. (see
-    [`tests/custom-elements.test.js`](./tests/custom-elements.test.js)).
+- extending builtins like Array. (see
+  [`tests/extending-builtins.test.js`](./tests/extending-builtins.test.js)).
+- extending native ES6 classes. (see
+  [`tests/extending-native-classes.test.js`](./tests/extending-native-classes.test.js))
+- extending builtins like `HTMLElement` and using the subclasses in native APIs
+  like Custom Elements. (see
+  [`tests/custom-elements.test.js`](./tests/custom-elements.test.js)).
 
 ## Intro
 
@@ -730,7 +730,7 @@ custom-made class constructor.
 #### Returning an object literal
 
 ```js
-export default Class('Thing', function(Public, Protected, Private, Super) {
+export default Class('Thing', function (Public, Protected, Private, Super) {
 	return {
 		method() {
 			// use any of the helpers inside the class code, as needed, f.e.
@@ -794,7 +794,7 @@ over to lowclass more quickly, or maybe you just like this form more.
 
 ```js
 export default Class('Thing', ({Public, Private}) => {
-	Public.prototype.method = function() {
+	Public.prototype.method = function () {
 		Private(this).baz = 'baz'
 	}
 })
@@ -897,5 +897,5 @@ against lowclass.
 
 ## TODO
 
--   [ ] public/protected/private/super helpers for static members
--   [ ] ability to make classes "final"
+- [ ] public/protected/private/super helpers for static members
+- [ ] ability to make classes "final"
