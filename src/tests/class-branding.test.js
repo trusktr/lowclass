@@ -1,5 +1,5 @@
-import {Class, InvalidAccessError, InvalidSuperAccessError} from '..'
-import Mixin from '../Mixin'
+import {Class, InvalidAccessError, InvalidSuperAccessError} from '../index.js'
+import Mixin from '../Mixin.js'
 
 const test = it
 

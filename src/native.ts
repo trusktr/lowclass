@@ -216,6 +216,7 @@ function newless<T extends Constructor>(constructor: T): FuncLikeCtor<InstanceTy
 						requiresNew = true
 					} else {
 						if (
+							error instanceof Error &&
 							/Illegal constructor/i.test(error.message) &&
 							Object.create(constructor.prototype) instanceof Node
 						) {

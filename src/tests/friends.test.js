@@ -1,5 +1,5 @@
-import {Counter, Incrementor} from './Counter'
-import {Counter2, Incrementor2} from './Counter2'
+import {Counter, Incrementor} from './Counter.js'
+import {Counter2, Incrementor2} from './Counter2.js'
 
 const test = it
 

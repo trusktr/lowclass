@@ -1,5 +1,5 @@
-import Class from '../index'
-import {native} from '../native'
+import Class from '../index.js'
+import {native} from '../native.js'
 
 const test = it
 

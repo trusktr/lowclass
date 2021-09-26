@@ -1,5 +1,5 @@
-import Class from '../index'
-import {native} from '../native'
+import Class from '../index.js'
+import {native} from '../native.js'
 
 describe('Custom Elements', () => {
 	// example of extending HTMLElement for use with customElements.define

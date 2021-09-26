@@ -32,11 +32,11 @@
 		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
 		"serve": "browser-sync start --server ./ --files dist --port 12345"
 	},
-	"dependencies": {},
 	"devDependencies": {
+		"@lume/cli": "^0.6.0",
 		"browser-sync": "^2.26.7",
-		"@lume/cli": "^0.5.5",
-		"prettier": "^2.0.0"
+		"prettier": "^2.0.0",
+		"typescript": "4.4.3"
 	},
 	"repository": {
 		"type": "git",
