@@ -1,6 +1,6 @@
 {
 	"name": "lowclass",
-	"version": "4.9.5",
+	"version": "4.9.6",
 	"description": "JavaScript/TypeScript class inheritance tools.",
 	"author": "Joe Pea <joe@trusktr.io>",
 	"license": "MIT",
