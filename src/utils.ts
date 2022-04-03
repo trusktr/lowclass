@@ -28,7 +28,12 @@ const descriptorDefaults = {
 }
 
 // makes it easier and less verbose to work with descriptors
-export function setDescriptor(obj: Object, key: string, newDescriptor: PropertyDescriptor, inherited = false): void {
+export function setDescriptor<T extends {}>(
+	obj: T,
+	key: keyof T,
+	newDescriptor: PropertyDescriptor,
+	inherited = false,
+): void {
 	let currentDescriptor = inherited ? getInheritedDescriptor(obj, key) : Object.getOwnPropertyDescriptor(obj, key)
 
 	newDescriptor = overrideDescriptor(currentDescriptor, newDescriptor)
@@ -74,7 +79,11 @@ function overrideDescriptor(
 }
 
 // TODO use signature override
-export function propertyIsAccessor(obj: Object | PropertyDescriptor, key?: string, inherited = true): boolean {
+export function propertyIsAccessor<T extends Object | PropertyDescriptor>(
+	obj: T,
+	key?: keyof T,
+	inherited = true,
+): boolean {
 	let result = false
 	let descriptor: PropertyDescriptor | undefined
 
@@ -93,7 +102,7 @@ interface DescriptorWithOwner extends PropertyDescriptor {
 	owner: object
 }
 
-export function getInheritedDescriptor(obj: object, key: string): DescriptorWithOwner | undefined {
+export function getInheritedDescriptor<T extends object>(obj: T, key: keyof T): DescriptorWithOwner | undefined {
 	let currentProto = obj
 	let descriptor
 
@@ -111,12 +120,12 @@ export function getInheritedDescriptor(obj: object, key: string): DescriptorWith
 	return void 0
 }
 
-export function getInheritedPropertyNames(obj: Object): string[] {
+export function getInheritedPropertyNames<T extends object>(obj: T): (keyof T)[] {
 	let currentProto = obj
-	let keys: string[] = []
+	let keys: (keyof T)[] = []
 
 	while (currentProto) {
-		keys = keys.concat(Object.getOwnPropertyNames(currentProto))
+		keys = keys.concat(Object.getOwnPropertyNames(currentProto) as (keyof T)[])
 		currentProto = (currentProto as any).__proto__
 	}
 

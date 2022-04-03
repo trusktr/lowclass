@@ -182,7 +182,7 @@ function newless<T extends Constructor>(constructor: T): FuncLikeCtor<InstanceTy
 
 	var requiresNew = usesClassSyntax ? true : null
 
-	var newlessConstructor = (() =>
+	var newlessConstructor: CtorWithLength = (() =>
 		function (this: any) {
 			// If called with an already valid 'this', preserve that 'this' value
 			// in the super-type's constructor whenever possible. With function
@@ -248,7 +248,7 @@ with 'new' before being defined. The constructor was ${constructor.name}: `,
 				setPrototype(this, returnValue)
 			}
 			return returnValue
-		})()
+		})() as unknown as CtorWithLength
 
 	if (name) {
 		const code = getFunctionBody(newlessConstructor)
@@ -300,3 +300,11 @@ function isSyntaxSupported(example: string, useStrict = true): boolean {
 		return false
 	}
 }
+
+type CtorWithLength = Constructor<
+	object,
+	any[],
+	{
+		length: number
+	}
+>

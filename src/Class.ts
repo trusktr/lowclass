@@ -293,12 +293,12 @@ export function createClassHelper(options?: any) {
 		// extension of Object. f.e. when doing just `Class()` or
 		// `Class('Foo')`
 		else if (!ParentClass && (!definer || (typeof definer !== 'function' && typeof definer !== 'object'))) {
-			let Ctor
+			let Ctor: CtorWithSubclass & Function
 
 			if (nativeNaming && className) Ctor = new Function(`return function ${className}() {}`)()
 			else {
 				// force anonymous even in ES6+
-				Ctor = (() => function () {})()
+				Ctor = (() => function () {})() as unknown as CtorWithSubclass
 
 				if (className) setDescriptor(Ctor, 'name', {value: className})
 			}
@@ -497,7 +497,7 @@ export function createClassHelper(options?: any) {
 
 		const userConstructor = publicPrototype.hasOwnProperty('constructor') ? publicPrototype.constructor : null
 
-		let NewClass = null
+		let NewClass!: CtorWithSubclass & Function
 		let newPrototype = null
 
 		// ES5 version (which seems to be so much better)
@@ -523,7 +523,7 @@ export function createClassHelper(options?: any) {
 					}
 
 					return this
-				})()
+				})() as unknown as CtorWithSubclass
 
 			newPrototype = publicPrototype
 		} else {
@@ -878,3 +878,12 @@ function getSuperHelperObject(instance: any, parentPrototype: any, supers: any) 
 }
 
 export default Class
+
+type CtorWithSubclass = Constructor<
+	object,
+	any[],
+	{
+		subclass: Constructor
+		__proto__: CtorWithSubclass
+	}
+>
