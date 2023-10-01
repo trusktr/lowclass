@@ -7,5 +7,5 @@ export { default as instanceOf } from './instanceOf.js';
 export * from './native.js';
 export * from './utils.js';
 export * from './types.js';
-export const version = '5.0.0';
+export const version = '5.0.1';
 //# sourceMappingURL=index.js.map
