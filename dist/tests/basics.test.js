@@ -1,5 +1,6 @@
 import { Class, InvalidAccessError, InvalidSuperAccessError } from '../index.js';
 import '../native.js';
+import { spy } from 'sinon';
 const test = it;
 describe('basics', () => {
     test('only public members can be read/written from outside code', () => {
@@ -582,7 +583,7 @@ describe('basics', () => {
         }).toThrowError(InvalidAccessError);
     });
     test('valid vs invalid Super access', () => {
-        const verifyDimensionCall = jasmine.createSpy();
+        const verifyDimensionCall = spy();
         const PhysicalObject = Class({
             getDimensions() {
                 expect(this instanceof Piano).toBeTruthy();
@@ -619,7 +620,7 @@ describe('basics', () => {
         }));
         const oboe = new Oboe();
         oboe.testFromInstrumentClass();
-        expect(verifyDimensionCall).toHaveBeenCalled();
+        expect(verifyDimensionCall.called).toBe(true);
         expect(oboe.testFromOboeClass()).toBe('wooo');
     });
     test("there's no recursive problem, using Super helper", () => {

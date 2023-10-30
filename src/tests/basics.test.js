@@ -1,6 +1,6 @@
 import {Class, InvalidAccessError, InvalidSuperAccessError} from '../index.js'
-
 import {native} from '../native.js'
+import {spy} from 'sinon'
 
 const test = it
 
@@ -806,8 +806,7 @@ describe('basics', () => {
 	})
 
 	test('valid vs invalid Super access', () => {
-		//const verifyDimensionCall = jest.fn()
-		const verifyDimensionCall = jasmine.createSpy()
+		const verifyDimensionCall = spy()
 
 		// PhysicalObject implicitly extends from Object (no pun intended!):
 		const PhysicalObject = Class({
@@ -883,7 +882,7 @@ describe('basics', () => {
 		const oboe = new Oboe()
 
 		oboe.testFromInstrumentClass()
-		expect(verifyDimensionCall).toHaveBeenCalled()
+		expect(verifyDimensionCall.called).toBe(true)
 
 		expect(oboe.testFromOboeClass()).toBe('wooo')
 	})

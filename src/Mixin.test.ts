@@ -4,6 +4,12 @@ import Mixin, {HasInstance, MixinResult} from './Mixin.js'
 import instanceOf from './instanceOf.js'
 import {Constructor} from './utils.js'
 
+// TODO move type def to @lume/cli, map @types/jest's `expect` type into the
+// global env.
+declare global {
+	function expect(...args: any[]): any
+}
+
 describe('Mixin', () => {
 	it('Mixin returns a Function', () => {
 		// const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})
