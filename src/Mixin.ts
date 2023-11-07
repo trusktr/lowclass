@@ -1,8 +1,6 @@
 // TODO no any types
 // TODO no @ts-ignore
 
-import Class from './Class.js'
-
 import type {Constructor} from './utils.js'
 
 // export type MixinFunction<T extends Constructor> = (BaseClass: T) => T
@@ -22,7 +20,7 @@ export function Mixin<T extends MixinFunction>(mixinFn: T, DefaultBase?: Constru
 	// @ts-ignore TS v4 introduced a type error
 	mixinFn = Dedupe(mixinFn)
 	// @ts-ignore TS v4 introduced a type error
-	mixinFn = WithDefault(mixinFn, DefaultBase || Class())
+	mixinFn = WithDefault(mixinFn, DefaultBase || class {})
 	mixinFn = ApplyDefault(mixinFn)
 
 	// @ts-ignore

@@ -1,8 +1,3 @@
-// the bread and butter
-export * from './Class.js'
-import Class from './Class.js'
-export default Class
-
 // mix and match your classes!
 export * from './multiple.js'
 export * from './Mixin.js'
