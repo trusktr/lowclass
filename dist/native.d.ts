@@ -1,7 +1,7 @@
 import { Constructor } from './utils.js';
 export { newless as native };
 export default newless;
-declare type FuncLikeCtor<T, S = {}> = {
+type FuncLikeCtor<T, S = {}> = {
     (): T;
     new (): T;
 } & S;

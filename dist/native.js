@@ -1,4 +1,4 @@
-import { getFunctionBody, setDescriptor } from './utils.js';
+import { getFunctionBody, setDescriptor, Constructor } from './utils.js';
 export { newless as native };
 export default newless;
 var supportsSpread = isSyntaxSupported('Object(...[{}])');

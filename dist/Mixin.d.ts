@@ -1,7 +1,7 @@
 import type { Constructor } from './utils.js';
-export declare type MixinFunction = <T extends Constructor<any>>(BaseClass: T) => T;
-export declare type MixinFunctionWithDefault = <T extends Constructor<any>>(BaseClass?: T) => T;
-export declare type MixinResult<TClass extends Constructor, TBase extends Constructor> = Constructor<InstanceType<TClass> & InstanceType<TBase>> & TClass & TBase;
+export type MixinFunction = <T extends Constructor<any>>(BaseClass: T) => T;
+export type MixinFunctionWithDefault = <T extends Constructor<any>>(BaseClass?: T) => T;
+export type MixinResult<TClass extends Constructor, TBase extends Constructor> = Constructor<InstanceType<TClass> & InstanceType<TBase>> & TClass & TBase;
 export declare function Mixin<T extends MixinFunction>(mixinFn: T, DefaultBase?: Constructor): ReturnType<T> & {
     mixin: T;
 };

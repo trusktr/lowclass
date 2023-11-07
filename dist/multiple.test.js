@@ -44,9 +44,7 @@ function test0() {
     assert(r1.hasOwnProperty === Object.prototype.hasOwnProperty);
     assert(Object.getPrototypeOf(r1) === Object.prototype);
     class Foo {
-        constructor() {
-            this.f = false;
-        }
+        f = false;
     }
     const R2 = multiple(Foo);
     const r2 = new R2();
@@ -54,9 +52,7 @@ function test0() {
     assert(Object.getPrototypeOf(r2) === Foo.prototype);
     assert(r2.f === false);
     class Bar {
-        constructor() {
-            this.b = 'asf';
-        }
+        b = 'asf';
     }
     const R3 = multiple(Foo, Bar);
     const r3 = new R3();
@@ -73,9 +69,7 @@ function test0() {
     assert(bf.f === false);
     assert(bf.b === 'asf');
     class Baz {
-        constructor() {
-            this.z = 1;
-        }
+        z = 1;
     }
     const R4 = multiple(Foo, Bar, Baz);
     const r4 = new R4();
@@ -86,20 +80,17 @@ function test0() {
 }
 function test1() {
     class One {
-        constructor() {
-            this.one = 1;
-        }
+        one = 1;
         foo() {
             assert(this.one === 1);
         }
+        var;
         setVar() {
             this.var = 'bright';
         }
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         bar() {
             assert(this.two === 2);
         }
@@ -108,10 +99,7 @@ function test1() {
         }
     }
     class Three extends Two {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
         baz() {
             assert(typeof super.bar === 'function');
             super.bar();
@@ -136,6 +124,7 @@ function test1() {
 }
 function test2() {
     class One {
+        one;
         constructor(arg) {
             this.one = arg;
         }
@@ -144,6 +133,7 @@ function test2() {
         }
     }
     class Two {
+        two;
         constructor(arg) {
             this.two = arg;
         }
@@ -152,6 +142,7 @@ function test2() {
         }
     }
     class Three extends Two {
+        three;
         constructor(arg1, arg2) {
             super(arg1);
             this.three = arg2;
@@ -181,26 +172,19 @@ function test2() {
 }
 function test3() {
     class One {
-        constructor() {
-            this.one = 1;
-        }
+        one = 1;
         foo() {
             assert(this.one === 1);
         }
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         bar() {
             assert(this.two == 2);
         }
     }
     class Three extends Two {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
         baz() {
             super.bar();
             assert(this.three === 3 && this.two === 2);
@@ -214,16 +198,11 @@ function test3() {
         }
     }
     class Lorem {
-        constructor() {
-            this.lo = 'rem';
-        }
+        lo = 'rem';
     }
     {
         class Ipsum extends multiple(FooBar, Lorem) {
-            constructor() {
-                super(...arguments);
-                this.ip = 'sum';
-            }
+            ip = 'sum';
             test() {
                 assert(typeof super.foo === 'function');
                 assert(typeof super.bar === 'function');
@@ -242,10 +221,7 @@ function test3() {
     }
     {
         class Ipsum extends multiple(Lorem, FooBar) {
-            constructor() {
-                super(...arguments);
-                this.ip = 'sum';
-            }
+            ip = 'sum';
             test() {
                 assert(typeof super.foo === 'function');
                 assert(typeof super.bar === 'function');
@@ -265,26 +241,19 @@ function test3() {
 }
 function test4() {
     class One {
-        constructor() {
-            this.one = 1;
-        }
+        one = 1;
         logOne() {
             assert(this.one === 1);
         }
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         logTwo() {
             assert(this.two === 2);
         }
     }
     class Three extends multiple(One, Two) {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
         logThree() {
             assert(this.one === 1);
             assert(this.two === 2);
@@ -296,26 +265,19 @@ function test4() {
     three.logTwo();
     three.logThree();
     class Four {
-        constructor() {
-            this.four = 4;
-        }
+        four = 4;
         logFour() {
             assert(this.four === 4);
         }
     }
     class Five {
-        constructor() {
-            this.five = 5;
-        }
+        five = 5;
         logFive() {
             assert(this.five === 5);
         }
     }
     class Six extends multiple(Four, Five) {
-        constructor() {
-            super(...arguments);
-            this.six = 6;
-        }
+        six = 6;
         logSix() {
             assert(this.four === 4 && this.five === 5 && this.six === 6);
         }
@@ -327,26 +289,19 @@ function test4() {
 }
 function test5() {
     class One {
-        constructor() {
-            this.one = 1;
-        }
+        one = 1;
         logOne() {
             assert(this.one === 1);
         }
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         logTwo() {
             assert(this.two === 2);
         }
     }
     class Three extends multiple(One, Two) {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
         logThree() {
             assert(this.one === 1);
             assert(this.two === 2);
@@ -354,26 +309,19 @@ function test5() {
         }
     }
     class Four {
-        constructor() {
-            this.four = 4;
-        }
+        four = 4;
         logFour() {
             assert(this.four === 4);
         }
     }
     class Five {
-        constructor() {
-            this.five = 5;
-        }
+        five = 5;
         logFive() {
             assert(this.five === 5);
         }
     }
     class Six extends multiple(Four, Five) {
-        constructor() {
-            super(...arguments);
-            this.six = 6;
-        }
+        six = 6;
         logSix() {
             assert(this.four === 4 && this.five === 5 && this.six === 6);
         }
@@ -382,10 +330,7 @@ function test5() {
         }
     }
     class Seven extends multiple(Three, Six) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             console.log(' --------- about to call super');
             super.logSeven();
@@ -407,10 +352,7 @@ function test5() {
     const seven = new Seven();
     seven.logSeven();
     class Seven2 extends multiple(Three, Six) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             assert(this.seven === 7, 'assert this.seven is 7');
             assert(super.one === undefined, `expected ${super.one} to be ${undefined}`);
@@ -442,9 +384,7 @@ function test6() {
     class One {
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         method2() {
             count++;
             assert(this.two === 2, 'two should be 2');
@@ -491,9 +431,7 @@ function test7() {
     class One {
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         method2() {
             ++count;
             assert(this.two === 2, 'two should be 2');
@@ -509,9 +447,9 @@ function test7() {
     class Four {
     }
     class Five extends multiple(Four, Three) {
+        t = new Three();
         constructor() {
             super();
-            this.t = new Three();
             this.t.method3();
         }
         method5() {
@@ -534,26 +472,19 @@ function test7() {
 }
 function testProxySpeed() {
     class One {
-        constructor() {
-            this.one = 1;
-        }
+        one = 1;
         logOne() {
             this.one === 1;
         }
     }
     class Two {
-        constructor() {
-            this.two = 2;
-        }
+        two = 2;
         logTwo() {
             this.two === 2;
         }
     }
     class Three extends multiple(One, Two) {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
         logThree() {
             this.one === 1;
             this.two === 2;
@@ -561,35 +492,25 @@ function testProxySpeed() {
         }
     }
     class Four {
-        constructor() {
-            this.four = 4;
-        }
+        four = 4;
         logFour() {
             this.four === 4;
         }
     }
     class Five {
-        constructor() {
-            this.five = 5;
-        }
+        five = 5;
         logFive() {
             this.five === 5;
         }
     }
     class Six extends multiple(Four, Five) {
-        constructor() {
-            super(...arguments);
-            this.six = 6;
-        }
+        six = 6;
         logSix() {
             this.four === 4 && this.five === 5 && this.six === 6;
         }
     }
     class Seven extends multiple(Three, Six) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             this.one === 1, `expected ${this.one} to be ${1}`;
             this.two === 2, `expected ${this.two} to be ${2}`;
@@ -609,10 +530,7 @@ function testProxySpeed() {
     const seven = new Seven();
     seven.logSeven();
     class Seven2 extends multiple(Three, Six) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             this.seven === 7, 'assert this.seven is 7';
             super.one === undefined, `expected ${super.one} to be ${undefined}`;
@@ -642,10 +560,7 @@ function testProxySpeed() {
 function testMixinSpeed() {
     function OneMixin(Base = Object) {
         return class One extends Base {
-            constructor() {
-                super(...arguments);
-                this.one = 1;
-            }
+            one = 1;
             logOne() {
                 this.one === 1;
             }
@@ -653,10 +568,7 @@ function testMixinSpeed() {
     }
     function TwoMixin(Base = Object) {
         return class Two extends Base {
-            constructor() {
-                super(...arguments);
-                this.two = 2;
-            }
+            two = 2;
             logTwo() {
                 this.two === 2;
             }
@@ -664,10 +576,7 @@ function testMixinSpeed() {
     }
     function ThreeMixin(Base = Object) {
         return class Three extends OneMixin(TwoMixin(Base)) {
-            constructor() {
-                super(...arguments);
-                this.three = 3;
-            }
+            three = 3;
             logThree() {
                 this.one === 1;
                 this.two === 2;
@@ -677,10 +586,7 @@ function testMixinSpeed() {
     }
     function FourMixin(Base = Object) {
         return class Four extends Base {
-            constructor() {
-                super(...arguments);
-                this.four = 4;
-            }
+            four = 4;
             logFour() {
                 this.four === 4;
             }
@@ -688,10 +594,7 @@ function testMixinSpeed() {
     }
     function FiveMixin(Base = Object) {
         return class Five extends Base {
-            constructor() {
-                super(...arguments);
-                this.five = 5;
-            }
+            five = 5;
             logFive() {
                 this.five === 5;
             }
@@ -699,20 +602,14 @@ function testMixinSpeed() {
     }
     function SixMixin(Base = Object) {
         return class Six extends FourMixin(FiveMixin(Base)) {
-            constructor() {
-                super(...arguments);
-                this.six = 6;
-            }
+            six = 6;
             logSix() {
                 this.four === 4 && this.five === 5 && this.six === 6;
             }
         };
     }
     class Seven extends ThreeMixin(SixMixin()) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             this.one === 1, `expected ${this.one} to be ${1}`;
             this.two === 2, `expected ${this.two} to be ${2}`;
@@ -732,10 +629,7 @@ function testMixinSpeed() {
     const seven = new Seven();
     seven.logSeven();
     class Seven2 extends ThreeMixin(SixMixin()) {
-        constructor() {
-            super(...arguments);
-            this.seven = 7;
-        }
+        seven = 7;
         logSeven() {
             this.seven === 7, '.seven is 7';
             super.one === undefined, `expected ${super.one} to be ${undefined}`;
@@ -774,10 +668,7 @@ function testAccessPropFromSubInstanceInMainInstance() {
         }
     }
     class Three extends multiple(One, Two) {
-        constructor() {
-            super(...arguments);
-            this.three = 3;
-        }
+        three = 3;
     }
     new Three().test1();
     new Three().test2();

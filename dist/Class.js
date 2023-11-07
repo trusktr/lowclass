@@ -1,4 +1,4 @@
-import { copyDescriptors, setDefaultStaticDescriptors, setDefaultPrototypeDescriptors, hasPrototype, } from './utils.js';
+import { Constructor, copyDescriptors, setDefaultStaticDescriptors, setDefaultPrototypeDescriptors, hasPrototype, } from './utils.js';
 import { getFunctionBody, setDescriptor, propertyIsAccessor, getInheritedDescriptor, getInheritedPropertyNames, WeakTwoWayMap, } from './utils.js';
 export const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())];
 const publicProtoToProtectedProto = new WeakMap();

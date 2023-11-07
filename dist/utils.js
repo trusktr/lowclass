@@ -1,7 +1,5 @@
 export class WeakTwoWayMap {
-    constructor() {
-        this.m = new WeakMap();
-    }
+    m = new WeakMap();
     set(a, b) {
         this.m.set(a, b);
         this.m.set(b, a);

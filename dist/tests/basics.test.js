@@ -1,5 +1,5 @@
 import { Class, InvalidAccessError, InvalidSuperAccessError } from '../index.js';
-import '../native.js';
+import { native } from '../native.js';
 import { spy } from 'sinon';
 const test = it;
 describe('basics', () => {

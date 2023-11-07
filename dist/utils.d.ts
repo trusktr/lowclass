@@ -1,5 +1,5 @@
 export declare class WeakTwoWayMap {
-    m: WeakMap<object, any>;
+    m: WeakMap<WeakKey, any>;
     set(a: Object, b: Object): void;
     get(item: Object): any;
     has(item: Object): boolean;
@@ -13,7 +13,7 @@ interface DescriptorWithOwner extends PropertyDescriptor {
 }
 export declare function getInheritedDescriptor<T extends object>(obj: T, key: keyof T): DescriptorWithOwner | undefined;
 export declare function getInheritedPropertyNames<T extends object>(obj: T): (keyof T)[];
-export declare type Constructor<T = object, A extends any[] = any[], Static = {}> = (new (...a: A) => T) & Static;
+export type Constructor<T = object, A extends any[] = any[], Static = {}> = (new (...a: A) => T) & Static;
 export declare function Constructor<T = object, Static = {}>(Ctor: Constructor<any>): Constructor<T> & Static;
 export declare function hasPrototype(obj: any, proto: any): boolean;
 export declare function copyDescriptors(source: Object, destination: Object, mod?: any): void;

@@ -1,6 +1,6 @@
 // TODO no @ts-ignore comments
 
-import Mixin, {HasInstance, MixinResult} from './Mixin.js'
+import Mixin, {HasInstance, type MixinResult} from './Mixin.js'
 import instanceOf from './instanceOf.js'
 import {Constructor} from './utils.js'
 

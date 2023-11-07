@@ -1,5 +1,5 @@
 import Class from '../index.js';
-import '../native.js';
+import { native } from '../native.js';
 const test = it;
 describe('various forms of writing classes', () => {
     test('object literal', () => {
