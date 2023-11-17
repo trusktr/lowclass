@@ -14,4 +14,4 @@ export * from './utils.js'
 
 export * from './types.js'
 
-export const version = '6.0.0'
+export const version = '7.0.0'
