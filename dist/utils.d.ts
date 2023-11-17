@@ -14,7 +14,11 @@ interface DescriptorWithOwner extends PropertyDescriptor {
 export declare function getInheritedDescriptor<T extends object>(obj: T, key: keyof T): DescriptorWithOwner | undefined;
 export declare function getInheritedPropertyNames<T extends object>(obj: T): (keyof T)[];
 export type Constructor<T = object, A extends any[] = any[], Static = {}> = (new (...a: A) => T) & Static;
-export declare function Constructor<T = object, Static = {}>(Ctor: Constructor<any>): Constructor<T> & Static;
+export declare function Constructor<T = object, Static = {}>(Ctor: AnyConstructor<any>): Constructor<T> & Static;
+export type AbstractConstructor<T = object, A extends any[] = any[], Static = {}> = (abstract new (...a: A) => T) & Static;
+export declare function AbstractConstructor<T = object, Static = {}>(Ctor: AnyConstructor<any>): AbstractConstructor<T> & Static;
+export type AnyConstructor<T = object, A extends any[] = any[], Static = {}> = Constructor<T, A, Static> | AbstractConstructor<T, A, Static>;
+export declare function AnyConstructor<T = object, Static = {}>(Ctor: AnyConstructor<any>): AnyConstructor<T> & Static;
 export declare function hasPrototype(obj: any, proto: any): boolean;
 export declare function copyDescriptors(source: Object, destination: Object, mod?: any): void;
 export declare function setDefaultPrototypeDescriptors(prototype: Object, { defaultClassDescriptor: { writable, enumerable, configurable } }: any): void;

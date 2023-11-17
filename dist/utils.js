@@ -94,6 +94,12 @@ export function getInheritedPropertyNames(obj) {
 export function Constructor(Ctor) {
     return Ctor;
 }
+export function AbstractConstructor(Ctor) {
+    return Ctor;
+}
+export function AnyConstructor(Ctor) {
+    return Ctor;
+}
 export function hasPrototype(obj, proto) {
     let currentProto = obj.__proto__;
     do {
