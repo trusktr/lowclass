@@ -8,6 +8,16 @@ type MultipleOptions = {
     method: ImplementationMethod;
 };
 export declare function makeMultipleHelper(options?: MultipleOptions): <T extends (new (...a: any[]) => object)[]>(...classes: T) => CombinedClasses<T>;
+/**
+ * Mixes the given classes into a single class. This is useful for multiple
+ * inheritance.
+ *
+ * @example
+ * class Foo {}
+ * class Bar {}
+ * class Baz {}
+ * class MyClass extends multiple(Foo, Bar, Baz) {}
+ */
 export declare const multiple: <T extends (new (...a: any[]) => object)[]>(...classes: T) => CombinedClasses<T>;
 type Shift<T extends any[]> = ((...args: T) => any) extends (_: any, ...args: infer R) => any ? R : never;
 type MixedArray<T extends Constructor<any>[]> = _MixedArray<T, {}>;

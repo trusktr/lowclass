@@ -1,3 +1,4 @@
+// TODO no any
 export class WeakTwoWayMap {
     m = new WeakMap();
     set(a, b) {
@@ -11,16 +12,18 @@ export class WeakTwoWayMap {
         return this.m.has(item);
     }
 }
+// assumes the function opening, body, and closing are on separate lines
 export function getFunctionBody(fn) {
     const code = fn.toString().split('\n');
-    code.shift();
-    code.pop();
+    code.shift(); // remove opening line (function() {)
+    code.pop(); // remove closing line (})
     return code.join('\n');
 }
 const descriptorDefaults = {
     enumerable: true,
     configurable: true,
 };
+// makes it easier and less verbose to work with descriptors
 export function setDescriptor(obj, key, newDescriptor, inherited = false) {
     let currentDescriptor = inherited ? getInheritedDescriptor(obj, key) : Object.getOwnPropertyDescriptor(obj, key);
     newDescriptor = overrideDescriptor(currentDescriptor, newDescriptor);
@@ -54,6 +57,7 @@ function overrideDescriptor(oldDescriptor, newDescriptor) {
     }
     return { ...descriptorDefaults, ...oldDescriptor, ...newDescriptor };
 }
+// TODO use signature override
 export function propertyIsAccessor(obj, key, inherited = true) {
     let result = false;
     let descriptor;
@@ -88,18 +92,38 @@ export function getInheritedPropertyNames(obj) {
         keys = keys.concat(Object.getOwnPropertyNames(currentProto));
         currentProto = currentProto.__proto__;
     }
+    // remove duplicates
     keys = Array.from(new Set(keys));
     return keys;
 }
+/**
+ * Cast any constructor type (abstract or not) into a specific Constructor type.
+ * Useful for forcing type checks inside of mixins for example. This is unsafe:
+ * you can incorrectly cast one constructor into an unrelated constructor type,
+ * so use with care.
+ */
 export function Constructor(Ctor) {
     return Ctor;
 }
+/**
+ * Cast any constructor type (abstract or not) into a specific
+ * AbstractConstructor type. Useful for forcing type checks inside of mixins
+ * for example. This is unsafe: you can incorrectly cast one constructor into an
+ * unrelated constructor type, so use with care.
+ */
 export function AbstractConstructor(Ctor) {
     return Ctor;
 }
+/**
+ * Cast any constructor type (abstract or not) into a specific
+ * AnyConstructor type. Useful for forcing type checks inside of mixins
+ * for example. This is unsafe: you can incorrectly cast one constructor into an
+ * unrelated constructor type, so use with care.
+ */
 export function AnyConstructor(Ctor) {
     return Ctor;
 }
+// check if an object has the given prototype in its chain
 export function hasPrototype(obj, proto) {
     let currentProto = obj.__proto__;
     do {
@@ -109,6 +133,7 @@ export function hasPrototype(obj, proto) {
     } while (currentProto);
     return false;
 }
+// copy all properties (as descriptors) from source to destination
 export function copyDescriptors(source, destination, mod) {
     const props = Object.getOwnPropertyNames(source);
     let i = props.length;
@@ -125,9 +150,11 @@ export function setDefaultPrototypeDescriptors(prototype, { defaultClassDescript
     let descriptor;
     for (const key in descriptors) {
         descriptor = descriptors[key];
+        // regular value
         if ('value' in descriptor || 'writable' in descriptor) {
             descriptor.writable = writable;
         }
+        // accessor or regular value
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
     }
@@ -142,9 +169,11 @@ export function setDefaultStaticDescriptors(Ctor, { defaultClassDescriptor: { wr
             continue;
         }
         descriptor = descriptors[key];
+        // regular value
         if ('value' in descriptor || 'writable' in descriptor) {
             descriptor.writable = writable;
         }
+        // accessor or regular value
         descriptor.enumerable = enumerable;
         descriptor.configurable = configurable;
     }

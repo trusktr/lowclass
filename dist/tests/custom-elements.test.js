@@ -1,7 +1,10 @@
 import Class from '../index.js';
 import { native } from '../native.js';
 describe('Custom Elements', () => {
+    // example of extending HTMLElement for use with customElements.define
+    // (Custom Elements)
     it('works with custom elements', () => {
+        // full example, wraps builting HTMLElement class with the native helper
         {
             const MyEL = Class().extends(native(HTMLElement), ({ Super }) => ({
                 static: {
@@ -10,7 +13,10 @@ describe('Custom Elements', () => {
                 connected: false,
                 disconnected: true,
                 constructor() {
+                    // return is needed for it to work
                     return Super(this).constructor();
+                    // native super works too
+                    //return super.constructor()
                 },
                 connectedCallback() {
                     this.connected = true;
@@ -35,10 +41,22 @@ describe('Custom Elements', () => {
             expect(el.connected).toBe(false);
             expect(el.disconnected).toBe(true);
         }
+        // other ways to do it too:
+        // with Reflect.construct and builtin HTMLElement, no native helper.
+        // The native helper uses Reflect.construct internally to achieve a
+        // similar effect.
         {
             const MyEl = Class().extends(window.HTMLElement, ({ Super }) => ({
                 constructor() {
+                    // Reflect.construct is needed to be used manually if we
+                    // don't use the native helper
                     return Reflect.construct(Super(this).constructor, [], this.constructor);
+                    // using native super would work here too
+                    //return Reflect.construct(super.constructor, [], this.constructor)
+                    // we could also construct HTMLElement directly
+                    //return Reflect.construct(HTMLElement, [], this.constructor)
+                    // don't use new.target, it doesn't work (for now at least)
+                    //return Reflect.construct(super.constructor, [], new.target)
                 },
                 connectedCallback() {
                     this.connected = true;
@@ -50,6 +68,7 @@ describe('Custom Elements', () => {
             expect(el.connected).toBe(true);
             document.body.removeChild(el);
         }
+        // extending a Custom Elements class.
         {
             const MyEl = Class().extends(native(HTMLElement), {
                 constructor() {
@@ -74,6 +93,8 @@ describe('Custom Elements', () => {
             expect(el.connected).toBe(true);
             document.body.removeChild(el);
         }
+        // When using `Reflect.construct`, use `this.constructor` in place of
+        // `new.target`
         {
             const MyEl = Class().extends(native(HTMLElement), {
                 constructor() {
@@ -98,6 +119,8 @@ describe('Custom Elements', () => {
             expect(el.connected).toBe(true);
             document.body.removeChild(el);
         }
+        // if you provide your own classes, you can do it any way you want,
+        // including using Reflect.construct with new.target
         {
             const MyEl = Class(({ Protected }) => class extends HTMLElement {
                 constructor() {
@@ -109,6 +132,7 @@ describe('Custom Elements', () => {
                 getProtectedMember() {
                     return Protected(this).connected;
                 }
+                // define initial protected values
                 static protected() {
                     return {
                         connected: false,

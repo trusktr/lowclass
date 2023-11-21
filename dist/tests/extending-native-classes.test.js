@@ -11,6 +11,7 @@ describe('extending native classes', () => {
                 return this.message;
             }
         }
+        // TODO auto-detect `class`es
         const Bar = Class().extends(native(Foo), ({ Super }) => ({
             constructor(msg) {
                 Super(this).constructor(msg);

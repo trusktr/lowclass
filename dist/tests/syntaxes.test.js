@@ -1,3 +1,4 @@
+// various forms of writing classes ("syntaxes")
 import Class from '../index.js';
 import { native } from '../native.js';
 const test = it;
@@ -237,6 +238,35 @@ describe('various forms of writing classes', () => {
         expect(bar instanceof Foo).toBeTruthy();
         expect(bar instanceof Bar).toBeTruthy();
         expect(typeof bar.method).toBe('function');
+        // TODO these doesn't work yet, but they should so that it is easy to work with existing code bases {
+        //Foo = class {}
+        //Foo.subclass = Class
+        //Bar = Foo.subclass({
+        //method() {}
+        //})
+        //bar = new Bar
+        //expect( bar instanceof Foo ).toBeTruthy()
+        //expect( bar instanceof Bar ).toBeTruthy()
+        //expect( typeof bar.method ).toBe( 'function' )
+        //Foo = native( class {} )
+        //Foo.subclass = Class
+        //Bar = Foo.subclass({
+        //method() {}
+        //})
+        //bar = new Bar
+        //expect( bar instanceof Foo ).toBeTruthy()
+        //expect( bar instanceof Bar ).toBeTruthy()
+        //expect( typeof bar.method ).toBe( 'function' )
+        //Foo = Class( () => class {} )
+        //Foo.subclass = Class
+        //Bar = Foo.subclass({
+        //method() {}
+        //})
+        //bar = new Bar
+        //expect( bar instanceof Foo ).toBeTruthy()
+        //expect( bar instanceof Bar ).toBeTruthy()
+        //expect( typeof bar.method ).toBe( 'function' )
+        // }
     });
 });
 //# sourceMappingURL=syntaxes.test.js.map

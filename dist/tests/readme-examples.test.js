@@ -2,9 +2,12 @@ import Class from '../index.js';
 const test = it;
 describe('README examples', () => {
     test('use a real protected member instead of the underscore convention, ES2015 classes', () => {
+        // an alias, which semantically more meaningful when wrapping a native
+        // `class` that already contains the "class" keyword.
         const protect = Class;
         const Thing = protect(({ Protected }) => class {
             constructor() {
+                // stop using underscore and make it truly protected:
                 Protected(this).protectedProperty = 'yoohoo';
             }
             someMethod() {
@@ -13,9 +16,11 @@ describe('README examples', () => {
         });
         const t = new Thing();
         expect(t.someMethod()).toBe('yoohoo');
+        // the value is not publicly accessible!
         expect(t.protectedProperty).toBe(undefined);
         const Something = protect(({ Protected }) => class extends Thing {
             otherMethod() {
+                // access the inherited actually-protected member
                 return Protected(this).protectedProperty;
             }
         });
@@ -24,6 +29,8 @@ describe('README examples', () => {
         expect(s.otherMethod()).toBe('yoohoo');
     });
     test('use a real protected member instead of the underscore convention, ES5 classes', () => {
+        // an alias, which semantically more meaningful when wrapping a native
+        // `class` that already contains the "class" keyword.
         const protect = Class;
         const Thing = protect(({ Protected }) => {
             function Thing() {
@@ -39,6 +46,7 @@ describe('README examples', () => {
         });
         const t = new Thing();
         expect(t.someMethod()).toBe('yoohoo');
+        // the value is not publicly accessible!
         expect(t.protectedProperty).toBe(undefined);
         const Something = protect(({ Protected }) => {
             function Something() {
@@ -48,6 +56,7 @@ describe('README examples', () => {
                 __proto__: Thing.prototype,
                 constructor: Something,
                 otherMethod() {
+                    // access the inherited actually-protected member
                     return Protected(this).protectedProperty;
                 },
             };
@@ -104,6 +113,7 @@ describe('README examples', () => {
     test('private inheritance', () => {
         const Counter = Class(({ Private }) => ({
             private: {
+                // this is a prototype prop, the initial value will be inherited by subclasses
                 count: 0,
                 increment() {
                     this.count++;
@@ -134,6 +144,9 @@ describe('README examples', () => {
         expect(doubleCounter.tick()).toBe(1);
         expect(doubleCounter.doubleTick()).toBe(4);
         expect(doubleCounter.tick()).toBe(2);
+        // There's a private `counter` member for the Counter class, and there's a
+        // separate private `counter` member for the `DoubleCounter` class (the
+        // initial value inherited from `Counter`):
         expect(doubleCounter.getDoubleCountValue()).not.toBe(counter.getCountValue());
         expect(doubleCounter.getCountValue()).toBe(2);
         expect(doubleCounter.getDoubleCountValue()).toBe(4);

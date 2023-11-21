@@ -6,13 +6,14 @@ function runTests() {
     log('testing...');
     test0();
     test1();
-    test2;
+    test2; // TODO, constructor args
     test3();
     test4();
     test5();
     test6();
     test7();
     testAccessPropFromSubInstanceInMainInstance();
+    // time the Proxy-based version
     log('testing speed of Proxy version...');
     const start1 = performance.now();
     for (let i = 0; i < 10000; i++)
@@ -20,6 +21,7 @@ function runTests() {
     const end1 = performance.now();
     const totalTime1 = end1 - start1;
     log(`...done. Total time for Proxy version: ${totalTime1}ms`);
+    // time the class-factory-mixin-based version
     log('testing speed of class-factory-mixin version...');
     const start2 = performance.now();
     for (let i = 0; i < 10000; i++)
@@ -95,7 +97,11 @@ function test1() {
             assert(this.two === 2);
         }
         readVar() {
-            assert(this.var === 'bright');
+            // this is generally not allowed by the type system, siblings
+            // classes don't magically know about each other (Two does not know
+            // about One because Two does not inherit from One), but this proves
+            // that the inheritance works in like in plain JS.
+            assert(this.var === 'bright'); // should be "bright"
         }
     }
     class Three extends Two {
@@ -114,7 +120,9 @@ function test1() {
         }
     }
     const f = new FooBar();
+    // this shows that the modifications to `this` by each constructor worked:
     assert(f.one === 1 && f.two === 2 && f.three === 3);
+    // all methods work:
     f.foo();
     f.bar();
     f.baz();
@@ -123,6 +131,7 @@ function test1() {
     f.readVar();
 }
 function test2() {
+    // test constructor args
     class One {
         one;
         constructor(arg) {
@@ -156,6 +165,16 @@ function test2() {
     class FooBar extends multiple(Three, One) {
         constructor(..._args) {
             super();
+            // TODO ability to call individual constructors with specific args.
+            // call each constructor. We can pas specific args to each constructor if we like.
+            //
+            // XXX The following is not allowed with ES6 classes, class constructors are not callable. :[ How to solve?
+            // One.call(this, ...args)
+            // Three.call(this, ...args)
+            //
+            // XXX Solved with the callSuperConstructor helper.
+            // ;(this as any).callSuperConstructor(One, args[0])
+            // ;(this as any).callSuperConstructor(Three, args[1], args[2])
         }
         yeah() {
             assert(this.one === 1 && this.two === 2 && this.three === 3);
@@ -164,7 +183,9 @@ function test2() {
         }
     }
     const f = new FooBar(4, 5, 6);
+    // this shows that the modifications to `this` by each constructor worked:
     assert(f.one === 4 && f.two === 5 && f.three === 6);
+    // all methods work:
     f.foo();
     f.bar();
     f.baz();
@@ -326,11 +347,13 @@ function test5() {
             assert(this.four === 4 && this.five === 5 && this.six === 6);
         }
         logSeven() {
+            // crap, look at the subclass below, it has an error. :(
             console.log(' --------- yeaaaaaaaaaaaaaaaaaaaaah');
         }
     }
     class Seven extends multiple(Three, Six) {
         seven = 7;
+        // @ts-ignore
         logSeven() {
             console.log(' --------- about to call super');
             super.logSeven();
@@ -353,8 +376,12 @@ function test5() {
     seven.logSeven();
     class Seven2 extends multiple(Three, Six) {
         seven = 7;
+        // @ts-ignore
         logSeven() {
             assert(this.seven === 7, 'assert this.seven is 7');
+            // super property access is just like with normal property access:
+            // because they don't exist on the prototype, the super access
+            // returns undefined.
             assert(super.one === undefined, `expected ${super.one} to be ${undefined}`);
             assert(super.two === undefined, `expected ${super.two} to be ${undefined}`);
             assert(super.three === undefined, `expected ${super.three} to be ${undefined}`);
@@ -371,6 +398,7 @@ function test5() {
     }
     const seven2 = new Seven2();
     seven2.logSeven();
+    // check that the `in` operator works
     assert('one' in seven2);
     assert('two' in seven2);
     assert('three' in seven2);
@@ -442,11 +470,16 @@ function test7() {
             this.method2();
         }
     }
+    // this worked before, there were no problems with the assertion in method2
     const three = new Three();
     three.method3();
     class Four {
     }
     class Five extends multiple(Four, Three) {
+        // The problem started here, because Three was instantiated inside of Five's
+        // constructor during instantiation of Seven, so the `new Three` and
+        // it's underlying `new Two` were treated as if they were sub-instances of
+        // Seven instead of Five, which wasn't what we wanted, so property lookups didn't work right.
         t = new Three();
         constructor() {
             super();
@@ -457,8 +490,10 @@ function test7() {
             this.t.method3();
         }
     }
+    // This worked before, the assertion in method2 was fine at this point
     const five = new Five();
     five.method5();
+    // we needed to make one more layer of multiple inheritance for the problem to become apparent.
     class Six {
     }
     class Seven extends multiple(Six, Five) {
@@ -466,6 +501,9 @@ function test7() {
             this.method5();
         }
     }
+    // this was breaking, the assertion in the inherited method2 was failing,
+    // because the `Two` instance got inserted into the `instances` array for
+    // the Seven instance, instead of for the Three instance.
     const s = new Seven();
     s.method7();
     assert(count === 7, 'method2 should be called 7 times');
@@ -533,6 +571,9 @@ function testProxySpeed() {
         seven = 7;
         logSeven() {
             this.seven === 7, 'assert this.seven is 7';
+            // super property access is just like with normal property access:
+            // because they don't exist on the prototype, the super access
+            // returns undefined.
             super.one === undefined, `expected ${super.one} to be ${undefined}`;
             super.two === undefined, `expected ${super.two} to be ${undefined}`;
             super.three === undefined, `expected ${super.three} to be ${undefined}`;
@@ -549,6 +590,7 @@ function testProxySpeed() {
     }
     const seven2 = new Seven2();
     seven2.logSeven();
+    // check that the `in` operator works
     'one' in seven2;
     'two' in seven2;
     'three' in seven2;
@@ -632,6 +674,9 @@ function testMixinSpeed() {
         seven = 7;
         logSeven() {
             this.seven === 7, '.seven is 7';
+            // super property access is just like with normal property access:
+            // because they don't exist on the prototype, the super access
+            // returns undefined.
             super.one === undefined, `expected ${super.one} to be ${undefined}`;
             super.two === undefined, `expected ${super.two} to be ${undefined}`;
             super.three === undefined, `expected ${super.three} to be ${undefined}`;
@@ -648,6 +693,7 @@ function testMixinSpeed() {
     }
     const seven2 = new Seven2();
     seven2.logSeven();
+    // check that the `in` operator works
     'one' in seven2;
     'two' in seven2;
     'three' in seven2;
@@ -659,11 +705,13 @@ function testMixinSpeed() {
 function testAccessPropFromSubInstanceInMainInstance() {
     class One {
         test1() {
+            // @ts-ignore
             assert(this.three === 3);
         }
     }
     class Two {
         test2() {
+            // @ts-ignore
             assert(this.three === 3);
         }
     }

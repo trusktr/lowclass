@@ -1,3 +1,5 @@
+// this shows the difference between our version of newless and the original
+// (see ./native.js)
 import { native } from './native.js';
 const test = it;
 describe('native helper (newless)', () => {

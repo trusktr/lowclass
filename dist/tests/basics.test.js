@@ -102,16 +102,18 @@ describe('basics', () => {
                 public: {
                     foo: function talk() {
                         const dog = new Dog();
+                        // like in C++, accessing the private variable of a child class does not work.
                         expect(Private(dog).sound === undefined).toBeTruthy();
+                        // like in C++, we can only access the private members associated with the class that we are currently in:
                         expect(Private(dog).bar === 'BAR').toBeTruthy();
                         Private(dog).sound = 'Awoooo!';
                         dog.verifySound();
                         dog.changeSound();
                         expect(Private(dog).sound === 'Awoooo!').toBeTruthy();
                         Private(dog).bar = 'of soap';
-                        dog.checkBar();
+                        dog.checkBar(); // dog's is still "BAR"
                         Private(this).bar = 'of soap';
-                        dog.checkBar();
+                        dog.checkBar(); // dog's is still "BAR"
                         dog.exposePrivate();
                         expect(Private(dog) !== dogPrivate).toBeTruthy();
                         expect(Private(this) !== dogPrivate).toBeTruthy();
@@ -133,8 +135,11 @@ describe('basics', () => {
                 Private(this).sound = 'grrr!';
             };
             Public.prototype.checkBar = function () {
+                // the private instance for the Dog class is not the same instance a for the Animal class
                 expect(Private(this) !== AnimalPrivate(this)).toBeTruthy();
+                // private bar was inherited, but the instance is still private
                 expect(Private(this).bar === 'BAR').toBeTruthy();
+                // and therefore this value is different, because it's a different instance
                 expect(AnimalPrivate(this).bar === 'of soap').toBeTruthy();
             };
             Public.prototype.exposePrivate = function () {
@@ -156,7 +161,10 @@ describe('basics', () => {
         const Dog = Animal.subclass(function Dog({ Public, Private }) {
             Private.prototype.sound = 'Woof!';
             Public.prototype.foo = function () {
-                this.changeBar();
+                // we should not be able to access Animal's private bar property
+                this.changeBar(); // changed Animal's private bar property
+                // 'BAR' is inherited, and is unique to Dog code, so the value is
+                // not 'hokey pokey'
                 expect(Private(this).bar === 'BAR').toBeTruthy();
                 expect(this.bar === undefined).toBeTruthy();
             };
@@ -241,6 +249,7 @@ describe('basics', () => {
                     publicAccesses.push(Public(this));
                     protectedAccesses.push(Protected(this));
                     privateAccesses.push(Private(this));
+                    // this is calling SomeClass.privateMethod in the scope of SomeClass
                     Private(this).privateMethod();
                 },
             },
@@ -301,9 +310,28 @@ describe('basics', () => {
             },
             private: {
                 privateMethod() {
+                    // Private Inheritance!
+                    //
+                    // This is calling SomeClass.privateMethod in the scope of
+                    // SubClass, so any operations on private members will be
+                    // on the private members of SubClass (members which have
+                    // been in herited from SomeClass).
                     Super(this).privateMethod();
+                    // This helps explain the magic regarding Private Inheritance
+                    //
+                    // this proves that private functionality works like
+                    // `private` in C++, except that functionality can be
+                    // inherited, and the inherited functionality operates on
+                    // the private data of the class that initiated the method
+                    // call (in this case SubClass initiated the call to
+                    // SomeClass.privateMethod with Super(this).privateMethod(), so if
+                    // SomeClass.privateMethod modifies any private data, it
+                    // will modify the data associated with SubClass, not
+                    // SomeClass).
                     expect(this).toBe(SomeClassPrivate(this));
                     expect(this).not.toBe(someClassPrivateInstance);
+                    // (Just in case you didn't realize yet, `this` is
+                    // equivalent to `Private(this)` in a private method)
                     expect(this).toBe(Private(this));
                 },
             },
@@ -315,7 +343,19 @@ describe('basics', () => {
         expect(privateAccesses.length === 4).toBeTruthy();
         expect(publicAccesses.every(instance => instance === subClassPublicInstance)).toBeTruthy();
         expect(protectedAccesses.every(instance => instance === subClassProtectedInstance)).toBeTruthy();
+        // this is where things diverge from the previous baseclass test,
+        // giving you a hint at how Private Inheritance works
+        //
+        // the first time SomeClass.privateMethod is called, it is called in
+        // the scope of SomeClass, so Private(this) in that method refers to
+        // the private members of SomeClass.
         privateAccesses.slice(0, 3).forEach(instance => expect(instance).toBe(someClassPrivateInstance));
+        //
+        // and the second time SomeClass.privateMethod is called, it is called
+        // in the scope of SubClass (as Super(this).privateMethod()) so in this
+        // case Private(this) in that method refers to the private members of
+        // SubClass, and if the method modifies any data, it will modify data
+        // associated with SubClass, not SomeClass)
         expect(privateAccesses[3] === subClassPrivateInstance);
         publicAccesses.length = 0;
         protectedAccesses.length = 0;
@@ -344,18 +384,25 @@ describe('basics', () => {
                 Private(this).thinkAgain('yeaaaaah');
             },
             private: {
+                // Thought you knew private members? Think again!
                 thinkAgain(value) {
+                    // code re-use, but modifies data of Bar class, not Foo class
                     Super(this).think(value);
                 },
             },
         }));
         const b = new Bar();
+        // shows that the initial private value of `thought` in Bar is
+        // inherited from Foo
         expect(b.fooThought()).toBe('weeeee');
         expect(b.barThought()).toBe('weeeee');
         b.modifyPrivateDataInFoo();
         b.modifyPrivateDataInBar();
+        // the private member in Foo hasn't changed:
         expect(b.fooThought()).toBe('hmmmmm');
+        // but the private member in Bar has:
         expect(b.barThought()).toBe('yeaaaaah');
+        // native `super` works too:
         const Baz = Class().extends(Bar, ({ Super }) => ({
             private: {
                 think() {
@@ -368,11 +415,14 @@ describe('basics', () => {
         expect(baz.barThought()).toBe('weeeee');
         baz.modifyPrivateDataInFoo();
         baz.modifyPrivateDataInBar();
+        // oh yes! This is great!
         expect(baz.fooThought()).toBe('hmmmmm');
         expect(baz.barThought()).toBe('yeaaaaah');
     });
     test('double check: super spaghetti soup works', () => {
+        // I like super spaghetti soup.
         const SomeClass = Class(({ Protected, Private }) => ({
+            // default access is public, like C++ structs
             publicMethod() {
                 Protected(this).protectedMethod();
             },
@@ -432,6 +482,7 @@ describe('basics', () => {
         expect(o.begin === undefined).toBeTruthy();
     });
     test('static members and static inheritance', () => {
+        // only public access for static members for now (TODO protected/private)
         const Car = Class({
             wheels: [1, 2, 3, 4],
             static: {
@@ -445,19 +496,28 @@ describe('basics', () => {
         const Buggy = Class().extends(Car);
         const buggy = new Car();
         expect(Car.isCar(buggy)).toBeTruthy();
+        // inheritance
         const DuneBuggy = Class().extends(Buggy);
         expect(DuneBuggy.isCar(buggy)).toBe(true);
     });
     test("implicitly extending Object doesn't inherit static members, like ES6 classes", () => {
+        // extends Object by default, but doesn't inherit static features,
+        // similar to ES6 `class {}`
         const Lorem = Class();
         const l = new Lorem();
+        // we have Object prototype methods
         expect(l instanceof Object && typeof l.hasOwnProperty === 'function').toBeTruthy();
+        // but not static methods
         expect(typeof Lorem.create === 'undefined').toBeTruthy();
     });
     test('explicitly extending Object inherits static members, like ES6 classes', () => {
+        // extending Object directly inherits static features, similar to
+        // `class extends Object {}`
         const Lorem = Class().extends(Object);
         const l = new Lorem();
+        // we have Object prototype methods
         expect(l instanceof Object && typeof l.hasOwnProperty === 'function').toBeTruthy();
+        // and static methods
         expect(typeof Lorem.create === 'function').toBeTruthy();
     });
     test('make sure generated constructor has same `.length` as the supplied constructor', () => {
@@ -467,6 +527,8 @@ describe('basics', () => {
         expect(Foo.length === 4).toBeTruthy();
     });
     test("make sure calling a super method that isn't on the direct parent class works", () => {
+        // (f.e. a grand parent method will be called if the parent class doesn't
+        // have the method)
         const Foo = Class({
             method() {
                 return 'it works';
@@ -584,8 +646,10 @@ describe('basics', () => {
     });
     test('valid vs invalid Super access', () => {
         const verifyDimensionCall = spy();
+        // PhysicalObject implicitly extends from Object (no pun intended!):
         const PhysicalObject = Class({
             getDimensions() {
+                // see below
                 expect(this instanceof Piano).toBeTruthy();
                 verifyDimensionCall();
             },
@@ -597,24 +661,43 @@ describe('basics', () => {
             },
             testFromInstrumentClass() {
                 const piano = new Piano();
+                // This Super call works because piano is instance of
+                // Instrument, but the Super will be relative to this class
+                // (Instrument). Because Instrument inherits from
+                // PhysicalObject, calling `Super(piano)` will give you access
+                // to PhysicalObject properties and methods with piano as
+                // context.
+                //
+                // Who knows, there might be some interesting use case for
+                // being able to call super on some other instance,
+                // something that we can't do with native `super`, and this
+                // doesn't break the protected or private API access
+                // contracts.
+                //
                 expect(Super(piano).makeSound).toBe(undefined);
                 Super(piano).getDimensions();
+                // Do you want a super piano?
             },
         }));
         const Piano = Class().extends(Instrument, {
-            sound: 'ping',
+            sound: 'ping', // how do you describe piano sound?
         });
         const Oboe = Class().extends(Instrument, ({ Super }) => ({
             sound: 'wooo',
             testFromOboeClass() {
                 const piano = new Piano();
                 expect(() => {
+                    // fails because piano isn't an instance of Oboe, so there
+                    // isn't any set of super props/methods for piano based on
+                    // the scope of the Oboe class.
                     Super(piano).makeSound();
                 }).toThrowError(InvalidSuperAccessError);
+                // wish I had a super piano.
                 let sound;
                 expect(() => {
                     sound = Super(this).makeSound();
                 }).not.toThrow();
+                // Oboes are already super though!
                 return sound;
             },
         }));
@@ -623,6 +706,8 @@ describe('basics', () => {
         expect(verifyDimensionCall.called).toBe(true);
         expect(oboe.testFromOboeClass()).toBe('wooo');
     });
+    // Based on an example that's been floating around, f.e.  at
+    // https://stackoverflow.com/a/11199220/454780 and other places
     test("there's no recursive problem, using Super helper", () => {
         const A = Class({
             foo: function (n) {
@@ -644,6 +729,8 @@ describe('basics', () => {
         var c = new C();
         expect(c.foo(0) === 3).toBeTruthy();
     });
+    // Slightly modifying the previous example, using builtin `super` also works
+    // (for ES6+ environments)
     test("there's no recursive problem, using native super", () => {
         const A = Class({
             foo: function (n) {
@@ -666,6 +753,13 @@ describe('basics', () => {
         expect(c.foo(0) === 3).toBeTruthy();
     });
     test('performing tricks with leaked access helpers', () => {
+        // If we leak the access helper as follows, we can export imagine that we
+        // can export multiple classes from a module file, so the members are still
+        // private, but acecssible to all the classes in the file.  We could call
+        // this pattern "module private".
+        //
+        // What could be a use case for this? It may be similar to package scope in
+        // Java.
         let fooPrivate;
         const Foo = Class(({ Private }) => {
             fooPrivate = Private;
@@ -673,8 +767,8 @@ describe('basics', () => {
         });
         const Bar = Foo.subclass(({ Private }) => ({
             test() {
-                expect(fooPrivate(this).foo === 'foo');
-                expect(Private(this).foo === 'bar');
+                expect(fooPrivate(this).foo === 'foo'); // "foo".toBeTruthy()
+                expect(Private(this).foo === 'bar'); // "bar".toBeTruthy()
             },
             private: {
                 foo: 'bar',
@@ -684,6 +778,9 @@ describe('basics', () => {
         bar.test();
     });
     test("'private' and 'protected' definition objects should not be left on the 'public' definition object", () => {
+        // Make sure that the 'private' and 'protected' definition objects (when
+        // defining a class, f.e. `protected: { ... }`) are not visible on the
+        // 'public' prototype
         const definition = {
             foo: 'foo',
             protected: {
@@ -694,11 +791,18 @@ describe('basics', () => {
             },
         };
         const Foo = Class(definition);
+        // lowclass uses the class definition as the class prototype directly (this
+        // allows `super` to work in ES6+ environments)
         expect(Foo.prototype === definition).toBeTruthy();
+        // lowclass also uses the protected and private sub-objects as the internal
+        // protected and private prototypes as well, but they shouldn't be visible
+        // on the public prototype:
         expect(typeof definition.protected === 'undefined').toBeTruthy();
         expect(typeof Foo.prototype.protected === 'undefined').toBeTruthy();
         expect(typeof definition.private === 'undefined').toBeTruthy();
         expect(typeof Foo.prototype.private === 'undefined').toBeTruthy();
+        // prove the previous comment about directly using protected and private
+        // sub-objects as prototypes is true {
         const protectedDefinition = { bar: 'bar' };
         const privateDefinition = { baz: 'baz' };
         const Bar = Class((Public, Protected, Private) => ({
@@ -712,6 +816,7 @@ describe('basics', () => {
         const b = new Bar();
         expect(b.test()[0].__proto__ === protectedDefinition).toBeTruthy();
         expect(b.test()[1].__proto__ === privateDefinition).toBeTruthy();
+        // }
     });
     test("using native `super` in public methods of a root definition object won't work if there's also a 'public' definition object", () => {
         const Person = Class({
@@ -719,6 +824,7 @@ describe('basics', () => {
                 return 'fly';
             },
         });
+        // does not (can not) work
         const Man = Class().extends(Person, {
             fly() {
                 expect(super.fly).toBe(undefined);
@@ -730,6 +836,7 @@ describe('basics', () => {
         });
         const man = new Man();
         expect(man.fly()).toBe('failed');
+        // works
         const SuperMan = Class().extends(Person, ({ Super }) => ({
             fly() {
                 return Super(this).fly();
@@ -737,6 +844,7 @@ describe('basics', () => {
         }));
         const superman = new SuperMan();
         expect(superman.fly()).toBe('fly');
+        // I guess SuperMan is Super fly!
     });
 });
 //# sourceMappingURL=basics.test.js.map

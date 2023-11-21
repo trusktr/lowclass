@@ -1,8 +1,10 @@
+// TODO no @ts-ignore comments
 import Mixin, { HasInstance } from './Mixin.js';
 import instanceOf from './instanceOf.js';
 import { Constructor } from './utils.js';
 describe('Mixin', () => {
     it('Mixin returns a Function', () => {
+        // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})
         function FooMixin(Base) {
             class Foo extends Constructor(Base) {
             }
@@ -19,6 +21,7 @@ describe('Mixin', () => {
         expect(typeof Lorem).toBe('function');
     });
     it('Mixin applications are cached', () => {
+        // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})
         function FooMixin(Base) {
             class Foo extends Constructor(Base) {
             }
@@ -29,9 +32,11 @@ describe('Mixin', () => {
         }
         const Baz = Foo.mixin(Bar);
         const Lorem = Foo.mixin(Bar);
+        // caching of the same mixin application
         expect(Baz).toBe(Lorem);
     });
     it('instanceof works with multiple classes generated from the same Mixin', () => {
+        // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})
         function FooMixin(Base) {
             class Foo extends Constructor(Base) {
             }
@@ -53,6 +58,7 @@ describe('Mixin', () => {
         expect(instanceOf(baz, Lorem)).toBe(true);
     });
     it('HasInstance delegates to super Symbol.hasInstance method, so regular instanceof works', () => {
+        // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})
         function FooMixin(Base) {
             class Foo extends Constructor(Base) {
             }
@@ -68,6 +74,7 @@ describe('Mixin', () => {
         expect(new Thing() instanceof Thing).toBe(true);
     });
     it('When Symbol is supported, instanceof works', () => {
+        // const Ipsum = Mixin(Base => class Ipsum extends Constructor(Base || Object) {})
         function IpsumMixin(Base) {
             class Ipsum extends Constructor(Base) {
             }
@@ -79,10 +86,13 @@ describe('Mixin', () => {
         const One = Ipsum.mixin(Blah);
         const one = new One();
         expect(one instanceof One).toBe(true);
+        // there's two versions of Ipsum in play, the original one, and the one
+        // created when making `One`, but instanceof checks still work:
         expect(one instanceof Ipsum).toBe(true);
     });
     it('When Symbol is not supported, instanceof does not work', () => {
         function test() {
+            // const Ipsum = Mixin(Base => class Ipsum extends Constructor(Base || Object) {})
             function IpsumMixin(Base) {
                 class Ipsum extends Constructor(Base) {
                 }
@@ -94,11 +104,16 @@ describe('Mixin', () => {
             const One = Ipsum.mixin(Blah);
             const one = new One();
             expect(one instanceof One).toBe(true);
+            // Without Symbol.hasInstance, the internal trick doesn't work, so
+            // instanceof won't be useful like we'd like it to be:
             expect(one instanceof Ipsum).toBe(false);
         }
         const originalSymbol = Symbol;
+        // Sometimes Symbol() is polyfilled in a way that it generates a random
+        // regular property key.
         Symbol = (() => Math.random());
         test();
+        // Sometimes Symbol is not defined in the environment.
         Symbol = void 0;
         test();
         Symbol = originalSymbol;
@@ -111,6 +126,7 @@ describe('Mixin', () => {
             Object.defineProperty(Foo, Symbol.hasInstance, { value: fn });
             return Foo;
         };
+        // @ts-ignore TS v4 introduced a type error
         FooMixin = HasInstance(FooMixin);
         const Foo = FooMixin(class {
         });
@@ -120,12 +136,14 @@ describe('Mixin', () => {
             }
             return Bar;
         };
+        // @ts-ignore TS v4 introduced a type error
         BarMixin = HasInstance(BarMixin);
         const Bar = BarMixin(class {
         });
         expect(Bar[Symbol.hasInstance]).not.toBe(fn);
     });
     it('configuring a default base class', () => {
+        // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {}, Map)
         function FooMixin(Base) {
             class Foo extends Constructor(Base) {
             }
@@ -135,6 +153,7 @@ describe('Mixin', () => {
         const Bar = class Bar extends Foo {
         };
         const bar = new Bar();
+        // @ts-ignore
         const Baz = class Baz extends Foo.mixin(WeakMap) {
         };
         const baz = new Baz();
@@ -151,6 +170,7 @@ describe('Mixin', () => {
         const Foo = Mixin(FooMixin, Map);
         class Bar extends Foo {
         }
+        // because Bar already has Foo
         expect(Foo.mixin(Bar)).toBe(Bar);
     });
 });
