@@ -1,4 +1,4 @@
-import { Constructor } from './utils.js';
+import { Constructor } from './Constructor.js';
 import type { Id } from './types.js';
 type ImplementationKeys = 'static' | 'private' | 'protected';
 type FunctionToConstructor<T, TReturn> = T extends (...a: infer A) => void ? new (...a: A) => TReturn : never;
@@ -237,5 +237,5 @@ export declare function createClassHelper(options?: any): {
         };
     })[P_14]; } : never)[P_13]; } : never);
 };
-export default Class;
+export {};
 //# sourceMappingURL=Class.d.ts.map

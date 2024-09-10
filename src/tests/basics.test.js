@@ -1,5 +1,4 @@
-import {Class, InvalidAccessError, InvalidSuperAccessError} from '../index.js'
-import {native} from '../native.js'
+import {Class, InvalidAccessError, InvalidSuperAccessError} from '../Class.js'
 import {spy} from 'sinon'
 
 const test = it

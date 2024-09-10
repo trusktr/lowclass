@@ -8,13 +8,8 @@
 //  [ ] no `any` types
 //  [ ] other TODOs in the code
 
-import {
-	Constructor,
-	copyDescriptors,
-	setDefaultStaticDescriptors,
-	setDefaultPrototypeDescriptors,
-	hasPrototype,
-} from './utils.js'
+import {copyDescriptors, setDefaultStaticDescriptors, setDefaultPrototypeDescriptors, hasPrototype} from './utils.js'
+import {Constructor} from './Constructor.js'
 
 import type {Id} from './types.js'
 
@@ -69,14 +64,9 @@ type LowClassThis<T> = Id<Omit<T, ImplementationKeys> & {__: PickImplementationK
 
 type OmitImplementationKeys<T> = Omit<T, ImplementationKeys>
 
-import {
-	getFunctionBody,
-	setDescriptor,
-	propertyIsAccessor,
-	getInheritedDescriptor,
-	getInheritedPropertyNames,
-	WeakTwoWayMap,
-} from './utils.js'
+import {getFunctionBody, setDescriptor, propertyIsAccessor, WeakTwoWayMap} from './utils.js'
+import {getInheritedPropertyNames} from './getInheritedPropertyNames.js'
+import {getInheritedDescriptor} from './getInheritedDescriptor.js'
 
 export const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())]
 
@@ -876,8 +866,6 @@ function getSuperHelperObject(instance: any, parentPrototype: any, supers: any) 
 
 	return _super
 }
-
-export default Class
 
 type CtorWithSubclass = Constructor<
 	object,
