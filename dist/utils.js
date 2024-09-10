@@ -1,4 +1,5 @@
 // TODO no any
+import { getInheritedDescriptor } from './getInheritedDescriptor.js';
 export class WeakTwoWayMap {
     m = new WeakMap();
     set(a, b) {
@@ -71,59 +72,7 @@ export function propertyIsAccessor(obj, key, inherited = true) {
         result = true;
     return result;
 }
-export function getInheritedDescriptor(obj, key) {
-    let currentProto = obj;
-    let descriptor;
-    while (currentProto) {
-        descriptor = Object.getOwnPropertyDescriptor(currentProto, key);
-        if (descriptor) {
-            ;
-            descriptor.owner = currentProto;
-            return descriptor;
-        }
-        currentProto = currentProto.__proto__;
-    }
-    return void 0;
-}
-export function getInheritedPropertyNames(obj) {
-    let currentProto = obj;
-    let keys = [];
-    while (currentProto) {
-        keys = keys.concat(Object.getOwnPropertyNames(currentProto));
-        currentProto = currentProto.__proto__;
-    }
-    // remove duplicates
-    keys = Array.from(new Set(keys));
-    return keys;
-}
-/**
- * Cast any constructor type (abstract or not) into a specific Constructor type.
- * Useful for forcing type checks inside of mixins for example. This is unsafe:
- * you can incorrectly cast one constructor into an unrelated constructor type,
- * so use with care.
- */
-export function Constructor(Ctor) {
-    return Ctor;
-}
-/**
- * Cast any constructor type (abstract or not) into a specific
- * AbstractConstructor type. Useful for forcing type checks inside of mixins
- * for example. This is unsafe: you can incorrectly cast one constructor into an
- * unrelated constructor type, so use with care.
- */
-export function AbstractConstructor(Ctor) {
-    return Ctor;
-}
-/**
- * Cast any constructor type (abstract or not) into a specific
- * AnyConstructor type. Useful for forcing type checks inside of mixins
- * for example. This is unsafe: you can incorrectly cast one constructor into an
- * unrelated constructor type, so use with care.
- */
-export function AnyConstructor(Ctor) {
-    return Ctor;
-}
-// check if an object has the given prototype in its chain
+/** Check if an object has the given prototype in its chain. */
 export function hasPrototype(obj, proto) {
     let currentProto = obj.__proto__;
     do {
@@ -133,7 +82,7 @@ export function hasPrototype(obj, proto) {
     } while (currentProto);
     return false;
 }
-// copy all properties (as descriptors) from source to destination
+/** Copy all properties (as descriptors) from source to destination. */
 export function copyDescriptors(source, destination, mod) {
     const props = Object.getOwnPropertyNames(source);
     let i = props.length;

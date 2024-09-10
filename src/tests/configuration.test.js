@@ -1,4 +1,4 @@
-import {Class, createClassHelper, staticBlacklist} from '../index.js'
+import {Class, createClassHelper, staticBlacklist} from '../Class.js'
 
 const test = it
 

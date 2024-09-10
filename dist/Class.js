@@ -7,8 +7,11 @@
 //  [ ] protected and private static members
 //  [ ] no `any` types
 //  [ ] other TODOs in the code
-import { Constructor, copyDescriptors, setDefaultStaticDescriptors, setDefaultPrototypeDescriptors, hasPrototype, } from './utils.js';
-import { getFunctionBody, setDescriptor, propertyIsAccessor, getInheritedDescriptor, getInheritedPropertyNames, WeakTwoWayMap, } from './utils.js';
+import { copyDescriptors, setDefaultStaticDescriptors, setDefaultPrototypeDescriptors, hasPrototype } from './utils.js';
+import { Constructor } from './Constructor.js';
+import { getFunctionBody, setDescriptor, propertyIsAccessor, WeakTwoWayMap } from './utils.js';
+import { getInheritedPropertyNames } from './getInheritedPropertyNames.js';
+import { getInheritedDescriptor } from './getInheritedDescriptor.js';
 export const staticBlacklist = ['subclass', 'extends', ...Object.getOwnPropertyNames(new Function())];
 const publicProtoToProtectedProto = new WeakMap();
 const publicProtoToPrivateProto = new WeakMap();
@@ -601,5 +604,4 @@ function getSuperHelperObject(instance, parentPrototype, supers) {
     }
     return _super;
 }
-export default Class;
 //# sourceMappingURL=Class.js.map

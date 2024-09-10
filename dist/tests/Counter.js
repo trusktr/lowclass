@@ -1,6 +1,6 @@
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java, using intentionally leaked access helpers
-import Class from '../index.js';
+import { Class } from '../Class.js';
 let CounterProtected;
 const Counter = Class(({ Private, Protected }) => {
     // leak the Counter class Protected helper to outer scope

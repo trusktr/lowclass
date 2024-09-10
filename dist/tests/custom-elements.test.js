@@ -1,10 +1,10 @@
-import Class from '../index.js';
+import { Class } from '../Class.js';
 import { native } from '../native.js';
 describe('Custom Elements', () => {
     // example of extending HTMLElement for use with customElements.define
     // (Custom Elements)
     it('works with custom elements', () => {
-        // full example, wraps builting HTMLElement class with the native helper
+        // full example, wraps builtin HTMLElement class with the native helper
         {
             const MyEL = Class().extends(native(HTMLElement), ({ Super }) => ({
                 static: {

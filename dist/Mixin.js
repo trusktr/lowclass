@@ -1,6 +1,6 @@
 // TODO no any types
 // TODO no @ts-ignore
-import Class from './Class.js';
+import { Class } from './Class.js';
 export function Mixin(mixinFn, DefaultBase) {
     // XXX Maybe Cached should go last.
     // @ts-ignore

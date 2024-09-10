@@ -1,4 +1,4 @@
-import Class from '../index.js';
+import { Class } from '../Class.js';
 const test = it;
 describe('empty classes', () => {
     test('anonymous empty base classes', () => {

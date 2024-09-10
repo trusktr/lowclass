@@ -2,7 +2,7 @@
 
 import Mixin, {HasInstance, type MixinResult} from './Mixin.js'
 import instanceOf from './instanceOf.js'
-import {Constructor} from './utils.js'
+import {Constructor} from './Constructor.js'
 
 // TODO move type def to @lume/cli, map @types/jest's `expect` type into the
 // global env.

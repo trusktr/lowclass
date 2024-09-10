@@ -1,8 +1,9 @@
-import type {Constructor} from './utils.js'
+import type {Constructor} from './Constructor.js'
 
-// helper function to use instead of instanceof for classes that implement the
-// static Symbol.hasInstance method, because the behavior of instanceof isn't
-// polyfillable.
+/**
+ * A ponyfill for `instanceof` with support for Symbol.hasInstance for older
+ * environments. Use in place of native `instanceof`.
+ */
 export default function instanceOf<T>(
 	instance: any,
 	Constructor: Constructor<T>,

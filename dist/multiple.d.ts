@@ -1,4 +1,4 @@
-import type { Constructor } from './utils.js';
+import type { Constructor } from './Constructor.js';
 declare enum ImplementationMethod {
     PROXIES_ON_INSTANCE_AND_PROTOTYPE = "PROXIES_ON_INSTANCE_AND_PROTOTYPE",
     PROXIES_ON_PROTOTYPE = "PROXIES_ON_PROTOTYPE",

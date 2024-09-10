@@ -1,7 +1,7 @@
 // TODO no @ts-ignore comments
 import Mixin, { HasInstance } from './Mixin.js';
 import instanceOf from './instanceOf.js';
-import { Constructor } from './utils.js';
+import { Constructor } from './Constructor.js';
 describe('Mixin', () => {
     it('Mixin returns a Function', () => {
         // const Foo = Mixin(Base => class Foo extends Constructor(Base || Object) {})

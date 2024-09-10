@@ -1,6 +1,6 @@
 // various forms of writing classes ("syntaxes")
 
-import Class from '../index.js'
+import {Class} from '../Class.js'
 import {native} from '../native.js'
 
 const test = it

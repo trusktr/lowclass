@@ -1,0 +1,1 @@
+{"version":3,"file":"getInheritedDescriptor.d.ts","sourceRoot":"","sources":["../src/getInheritedDescriptor.ts"],"names":[],"mappings":"AAAA,iGAAiG;AACjG,wBAAgB,sBAAsB,CAAC,CAAC,SAAS,MAAM,EAAE,GAAG,EAAE,CAAC,EAAE,GAAG,EAAE,MAAM,CAAC,GAAG,mBAAmB,GAAG,SAAS,CAgB9G;AAED,MAAM,WAAW,mBAAoB,SAAQ,kBAAkB;IAC9D,KAAK,EAAE,MAAM,CAAA;CACb"}

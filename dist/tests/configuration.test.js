@@ -1,4 +1,4 @@
-import { Class, createClassHelper, staticBlacklist } from '../index.js';
+import { Class, createClassHelper, staticBlacklist } from '../Class.js';
 const test = it;
 describe('configuration', () => {
     test('ensure that class prototype and static descriptors are like ES6 classes', () => {

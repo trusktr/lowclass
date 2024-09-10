@@ -1,6 +1,6 @@
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java, using intentionally shared class brands
-import Class from '../index.js';
+import { Class } from '../Class.js';
 // an empty object used as a brand key by the Class() helper
 //
 // NOTE Too bad Symbols aren't supported by WeakMaps, otherwise we could use a

@@ -1,4 +1,4 @@
-import Class from '../index.js';
+import { Class } from '../Class.js';
 const test = it;
 describe('wrap existing classes', () => {
     test('protected and private members for custom-made ES5 classes', () => {

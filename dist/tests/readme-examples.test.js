@@ -1,4 +1,4 @@
-import Class from '../index.js';
+import { Class } from '../Class.js';
 const test = it;
 describe('README examples', () => {
     test('use a real protected member instead of the underscore convention, ES2015 classes', () => {

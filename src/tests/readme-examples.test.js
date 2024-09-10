@@ -1,4 +1,4 @@
-import Class from '../index.js'
+import {Class} from '../Class.js'
 
 const test = it
 
