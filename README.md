@@ -8,6 +8,8 @@ Lowclass is a lib that includes the following inheritance tools:
   ergonomic way. For example:
 
   ```js
+  import {multiple} from 'lowclass/dist/multiple.js'
+
   // define a few classes with unique features:
   class Walker {
   	walk() {
