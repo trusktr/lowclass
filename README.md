@@ -76,7 +76,7 @@ Lowclass is a lib that includes the following inheritance tools:
   `multiple()`. For example:
 
   ```js
-  import {Mixin} from 'lowclass'
+  import {Mixin} from 'lowclass/dist/Mixin.js'
 
   // define a few "class-factory mixins":
   const Walker = Mixin(Base => {
@@ -152,7 +152,7 @@ Lowclass is a lib that includes the following inheritance tools:
 - A `Class()` tool for creating classes with public, protected, and private members. For example:
 
   ```js
-  import Class from 'lowclass'
+  import Class from 'lowclass/dist/Class.js'
   import Something from 'somewhere'
 
   export default Class('Thing').extends(Something, ({Protected, Private}) => ({
@@ -263,13 +263,12 @@ console.log(instance._protectedProperty) // "yoohoo"
 The good news is, you can use lowclass to add Protected and Private
 functionality to your existing classes!
 
-Just wrap your class with lowclass to gain Protected or Private functionality:
+Just wrap your class with Class to gain Protected or Private functionality:
 
 ```js
-import protect from 'lowclass'
-// or const protect = require('lowclass')
+import {Class} from 'lowclass/dist/Class.js'
 
-const Thing = protect(({Protected}) => {
+const Thing = Class(({Protected}) => {
 	return class Thing {
 		constructor() {
 			// make the property truly protected
@@ -286,7 +285,7 @@ const Thing = protect(({Protected}) => {
 We can make it a little cleaner:
 
 ```js
-const Thing = protect(
+const Thing = Class(
 	({Protected}) =>
 		class {
 			constructor() {
@@ -303,7 +302,7 @@ const Thing = protect(
 If we were exporting this from a module, we could write it like this:
 
 ```js
-export default protect(
+export default Class(
 	({Protected}) =>
 		class Thing {
 			constructor() {
@@ -321,7 +320,7 @@ You might still be making ES5-style classes using `function() {}` instead of
 `class`. In this case wrapping it would look like this:
 
 ```js
-const Thing = protect(({Protected}) => {
+const Thing = Class(({Protected}) => {
 	function Thing() {
 		Protected(this).protectedProperty = 'yoohoo'
 	}
@@ -365,7 +364,7 @@ class Something extends Thing {
 We will wrap it with lowclass too, so that it can inherit the protected member:
 
 ```js
-const Something = protect(
+const Something = Class(
 	({Protected}) =>
 		class extends Thing {
 			otherMethod() {
@@ -379,7 +378,7 @@ const Something = protect(
 If you are writing ES5-style classes, it will look something like this:
 
 ```js
-const Something = protect(({Protected}) => {
+const Something = Class(({Protected}) => {
 	function Something() {
 		Thing.call(this)
 	}
@@ -419,7 +418,7 @@ Here's an example that shows the concept, but this time we will define the
 classes directly with lowclass, instead of wrapping a class:
 
 ```js
-import Class from 'lowclass'
+import {Class} from 'lowclass/dist/Class.js'
 
 const Thing = Class(({Private}) => ({
 	constructor() {
@@ -457,8 +456,7 @@ Let's illustrate this with an example, then we'll explain afterwords how it
 works:
 
 ```js
-const Class = require('lowclass')
-// or import Class from 'lowclass'
+import {Class} from 'lowclass/dist/Class.js'
 
 const Thing = Class(({Private}) => ({
 	constructor() {
@@ -603,7 +601,7 @@ classes interact with eachother.
 // show how to do something similar to "friend" in C++ or "package protected"
 // in Java.
 
-import Class from 'lowclass'
+import {Class} from 'lowclass/dist/Class.js'
 
 let CounterProtected
 
@@ -854,7 +852,7 @@ We can also stick lowclass onto any constructor, and use it just like the
 previous example:
 
 ```js
-import Class from 'lowclass'
+import {Class} from 'lowclass/dist/Class.js'
 
 Array.subclass = Class
 

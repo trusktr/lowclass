@@ -4,7 +4,7 @@ const test = it
 
 describe('README examples', () => {
 	test('use a real protected member instead of the underscore convention, ES2015 classes', () => {
-		// an alias, which semantically more meaningful when wrapping a native
+		// an alias, which can be semantically more meaningful when wrapping a native
 		// `class` that already contains the "class" keyword.
 		const protect = Class
 

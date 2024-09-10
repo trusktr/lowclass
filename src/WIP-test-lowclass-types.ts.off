@@ -1,4 +1,4 @@
-import Class from 'lowclass'
+import {Class} from 'lowclass/dist/Class.js'
 
 const Animal = Class('Animal', {
     sound: '',
