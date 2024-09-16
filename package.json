@@ -28,7 +28,7 @@
 		"serve": "browser-sync start --server ./ --files dist --port 12345"
 	},
 	"devDependencies": {
-		"@lume/cli": "^0.12.0",
+		"@lume/cli": "^0.13.0",
 		"browser-sync": "^2.26.7",
 		"prettier": "3.0.3",
 		"typescript": "^5.0.0"
