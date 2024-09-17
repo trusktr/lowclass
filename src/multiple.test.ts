@@ -1,3 +1,4 @@
+import type {Constructor} from './Constructor.js'
 import {multiple} from './multiple.js'
 
 const log = console.log.bind(console)
@@ -715,7 +716,7 @@ function testProxySpeed() {
 }
 
 function testMixinSpeed() {
-	function OneMixin(Base: any = Object) {
+	function OneMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class One extends Base {
 			one = 1
 			logOne() {
@@ -724,7 +725,7 @@ function testMixinSpeed() {
 		}
 	}
 
-	function TwoMixin(Base: any = Object) {
+	function TwoMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class Two extends Base {
 			two = 2
 			logTwo() {
@@ -733,7 +734,7 @@ function testMixinSpeed() {
 		}
 	}
 
-	function ThreeMixin(Base: any = Object) {
+	function ThreeMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class Three extends OneMixin(TwoMixin(Base)) {
 			three = 3
 			logThree() {
@@ -744,7 +745,7 @@ function testMixinSpeed() {
 		}
 	}
 
-	function FourMixin(Base: any = Object) {
+	function FourMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class Four extends Base {
 			four = 4
 			logFour() {
@@ -753,7 +754,7 @@ function testMixinSpeed() {
 		}
 	}
 
-	function FiveMixin(Base: any = Object) {
+	function FiveMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class Five extends Base {
 			five = 5
 			logFive() {
@@ -762,7 +763,7 @@ function testMixinSpeed() {
 		}
 	}
 
-	function SixMixin(Base: any = Object) {
+	function SixMixin<T extends Constructor>(Base: T = class {} as any) {
 		return class Six extends FourMixin(FiveMixin(Base)) {
 			six = 6
 			logSix() {
@@ -802,11 +803,17 @@ function testMixinSpeed() {
 			// super property access is just like with normal property access:
 			// because they don't exist on the prototype, the super access
 			// returns undefined.
+			// @ts-expect-error
 			super.one === undefined, `expected ${super.one} to be ${undefined}`
+			// @ts-expect-error
 			super.two === undefined, `expected ${super.two} to be ${undefined}`
+			// @ts-expect-error
 			super.three === undefined, `expected ${super.three} to be ${undefined}`
+			// @ts-expect-error
 			super.four === undefined, `expected ${super.four} to be ${undefined}`
+			// @ts-expect-error
 			super.five === undefined, `expected ${super.five} to be ${undefined}`
+			// @ts-expect-error
 			super.six === undefined, `expected ${super.six} to be ${undefined}`
 
 			super.logOne()

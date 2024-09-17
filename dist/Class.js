@@ -138,7 +138,7 @@ export function createClassHelper(options) {
             // no static inheritance here, just like with `class Foo {}`
             setDescriptor(Ctor, 'subclass', {
                 value: Class,
-                writable: true,
+                writable: true, // TODO maybe let's make this non writable
                 enumerable: false,
                 configurable: false,
             });
@@ -166,7 +166,7 @@ export function createClassHelper(options) {
         classBrand = classBrand || { brand: 'lexical' };
         // the class "scope" that we will bind to the helper functions
         const scope = {
-            className,
+            className, // convenient for debugging
             get publicToPrivate() {
                 return scopedPublicsToPrivates ? scopedPublicsToPrivates : brandToPublicsPrivates.get(classBrand);
             },
