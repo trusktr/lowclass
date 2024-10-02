@@ -821,7 +821,7 @@ function getSuperHelperObject(instance: any, parentPrototype: any, supers: any) 
 		let i = keys.length
 
 		while (i--) {
-			const key = keys[i]
+			const key = keys[i]!
 
 			setDescriptor(
 				_super,

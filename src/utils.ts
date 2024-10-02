@@ -43,13 +43,13 @@ export function setDescriptor<T extends {}>(
 }
 
 export function setDescriptors(obj: Object, newDescriptors: Record<string, PropertyDescriptor>): void {
-	let newDescriptor
-	let currentDescriptor
+	let newDescriptor: PropertyDescriptor
+	let currentDescriptor: PropertyDescriptor
 	const currentDescriptors = Object.getOwnPropertyDescriptors(obj)
 
 	for (const key in newDescriptors) {
-		newDescriptor = newDescriptors[key]
-		currentDescriptor = currentDescriptors[key]
+		newDescriptor = newDescriptors[key]!
+		currentDescriptor = currentDescriptors[key]!
 		newDescriptors[key] = overrideDescriptor(currentDescriptor, newDescriptor)
 	}
 
@@ -117,7 +117,7 @@ export function copyDescriptors(source: Object, destination: Object, mod?: any) 
 	const props = Object.getOwnPropertyNames(source)
 	let i = props.length
 	while (i--) {
-		const prop = props[i]
+		const prop = props[i]!
 		const descriptor = Object.getOwnPropertyDescriptor(source, prop)
 		if (mod) mod(descriptor)
 		Object.defineProperty(destination, prop, descriptor!)
@@ -132,7 +132,7 @@ export function setDefaultPrototypeDescriptors(
 	let descriptor
 
 	for (const key in descriptors) {
-		descriptor = descriptors[key]
+		descriptor = descriptors[key]!
 
 		// regular value
 		if ('value' in descriptor || 'writable' in descriptor) {
@@ -161,7 +161,7 @@ export function setDefaultStaticDescriptors(
 			continue
 		}
 
-		descriptor = descriptors[key]
+		descriptor = descriptors[key]!
 
 		// regular value
 		if ('value' in descriptor || 'writable' in descriptor) {

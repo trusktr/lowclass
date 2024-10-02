@@ -116,7 +116,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 			// make instances of the other classes to get/set properties on.
 			let Ctor: Constructor
 			for (let i = 0, l = classes.length; i < l; i += 1) {
-				Ctor = classes[i]
+				Ctor = classes[i]!
 				const instance = Reflect.construct(Ctor, args)
 				instances.push(instance)
 			}
@@ -134,7 +134,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 					let instance: Object
 
 					for (let i = 0, l = instances.length; i < l; i += 1) {
-						instance = instances[i]
+						instance = instances[i]!
 						if (Reflect.ownKeys(instance).includes(key)) return Reflect.get(instance, key, self)
 					}
 
@@ -151,9 +151,9 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 					let instanceKeys: (string | symbol)[]
 
 					for (let i = 0, l = instances.length; i < l; i += 1) {
-						instance = instances[i]
+						instance = instances[i]!
 						instanceKeys = Reflect.ownKeys(instance)
-						for (let j = 0, l = instanceKeys.length; j < l; j += 1) keys.push(instanceKeys[j])
+						for (let j = 0, l = instanceKeys.length; j < l; j += 1) keys.push(instanceKeys[j]!)
 					}
 
 					return keys
@@ -165,7 +165,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 
 					let instance: Object
 					for (let i = 0, l = instances.length; i < l; i += 1) {
-						instance = instances[i]
+						instance = instances[i]!
 						if (Reflect.ownKeys(instance).includes(key)) return true
 					}
 
@@ -185,7 +185,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 
 			let Class: Constructor
 			for (let i = 0, l = classes.length; i < l; i += 1) {
-				Class = classes[i]
+				Class = classes[i]!
 				if (Reflect.has(Class.prototype, key)) return Reflect.get(Class.prototype, key, self)
 			}
 		},
@@ -195,7 +195,7 @@ function withProxiesOnThisAndPrototype<T extends Constructor[]>(...classes: T): 
 
 			let Class: Constructor
 			for (let i = 0, l = classes.length; i < l; i += 1) {
-				Class = classes[i]
+				Class = classes[i]!
 				if (Reflect.has(Class.prototype, key)) return true
 			}
 
@@ -322,7 +322,7 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 
 				let Class: Constructor
 				for (let i = 0, l = classes.length; i < l; i += 1) {
-					Class = classes[i]
+					Class = classes[i]!
 					if (Reflect.has(Class.prototype, key)) result = Reflect.get(Class.prototype, key, self)
 				}
 
@@ -401,7 +401,7 @@ function withProxiesOnPrototype<T extends Constructor[]>(...classes: T): Combine
 
 			let Class: Constructor
 			for (let i = 0, l = classes.length; i < l; i += 1) {
-				Class = classes[i]
+				Class = classes[i]!
 				if (Reflect.has(Class.prototype, key)) return true
 			}
 			// }

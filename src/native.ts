@@ -151,11 +151,11 @@ function copyProperties(source: any, destination: any) {
 			properties = properties.concat(Object.getOwnPropertySymbols(source))
 		}
 		for (var i = properties.length - 1; i >= 0; i--) {
-			if (SKIP_PROPERTIES.indexOf(properties[i]) === -1) {
+			if (SKIP_PROPERTIES.indexOf(properties[i]!) === -1) {
 				Object.defineProperty(
 					destination,
-					properties[i],
-					Object.getOwnPropertyDescriptor(source, properties[i])!,
+					properties[i]!,
+					Object.getOwnPropertyDescriptor(source, properties[i]!)!,
 				)
 			}
 		}
